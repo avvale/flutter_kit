@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_kit/src/widgets/common/fx_app.dart';
+import 'package:flutter_kit/flutter_kit.dart';
 
 enum ToastMode {
   success,
