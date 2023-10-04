@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_kit/src/models/state/auth_state.dart';
-import 'package:flutter_kit/src/services/network_service.dart';
-import 'package:flutter_kit/src/utils/debugger.dart';
-import 'package:flutter_kit/src/utils/toast.dart';
+import 'package:flutter_kit/models/state/auth_state.dart';
+import 'package:flutter_kit/services/network_service.dart';
+import 'package:flutter_kit/utils/debugger.dart';
+import 'package:flutter_kit/utils/toast.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:rxdart/rxdart.dart';
 

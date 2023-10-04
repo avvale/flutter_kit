@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_kit/src/models/routing.dart';
-import 'package:flutter_kit/src/models/state/tabs_state.dart';
-import 'package:flutter_kit/src/utils/debugger.dart';
+import 'package:flutter_kit/models/routing.dart';
+import 'package:flutter_kit/models/state/tabs_state.dart';
+import 'package:flutter_kit/utils/debugger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:collection/collection.dart';
 

@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter_kit/src/models/state/network_state.dart';
-import 'package:flutter_kit/src/services/auth_service.dart';
-import 'package:flutter_kit/src/utils/debugger.dart';
-import 'package:flutter_kit/src/utils/toast.dart';
+import 'package:flutter_kit/models/state/network_state.dart';
+import 'package:flutter_kit/services/auth_service.dart';
+import 'package:flutter_kit/utils/debugger.dart';
+import 'package:flutter_kit/utils/toast.dart';
 import 'package:graphql/client.dart';
 import 'package:rxdart/rxdart.dart';
 

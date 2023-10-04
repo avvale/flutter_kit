@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_kit/src/models/routing.dart';
+import 'package:flutter_kit/models/routing.dart';
 
 class TabsState {
   final int selectedIndex;

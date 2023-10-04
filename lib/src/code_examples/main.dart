@@ -1,7 +1,7 @@
-import 'package:flutter_kit/flutter_kit.dart';
-import 'package:flutter_kit/src/utils/examples/api_repository.dart';
-import 'package:flutter_kit/src/utils/helpers.dart';
-import 'package:flutter_kit/src/widgets/common/space.dart';
+import 'package:flutter_kit/src/code_examples/api_repository.dart';
+import 'package:flutter_kit/utils/helpers.dart';
+import 'package:flutter_kit/widgets/fx_app.dart';
+import 'package:flutter_kit/widgets/space.dart';
 import 'package:graphql/client.dart';
 
 void runMain() {

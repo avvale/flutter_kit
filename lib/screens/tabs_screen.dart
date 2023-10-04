@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_kit/src/models/routing.dart';
-import 'package:flutter_kit/src/models/state/tabs_state.dart';
-import 'package:flutter_kit/src/services/tabs_service.dart';
-import 'package:flutter_kit/src/widgets/common/space.dart';
+import 'package:flutter_kit/models/routing.dart';
+import 'package:flutter_kit/models/state/tabs_state.dart';
+import 'package:flutter_kit/services/tabs_service.dart';
+import 'package:flutter_kit/widgets/space.dart';
 
 class TabsScreen extends StatelessWidget {
   static const routeName = '/tabs';
