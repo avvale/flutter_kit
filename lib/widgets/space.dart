@@ -1,29 +1,29 @@
 import 'package:flutter/material.dart';
 
-enum SpaceDirection { vertical, horizontal, both }
+enum SpaceAxis { vertical, horizontal, both }
 
 class Space extends StatelessWidget {
   /// Space size. This value is multiplied by 4 to get the size in pixels.
   final double size;
 
   /// Space direction.
-  final SpaceDirection direction;
+  final SpaceAxis direction;
 
   /// Space between widgets.
   const Space({
     Key? key,
     this.size = 0,
-    this.direction = SpaceDirection.vertical,
+    this.direction = SpaceAxis.vertical,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     switch (direction) {
-      case SpaceDirection.vertical:
+      case SpaceAxis.vertical:
         return SizedBox(height: size * 4);
-      case SpaceDirection.horizontal:
+      case SpaceAxis.horizontal:
         return SizedBox(width: size * 4);
-      case SpaceDirection.both:
+      case SpaceAxis.both:
         return SizedBox(height: size * 4, width: size * 4);
     }
   }
