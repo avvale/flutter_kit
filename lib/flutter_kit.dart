@@ -132,6 +132,7 @@ void fxRunApp<T>({
                 builder: EasyLoading.init(),
                 routes: routes,
                 color: primaryColor,
+                theme: ThemeData(primaryColor: primaryColor),
                 home: home,
               );
             },
