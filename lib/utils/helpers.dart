@@ -62,6 +62,7 @@ void fxRunApp(
     indicatorType: EasyLoadingIndicatorType.foldingCube,
     loadingStyle: EasyLoadingStyle.custom,
     maskType: EasyLoadingMaskType.custom,
+    maskColor: Colors.green,
     radius: 8,
     textColor: Colors.white,
     userInteractions: false,
