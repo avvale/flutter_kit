@@ -87,3 +87,10 @@ void fxRunApp(
     },
   );
 }
+
+Brightness computeBrightness(Color color, {bool reverse = false}) {
+  final brightness = ThemeData.estimateBrightnessForColor(color);
+  return reverse
+      ? (brightness == Brightness.dark ? Brightness.light : Brightness.dark)
+      : brightness;
+}

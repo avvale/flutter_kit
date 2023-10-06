@@ -1,4 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_kit/utils/helpers.dart';
+
+class _AnnotatedRegionWrapper extends StatelessWidget {
+  final Widget child;
+  final Color? statusBarColor;
+
+  const _AnnotatedRegionWrapper({
+    Key? key,
+    required this.child,
+    this.statusBarColor,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return statusBarColor != null
+        ? AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle(
+              statusBarBrightness: computeBrightness(statusBarColor!),
+              statusBarIconBrightness: computeBrightness(
+                statusBarColor!,
+                reverse: true,
+              ),
+            ),
+            child: child,
+          )
+        : child;
+  }
+}
 
 class _RefreshIndicatorWrapper extends StatelessWidget {
   final Future<void> Function()? onRefresh;
@@ -35,6 +64,7 @@ class _SafeAreaWrapper extends StatelessWidget {
 
 class Layout extends StatelessWidget {
   final Widget child;
+  final Color? statusBarColor;
   final bool safeArea;
   final Future<void> Function()? onPullToRefresh;
   final Future<bool> Function()? onWillPop;
@@ -43,6 +73,7 @@ class Layout extends StatelessWidget {
   const Layout({
     Key? key,
     required this.child,
+    this.statusBarColor,
     this.safeArea = true,
     this.onPullToRefresh,
     this.onWillPop,
@@ -60,11 +91,19 @@ class Layout extends StatelessWidget {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: _onWillPop,
-      child: Scaffold(
-        appBar: null,
-        body: _RefreshIndicatorWrapper(
-          onRefresh: onPullToRefresh,
-          child: _SafeAreaWrapper(safeArea, child),
+      child: _AnnotatedRegionWrapper(
+        statusBarColor: statusBarColor,
+        child: Scaffold(
+          appBar: statusBarColor != null
+              ? PreferredSize(
+                  preferredSize: Size.zero,
+                  child: Container(color: statusBarColor),
+                )
+              : null,
+          body: _RefreshIndicatorWrapper(
+            onRefresh: onPullToRefresh,
+            child: _SafeAreaWrapper(safeArea, child),
+          ),
         ),
       ),
     );
