@@ -14,46 +14,43 @@ final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
 /// Initialize loader with custom configuration
-void _initializeLoaderConfig({EasyLoadingConfig? elc}) {
+void _initializeLoaderConfig({required EasyLoadingConfig elc}) {
   EasyLoading.instance
     ..animationDuration =
-        elc?.animationDuration ?? EasyLoading.instance.animationDuration
-    ..animationStyle =
-        elc?.animationStyle ?? EasyLoading.instance.animationStyle
+        elc.animationDuration ?? EasyLoading.instance.animationDuration
+    ..animationStyle = elc.animationStyle ?? EasyLoading.instance.animationStyle
     ..backgroundColor =
-        elc?.backgroundColor ?? EasyLoading.instance.backgroundColor
-    ..boxShadow = elc?.boxShadow ?? EasyLoading.instance.boxShadow
-    ..contentPadding =
-        elc?.contentPadding ?? EasyLoading.instance.contentPadding
+        elc.backgroundColor ?? EasyLoading.instance.backgroundColor
+    ..boxShadow = elc.boxShadow ?? EasyLoading.instance.boxShadow
+    ..contentPadding = elc.contentPadding ?? EasyLoading.instance.contentPadding
     ..customAnimation =
-        elc?.customAnimation ?? EasyLoading.instance.customAnimation
-    ..dismissOnTap = elc?.dismissOnTap ?? EasyLoading.instance.dismissOnTap
+        elc.customAnimation ?? EasyLoading.instance.customAnimation
+    ..dismissOnTap = elc.dismissOnTap ?? EasyLoading.instance.dismissOnTap
     ..displayDuration =
-        elc?.displayDuration ?? EasyLoading.instance.displayDuration
-    ..errorWidget = elc?.errorWidget ?? EasyLoading.instance.errorWidget
-    ..fontSize = elc?.fontSize ?? EasyLoading.instance.fontSize
-    ..indicatorColor =
-        elc?.indicatorColor ?? EasyLoading.instance.indicatorColor
-    ..indicatorSize = elc?.indicatorSize ?? EasyLoading.instance.indicatorSize
-    ..indicatorType = elc?.indicatorType ?? EasyLoading.instance.indicatorType
+        elc.displayDuration ?? EasyLoading.instance.displayDuration
+    ..errorWidget = elc.errorWidget ?? EasyLoading.instance.errorWidget
+    ..fontSize = elc.fontSize ?? EasyLoading.instance.fontSize
+    ..indicatorColor = elc.indicatorColor ?? EasyLoading.instance.indicatorColor
+    ..indicatorSize = elc.indicatorSize ?? EasyLoading.instance.indicatorSize
+    ..indicatorType = elc.indicatorType ?? EasyLoading.instance.indicatorType
     ..indicatorWidget =
-        elc?.indicatorWidget ?? EasyLoading.instance.indicatorWidget
-    ..infoWidget = elc?.infoWidget ?? EasyLoading.instance.infoWidget
-    ..lineWidth = elc?.lineWidth ?? EasyLoading.instance.lineWidth
-    ..loadingStyle = elc?.loadingStyle ?? EasyLoading.instance.loadingStyle
-    ..maskColor = elc?.maskColor ?? EasyLoading.instance.maskColor
-    ..maskType = elc?.maskType ?? EasyLoading.instance.maskType
-    ..progressColor = elc?.progressColor ?? EasyLoading.instance.progressColor
-    ..progressWidth = elc?.progressWidth ?? EasyLoading.instance.progressWidth
-    ..radius = elc?.radius ?? EasyLoading.instance.radius
-    ..successWidget = elc?.successWidget ?? EasyLoading.instance.successWidget
-    ..textAlign = elc?.textAlign ?? EasyLoading.instance.textAlign
-    ..textColor = elc?.textColor ?? EasyLoading.instance.textColor
-    ..textPadding = elc?.textPadding ?? EasyLoading.instance.textPadding
-    ..textStyle = elc?.textStyle ?? EasyLoading.instance.textStyle
-    ..toastPosition = elc?.toastPosition ?? EasyLoading.instance.toastPosition
+        elc.indicatorWidget ?? EasyLoading.instance.indicatorWidget
+    ..infoWidget = elc.infoWidget ?? EasyLoading.instance.infoWidget
+    ..lineWidth = elc.lineWidth ?? EasyLoading.instance.lineWidth
+    ..loadingStyle = elc.loadingStyle ?? EasyLoading.instance.loadingStyle
+    ..maskColor = elc.maskColor ?? EasyLoading.instance.maskColor
+    ..maskType = elc.maskType ?? EasyLoading.instance.maskType
+    ..progressColor = elc.progressColor ?? EasyLoading.instance.progressColor
+    ..progressWidth = elc.progressWidth ?? EasyLoading.instance.progressWidth
+    ..radius = elc.radius ?? EasyLoading.instance.radius
+    ..successWidget = elc.successWidget ?? EasyLoading.instance.successWidget
+    ..textAlign = elc.textAlign ?? EasyLoading.instance.textAlign
+    ..textColor = elc.textColor ?? EasyLoading.instance.textColor
+    ..textPadding = elc.textPadding ?? EasyLoading.instance.textPadding
+    ..textStyle = elc.textStyle ?? EasyLoading.instance.textStyle
+    ..toastPosition = elc.toastPosition ?? EasyLoading.instance.toastPosition
     ..userInteractions =
-        elc?.userInteractions ?? EasyLoading.instance.userInteractions;
+        elc.userInteractions ?? EasyLoading.instance.userInteractions;
 }
 
 /// Run application with custom configuration
@@ -74,26 +71,29 @@ void fxRunApp<T>({
   List<DeviceOrientation> orientations = const [DeviceOrientation.portraitUp],
 
   /// Configuration for loader to be shown on loading data
-  EasyLoadingConfig loaderConfig = const EasyLoadingConfig(
-    backgroundColor: Colors.transparent,
-    boxShadow: [],
-    contentPadding: EdgeInsets.all(16),
-    indicatorColor: Colors.white,
-    indicatorSize: 36,
-    indicatorType: EasyLoadingIndicatorType.foldingCube,
-    loadingStyle: EasyLoadingStyle.custom,
-    maskType: EasyLoadingMaskType.custom,
-    maskColor: Colors.green,
-    radius: 8,
-    textColor: Colors.white,
-    userInteractions: false,
-  ),
+  EasyLoadingConfig? loaderConfig,
 }) {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  _initializeLoaderConfig(elc: loaderConfig);
+  _initializeLoaderConfig(
+    elc: loaderConfig ??
+        EasyLoadingConfig(
+          backgroundColor: Colors.transparent,
+          boxShadow: [],
+          contentPadding: const EdgeInsets.all(16),
+          indicatorColor: Colors.white,
+          indicatorSize: 36,
+          indicatorType: EasyLoadingIndicatorType.foldingCube,
+          loadingStyle: EasyLoadingStyle.custom,
+          maskType: EasyLoadingMaskType.custom,
+          maskColor: primaryColor,
+          radius: 8,
+          textColor: Colors.white,
+          userInteractions: false,
+        ),
+  );
 
   SystemChrome.setPreferredOrientations(orientations).then(
     (_) {
@@ -132,7 +132,6 @@ void fxRunApp<T>({
                 builder: EasyLoading.init(),
                 routes: routes,
                 color: primaryColor,
-                // theme: ThemeData(primarySwatch: Colors.green),
                 home: home,
               );
             },
