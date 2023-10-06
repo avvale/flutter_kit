@@ -5,11 +5,13 @@ import 'package:flutter_kit/utils/helpers.dart';
 class _AnnotatedRegionWrapper extends StatelessWidget {
   final Widget child;
   final Color? statusBarColor;
+  final Brightness? brightness;
 
   const _AnnotatedRegionWrapper({
     Key? key,
     required this.child,
     this.statusBarColor,
+    this.brightness,
   }) : super(key: key);
 
   @override
@@ -17,11 +19,14 @@ class _AnnotatedRegionWrapper extends StatelessWidget {
     return statusBarColor != null
         ? AnnotatedRegion<SystemUiOverlayStyle>(
             value: SystemUiOverlayStyle(
-              statusBarBrightness: computeBrightness(statusBarColor!),
-              statusBarIconBrightness: computeBrightness(
-                statusBarColor!,
-                reverse: true,
-              ),
+              statusBarBrightness:
+                  brightness ?? computeBrightness(statusBarColor!),
+              statusBarIconBrightness: brightness != null
+                  ? reverseBrightness(brightness!)
+                  : computeBrightness(
+                      statusBarColor!,
+                      reverse: true,
+                    ),
             ),
             child: child,
           )
@@ -65,6 +70,7 @@ class _SafeAreaWrapper extends StatelessWidget {
 class Layout extends StatelessWidget {
   final Widget child;
   final Color? statusBarColor;
+  final Brightness? statusBarForcedBrightness;
   final bool safeArea;
   final Future<void> Function()? onPullToRefresh;
   final Future<bool> Function()? onWillPop;
@@ -74,6 +80,7 @@ class Layout extends StatelessWidget {
     Key? key,
     required this.child,
     this.statusBarColor,
+    this.statusBarForcedBrightness,
     this.safeArea = true,
     this.onPullToRefresh,
     this.onWillPop,
@@ -93,6 +100,7 @@ class Layout extends StatelessWidget {
       onWillPop: _onWillPop,
       child: _AnnotatedRegionWrapper(
         statusBarColor: statusBarColor,
+        brightness: statusBarForcedBrightness,
         child: Scaffold(
           appBar: statusBarColor != null
               ? PreferredSize(
