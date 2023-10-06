@@ -1,7 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
-enum TxSize { xl2, xl, l, s, m, xs, xs2 }
+enum TxSize { xl2, xl, l, m, s, xs, xs2 }
 
 enum TxColor { black, grey, white, blue, red }
 

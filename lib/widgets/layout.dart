@@ -20,10 +20,10 @@ class _AnnotatedRegionWrapper extends StatelessWidget {
         ? AnnotatedRegion<SystemUiOverlayStyle>(
             value: SystemUiOverlayStyle(
               statusBarBrightness:
-                  brightness ?? computeBrightness(statusBarColor!),
+                  brightness ?? computeColorBrightness(statusBarColor!),
               statusBarIconBrightness: brightness != null
                   ? reverseBrightness(brightness!)
-                  : computeBrightness(
+                  : computeColorBrightness(
                       statusBarColor!,
                       reverse: true,
                     ),
@@ -69,6 +69,7 @@ class _SafeAreaWrapper extends StatelessWidget {
 
 class Layout extends StatelessWidget {
   final Widget child;
+  // TODO este color debe ser el primary del tema si no se especifica
   final Color? statusBarColor;
   final Brightness? statusBarForcedBrightness;
   final bool safeArea;
@@ -99,15 +100,15 @@ class Layout extends StatelessWidget {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: _AnnotatedRegionWrapper(
-        statusBarColor: statusBarColor,
+        statusBarColor: statusBarColor ?? Theme.of(context).primaryColor,
         brightness: statusBarForcedBrightness,
         child: Scaffold(
-          appBar: statusBarColor != null
-              ? PreferredSize(
-                  preferredSize: Size.zero,
-                  child: Container(color: statusBarColor),
-                )
-              : null,
+          appBar: PreferredSize(
+            preferredSize: Size.zero,
+            child: Container(
+              color: statusBarColor ?? Theme.of(context).primaryColor,
+            ),
+          ),
           body: _RefreshIndicatorWrapper(
             onRefresh: onPullToRefresh,
             child: _SafeAreaWrapper(safeArea, child),
