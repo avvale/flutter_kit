@@ -57,6 +57,7 @@ void _initializeLoaderConfig({required EasyLoadingConfig elc}) {
 void fxRunApp<T>({
   String? title,
   Color? primaryColor,
+  ThemeData? theme,
   String apiUrl = '',
   String? basicAuthToken,
   Policies? gqlPolicies,
@@ -132,7 +133,9 @@ void fxRunApp<T>({
                 builder: EasyLoading.init(),
                 routes: routes,
                 color: primaryColor,
-                theme: ThemeData(primaryColor: primaryColor),
+                theme: theme != null
+                    ? theme.copyWith(primaryColor: primaryColor)
+                    : ThemeData(primaryColor: primaryColor),
                 home: home,
               );
             },
