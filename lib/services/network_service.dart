@@ -21,6 +21,8 @@ final initialState = NetworkState(
   apiRepository: {},
 );
 
+// TODO quitar .then() y usar await
+
 /// Servicio de red
 class NetworkService {
   static final NetworkService _instance = NetworkService._internal();

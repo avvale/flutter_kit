@@ -7,7 +7,7 @@ enum TxColor { black, grey, white, blue, red }
 
 enum TxWeight { normal, w500, w600, bold }
 
-enum TxAlign { left, center, right }
+enum TxAlign { left, center, right, justify }
 
 enum TxStyle { normal, italic }
 
@@ -39,6 +39,7 @@ const Map<TxAlign, TextAlign> _txAligns = {
   TxAlign.left: TextAlign.left,
   TxAlign.center: TextAlign.center,
   TxAlign.right: TextAlign.right,
+  TxAlign.justify: TextAlign.justify,
 };
 const Map<TxStyle, FontStyle> _txStyles = {
   TxStyle.normal: FontStyle.normal,
