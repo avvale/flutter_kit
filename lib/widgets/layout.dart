@@ -58,12 +58,15 @@ class _RefreshIndicatorWrapper extends StatelessWidget {
 class _SafeAreaWrapper extends StatelessWidget {
   final bool safeArea;
   final Widget child;
+  final EdgeInsetsGeometry padding;
 
-  const _SafeAreaWrapper(this.safeArea, this.child);
+  const _SafeAreaWrapper(this.safeArea, this.child, this.padding);
 
   @override
   Widget build(BuildContext context) {
-    return safeArea ? SafeArea(child: child) : child;
+    return safeArea
+        ? SafeArea(child: Padding(padding: padding, child: child))
+        : Padding(padding: padding, child: child);
   }
 }
 
@@ -73,6 +76,7 @@ class Layout extends StatelessWidget {
   final Color? statusBarColor;
   final Brightness? statusBarForcedBrightness;
   final bool safeArea;
+  final EdgeInsetsGeometry padding;
   final Future<void> Function()? onPullToRefresh;
   final Future<bool> Function()? onWillPop;
 
@@ -83,6 +87,7 @@ class Layout extends StatelessWidget {
     this.statusBarColor,
     this.statusBarForcedBrightness,
     this.safeArea = true,
+    this.padding = const EdgeInsets.all(0),
     this.onPullToRefresh,
     this.onWillPop,
   }) : super(key: key);
@@ -111,7 +116,7 @@ class Layout extends StatelessWidget {
           ),
           body: _RefreshIndicatorWrapper(
             onRefresh: onPullToRefresh,
-            child: _SafeAreaWrapper(safeArea, child),
+            child: _SafeAreaWrapper(safeArea, child, padding),
           ),
         ),
       ),
