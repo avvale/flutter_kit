@@ -17,31 +17,27 @@ class Alert {
     String? title,
     String? content,
     required List<AlertAction> actions,
-  }) {
-    return showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
+  }) =>
+      showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
           backgroundColor: Colors.white,
           title: title != null ? Tx(title, color: TxColor.black) : null,
           content: content != null
-              ? Tx(
-                  content,
-                  color: TxColor.black,
-                  maxLines: 64,
-                )
+              ? Tx(content, color: TxColor.black, maxLines: 64)
               : null,
           actions: List<Widget>.generate(
             actions.length,
             (index) => TextButton(
               onPressed: () => actions[index].onPressed(context),
-              child: Text(actions[index].label),
+              child: Text(
+                actions[index].label,
+                style: TextStyle(color: Theme.of(context).primaryColor),
+              ),
             ),
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
 
   static Future<bool?> showConfirm({
     required BuildContext context,
@@ -49,68 +45,57 @@ class Alert {
     String? content,
     String acceptLabel = 'Aceptar',
     String cancelLabel = 'Cancelar',
-  }) {
-    return showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
+  }) =>
+      showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
           backgroundColor: Colors.white,
           title: title != null ? Tx(title, color: TxColor.black) : null,
           content: content != null
-              ? Tx(
-                  content,
-                  color: TxColor.black,
-                  maxLines: 64,
-                )
+              ? Tx(content, color: TxColor.black, maxLines: 64)
               : null,
           actions: <Widget>[
             TextButton(
-              child: Text(cancelLabel),
-              onPressed: () {
-                Navigator.pop(context, false);
-              },
+              child: Text(
+                cancelLabel,
+                style: TextStyle(color: Theme.of(context).primaryColor),
+              ),
+              onPressed: () => Navigator.pop(context, false),
             ),
             TextButton(
-              child: Text(acceptLabel),
-              onPressed: () {
-                Navigator.pop(context, true);
-              },
+              child: Text(
+                acceptLabel,
+                style: TextStyle(color: Theme.of(context).primaryColor),
+              ),
+              onPressed: () => Navigator.pop(context, true),
             ),
           ],
-        );
-      },
-    );
-  }
+        ),
+      );
 
   static Future<void> showInfoDialog({
     required BuildContext context,
     String? title,
     String? content,
     String acceptLabel = 'Aceptar',
-  }) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
+  }) =>
+      showDialog<void>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
           backgroundColor: Colors.white,
           title: title != null ? Tx(title, color: TxColor.black) : null,
           content: content != null
-              ? Tx(
-                  content,
-                  color: TxColor.black,
-                  maxLines: 64,
-                )
+              ? Tx(content, color: TxColor.black, maxLines: 64)
               : null,
           actions: <Widget>[
             TextButton(
-              child: Text(acceptLabel),
-              onPressed: () {
-                Navigator.pop(context, true);
-              },
+              child: Text(
+                acceptLabel,
+                style: TextStyle(color: Theme.of(context).primaryColor),
+              ),
+              onPressed: () => Navigator.pop(context, true),
             ),
           ],
-        );
-      },
-    );
-  }
+        ),
+      );
 }
