@@ -93,6 +93,9 @@ class IconBtn extends StatelessWidget {
   /// Color filter to be applied if svg icon is used.
   final ColorFilter? svgIconColorFilter;
 
+  /// Icon color when using normal icons.
+  final Color? iconColor;
+
   /// Button size.
   final IconBtnSize size;
 
@@ -109,6 +112,7 @@ class IconBtn extends StatelessWidget {
     this.iconUrl,
     this.iconImgType = IconImgType.generic,
     this.svgIconColorFilter,
+    this.iconColor,
     this.backgroundColor = Colors.blue,
     this.size = IconBtnSize.normal,
     required this.onPressed,
@@ -126,7 +130,7 @@ class IconBtn extends StatelessWidget {
         padding: const EdgeInsets.all(0),
         onPressed: onPressed,
         child: icon != null
-            ? Icon(icon, size: _iconBtnIconSizes[size]!)
+            ? Icon(icon, size: _iconBtnIconSizes[size]!, color: iconColor)
             : iconAssetPath != null
                 ? _IconAssetWrapper(
                     imgType: iconImgType,
