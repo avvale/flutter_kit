@@ -29,6 +29,11 @@ class Alert {
           actions: List<Widget>.generate(
             actions.length,
             (index) => TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateProperty.all(
+                  Colors.white.withOpacity(0.1),
+                ),
+              ),
               onPressed: () => actions[index].onPressed(context),
               child: Text(
                 actions[index].label,
@@ -56,18 +61,28 @@ class Alert {
               : null,
           actions: <Widget>[
             TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateProperty.all(
+                  Colors.white.withOpacity(0.1),
+                ),
+              ),
+              onPressed: () => Navigator.pop(context, false),
               child: Text(
                 cancelLabel,
                 style: TextStyle(color: Theme.of(context).primaryColor),
               ),
-              onPressed: () => Navigator.pop(context, false),
             ),
             TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateProperty.all(
+                  Colors.white.withOpacity(0.1),
+                ),
+              ),
+              onPressed: () => Navigator.pop(context, true),
               child: Text(
                 acceptLabel,
                 style: TextStyle(color: Theme.of(context).primaryColor),
               ),
-              onPressed: () => Navigator.pop(context, true),
             ),
           ],
         ),
@@ -89,11 +104,16 @@ class Alert {
               : null,
           actions: <Widget>[
             TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateProperty.all(
+                  Colors.white.withOpacity(0.1),
+                ),
+              ),
+              onPressed: () => Navigator.pop(context, true),
               child: Text(
                 acceptLabel,
                 style: TextStyle(color: Theme.of(context).primaryColor),
               ),
-              onPressed: () => Navigator.pop(context, true),
             ),
           ],
         ),
