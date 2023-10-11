@@ -47,8 +47,8 @@ class Alert {
     required BuildContext context,
     String? title,
     String? content,
-    String? acceptLabel,
-    String? cancelLabel,
+    String acceptLabel = 'Aceptar',
+    String cancelLabel = 'Cancelar',
   }) {
     return showDialog<bool>(
       context: context,
@@ -65,13 +65,13 @@ class Alert {
               : null,
           actions: <Widget>[
             TextButton(
-              child: Text(cancelLabel ?? 'Cancelar'),
+              child: Text(cancelLabel),
               onPressed: () {
                 Navigator.pop(context, false);
               },
             ),
             TextButton(
-              child: Text(acceptLabel ?? 'Aceptar'),
+              child: Text(acceptLabel),
               onPressed: () {
                 Navigator.pop(context, true);
               },
@@ -86,7 +86,7 @@ class Alert {
     required BuildContext context,
     String? title,
     String? content,
-    String? acceptLabel,
+    String acceptLabel = 'Aceptar',
   }) {
     return showDialog<void>(
       context: context,
@@ -103,7 +103,7 @@ class Alert {
               : null,
           actions: <Widget>[
             TextButton(
-              child: Text(acceptLabel ?? 'Aceptar'),
+              child: Text(acceptLabel),
               onPressed: () {
                 Navigator.pop(context, true);
               },
