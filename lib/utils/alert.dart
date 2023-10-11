@@ -31,7 +31,7 @@ class Alert {
             (index) => TextButton(
               style: ButtonStyle(
                 overlayColor: MaterialStateProperty.all(
-                  Colors.white.withOpacity(0.1),
+                  Colors.black.withOpacity(0.1),
                 ),
               ),
               onPressed: () => actions[index].onPressed(context),
@@ -63,7 +63,7 @@ class Alert {
             TextButton(
               style: ButtonStyle(
                 overlayColor: MaterialStateProperty.all(
-                  Colors.white.withOpacity(0.1),
+                  Colors.black.withOpacity(0.1),
                 ),
               ),
               onPressed: () => Navigator.pop(context, false),
@@ -75,7 +75,7 @@ class Alert {
             TextButton(
               style: ButtonStyle(
                 overlayColor: MaterialStateProperty.all(
-                  Colors.white.withOpacity(0.1),
+                  Colors.black.withOpacity(0.1),
                 ),
               ),
               onPressed: () => Navigator.pop(context, true),
@@ -106,7 +106,7 @@ class Alert {
             TextButton(
               style: ButtonStyle(
                 overlayColor: MaterialStateProperty.all(
-                  Colors.white.withOpacity(0.1),
+                  Colors.black.withOpacity(0.1),
                 ),
               ),
               onPressed: () => Navigator.pop(context, true),
