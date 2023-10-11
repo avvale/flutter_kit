@@ -22,7 +22,13 @@ class Alert {
         context: context,
         builder: (BuildContext context) => AlertDialog(
           backgroundColor: Colors.white,
-          title: title != null ? Tx(title, color: TxColor.black) : null,
+          title: title != null
+              ? Tx(
+                  title,
+                  color: TxColor.black,
+                  weight: TxWeight.w500,
+                )
+              : null,
           content: content != null
               ? Tx(content, color: TxColor.black, maxLines: 64)
               : null,
@@ -55,7 +61,13 @@ class Alert {
         context: context,
         builder: (BuildContext context) => AlertDialog(
           backgroundColor: Colors.white,
-          title: title != null ? Tx(title, color: TxColor.black) : null,
+          title: title != null
+              ? Tx(
+                  title,
+                  color: TxColor.black,
+                  weight: TxWeight.w500,
+                )
+              : null,
           content: content != null
               ? Tx(content, color: TxColor.black, maxLines: 64)
               : null,
@@ -98,7 +110,13 @@ class Alert {
         context: context,
         builder: (BuildContext context) => AlertDialog(
           backgroundColor: Colors.white,
-          title: title != null ? Tx(title, color: TxColor.black) : null,
+          title: title != null
+              ? Tx(
+                  title,
+                  color: TxColor.black,
+                  weight: TxWeight.w500,
+                )
+              : null,
           content: content != null
               ? Tx(content, color: TxColor.black, maxLines: 64)
               : null,
