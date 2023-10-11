@@ -27,6 +27,7 @@ class Alert {
                   title,
                   color: TxColor.black,
                   weight: TxWeight.w500,
+                  size: TxSize.l,
                 )
               : null,
           content: content != null
@@ -66,6 +67,7 @@ class Alert {
                   title,
                   color: TxColor.black,
                   weight: TxWeight.w500,
+                  size: TxSize.l,
                 )
               : null,
           content: content != null
@@ -115,6 +117,7 @@ class Alert {
                   title,
                   color: TxColor.black,
                   weight: TxWeight.w500,
+                  size: TxSize.l,
                 )
               : null,
           content: content != null
