@@ -1,7 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
-enum TxSize { xl2, xl, l, m, s, xs, xs2 }
+enum TxSize { xl3, xl2, xl, l, m, m2, s, xs, xs2 }
 
 enum TxColor { black, darkGrey, grey, white, blue, red }
 
@@ -14,9 +14,11 @@ enum TxStyle { normal, italic }
 enum TxDecoration { normal, underline }
 
 const Map<TxSize, double> _txSizes = {
+  TxSize.xl3: 32,
   TxSize.xl2: 28,
   TxSize.xl: 24,
   TxSize.l: 20,
+  TxSize.m2: 18,
   TxSize.m: 16,
   TxSize.s: 14,
   TxSize.xs: 12,
