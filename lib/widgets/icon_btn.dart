@@ -4,19 +4,22 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 enum IconImgType { generic, svg }
 
-enum IconBtnSize { small, normal }
+enum IconBtnSize { small, normal, big }
 
 const _iconBtnSizes = {
   IconBtnSize.small: 34.0,
   IconBtnSize.normal: 40.0,
+  IconBtnSize.big: 46.0,
 };
 const _iconBtnSvgIconSizes = {
   IconBtnSize.small: 22.0,
   IconBtnSize.normal: 28.0,
+  IconBtnSize.big: 34.0,
 };
 const _iconBtnIconSizes = {
   IconBtnSize.small: 20.0,
   IconBtnSize.normal: 24.0,
+  IconBtnSize.big: 28.0,
 };
 
 class _IconAssetWrapper extends StatelessWidget {
