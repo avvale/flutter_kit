@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 enum TxSize { xl2, xl, l, m, s, xs, xs2 }
 
-enum TxColor { black, grey, white, blue, red }
+enum TxColor { black, darkGrey, grey, white, blue, red }
 
 enum TxWeight { normal, w500, w600, bold }
 
@@ -24,6 +24,7 @@ const Map<TxSize, double> _txSizes = {
 };
 const Map<TxColor, Color> _txColors = {
   TxColor.black: Colors.black,
+  TxColor.darkGrey: Color(0xff7d7d7d),
   TxColor.grey: Colors.grey,
   TxColor.white: Colors.white,
   TxColor.blue: Colors.blue,
