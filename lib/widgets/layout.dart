@@ -72,8 +72,13 @@ class _SafeAreaWrapper extends StatelessWidget {
 
 class Layout extends StatelessWidget {
   final Widget child;
-  // TODO este color debe ser el primary del tema si no se especifica
+
+  /// The color of the [SystemUiOverlayStyle.statusBarColor] for this page.
   final Color? statusBarColor;
+
+  /// Whether the [SystemUiOverlayStyle.statusBarColor] should be transparent.
+  /// If true, [statusBarColor] will be ignored.
+  final bool transparentStatusBar;
   final Brightness? statusBarForcedBrightness;
   final bool safeArea;
   final EdgeInsetsGeometry padding;
@@ -85,6 +90,7 @@ class Layout extends StatelessWidget {
     Key? key,
     required this.child,
     this.statusBarColor,
+    this.transparentStatusBar = false,
     this.statusBarForcedBrightness,
     this.safeArea = true,
     this.padding = const EdgeInsets.all(0),
@@ -108,12 +114,14 @@ class Layout extends StatelessWidget {
         statusBarColor: statusBarColor ?? Theme.of(context).primaryColor,
         brightness: statusBarForcedBrightness,
         child: Scaffold(
-          appBar: PreferredSize(
-            preferredSize: Size.zero,
-            child: Container(
-              color: statusBarColor ?? Theme.of(context).primaryColor,
-            ),
-          ),
+          appBar: transparentStatusBar
+              ? null
+              : PreferredSize(
+                  preferredSize: Size.zero,
+                  child: Container(
+                    color: statusBarColor ?? Theme.of(context).primaryColor,
+                  ),
+                ),
           body: _RefreshIndicatorWrapper(
             onRefresh: onPullToRefresh,
             child: _SafeAreaWrapper(safeArea, child, padding),
