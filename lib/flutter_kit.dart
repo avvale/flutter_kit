@@ -58,6 +58,7 @@ void fxRunApp<T>({
   String? title,
   Color? primaryColor,
   ThemeData? theme,
+  Duration? splashDuration,
   String apiUrl = '',
   String? basicAuthToken,
   Policies? gqlPolicies,
@@ -76,7 +77,9 @@ void fxRunApp<T>({
 }) {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  if (splashDuration != null) {
+    FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  }
 
   _initializeLoaderConfig(
     elc: loaderConfig ??
@@ -100,10 +103,12 @@ void fxRunApp<T>({
     (_) {
       /// We wait a few milliseconds to remove the splash screen so that the
       /// orientation is fully applied before removing it.
-      Future.delayed(
-        const Duration(milliseconds: 333),
-        () => FlutterNativeSplash.remove(),
-      );
+      if (splashDuration != null) {
+        Future.delayed(
+          splashDuration,
+          () => FlutterNativeSplash.remove(),
+        );
+      }
 
       // Initialize app
       runApp(
