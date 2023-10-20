@@ -67,9 +67,10 @@ class AuthService {
   /// en el estado de la aplicación.
   Future<bool> login<T>({
     required T endpoint,
-    email = '',
-    password = '',
     bool useRefreshToken = false,
+    user = '',
+    pass = '',
+    String? grantType,
   }) {
     EasyLoading.show();
 
@@ -80,15 +81,15 @@ class AuthService {
       params: useRefreshToken
           ? {
               'payload': {
-                'grantType': 'REFRESH_TOKEN',
+                'grantType': grantType ?? 'REFRESH_TOKEN',
                 'refreshToken': authStateSync.refreshToken,
               },
             }
           : {
               'payload': {
-                'grantType': 'PASSWORD',
-                'username': email,
-                'password': password,
+                'grantType': grantType ?? 'PASSWORD',
+                'username': user,
+                'password': pass,
               },
             },
     )

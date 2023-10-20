@@ -35,3 +35,11 @@ MaterialColor createMaterialColor(Color color) {
 
   return MaterialColor(color.value, swatch);
 }
+
+bool exists(String? x) {
+  return x != null;
+}
+
+bool existsNotEmpty(String? x) {
+  return exists(x) && x!.isNotEmpty;
+}

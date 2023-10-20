@@ -1,3 +1,4 @@
+import 'package:flutter_kit/models/auth_mode/auth_mode.dart';
 import 'package:graphql/client.dart';
 
 class NetworkState<T> {
@@ -6,6 +7,7 @@ class NetworkState<T> {
   final GraphQLClient gqlClientBasicAuth;
   final String apiUrl;
   final Map<T, String> apiRepository;
+  final AuthMode authMode;
   final T? authEndpoint;
   final Map<String, String> apiMappedErrorCodes;
 
@@ -15,6 +17,7 @@ class NetworkState<T> {
     required this.gqlClientBasicAuth,
     required this.apiUrl,
     required this.apiRepository,
+    required this.authMode,
     this.authEndpoint,
     this.apiMappedErrorCodes = const {},
   });
@@ -25,6 +28,7 @@ class NetworkState<T> {
     GraphQLClient? gqlClientBasicAuth,
     String? apiUrl,
     Map<T, String>? apiRepository,
+    AuthMode? authMode,
     T? authEndpoint,
     Map<String, String>? apiMappedErrorCodes,
   }) {
@@ -34,6 +38,7 @@ class NetworkState<T> {
       gqlClientBasicAuth: gqlClientBasicAuth ?? this.gqlClientBasicAuth,
       apiUrl: apiUrl ?? this.apiUrl,
       apiRepository: apiRepository ?? this.apiRepository,
+      authMode: authMode ?? this.authMode,
       authEndpoint: authEndpoint ?? this.authEndpoint,
       apiMappedErrorCodes: apiMappedErrorCodes ?? this.apiMappedErrorCodes,
     );

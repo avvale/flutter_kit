@@ -3,6 +3,8 @@ library flutter_kit;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_kit/models/auth_mode/auth_mode.dart';
+import 'package:flutter_kit/models/auth_mode/disabled_auth_mode.dart';
 import 'package:flutter_kit/models/easy_loading_config.dart';
 import 'package:flutter_kit/models/state/network_state.dart';
 import 'package:flutter_kit/services/network_service.dart';
@@ -60,6 +62,7 @@ void fxRunApp<T>({
   ThemeData? theme,
   Duration? splashDuration,
   String apiUrl = '',
+  AuthMode authMode = const DisabledAuthMode(),
   String? basicAuthToken,
   Policies? gqlPolicies,
   Map<T, String> apiRepository = const {},
@@ -126,6 +129,7 @@ void fxRunApp<T>({
                   apiRepository: apiRepository,
                   authEndpoint: authEndpoint,
                   apiMappedErrorCodes: apiMappedErrorCodes,
+                  authMode: authMode,
                 );
 
                 return const Space();

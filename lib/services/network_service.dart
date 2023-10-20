@@ -1,6 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_kit/models/auth_mode/auth_mode.dart';
+import 'package:flutter_kit/models/auth_mode/auto_auth_mode.dart';
+import 'package:flutter_kit/models/auth_mode/disabled_auth_mode.dart';
+import 'package:flutter_kit/models/auth_mode/manual_auth_mode.dart';
 import 'package:flutter_kit/models/state/network_state.dart';
 import 'package:flutter_kit/services/auth_service.dart';
 import 'package:flutter_kit/utils/debugger.dart';
@@ -19,6 +23,7 @@ final initialState = NetworkState(
   gqlClientBasicAuth: GraphQLClient(link: HttpLink(''), cache: GraphQLCache()),
   apiUrl: '',
   apiRepository: {},
+  authMode: const DisabledAuthMode(),
 );
 
 // TODO quitar .then() y usar await
@@ -46,6 +51,7 @@ class NetworkService {
     Policies? gqlPolicies,
     Map<T, String> apiRepository = const {},
     T? authEndpoint,
+    AuthMode authMode = const DisabledAuthMode(),
     Map<String, String>? apiMappedErrorCodes,
   }) async {
     _dataFetcher.add(
@@ -67,6 +73,7 @@ class NetworkService {
         ),
         apiUrl: apiUrl,
         apiRepository: apiRepository,
+        authMode: authMode,
         authEndpoint: authEndpoint,
         apiMappedErrorCodes: apiMappedErrorCodes,
       ),
@@ -160,7 +167,17 @@ class NetworkService {
       else if (statusCode == '401' || statusCode == 401) {
         AuthService().logout();
 
-        errorMsg = 'La sesión ha caducado, vuelve a iniciar sesión';
+        switch (networkStateSync.authMode) {
+          case DisabledAuthMode():
+            errorMsg = 'No tienes permisos para realizar esta acción';
+            break;
+          case ManualAuthMode():
+            errorMsg = 'La sesión ha caducado, vuelve a iniciar sesión';
+            break;
+          case AutoAuthMode():
+          default:
+            errorMsg = 'Ha ocurrido un error inesperado con la sesión';
+        }
       } else if (networkStateSync.apiMappedErrorCodes[statusCode.toString()] !=
           null) {
         errorMsg = networkStateSync.apiMappedErrorCodes[statusCode.toString()]!;
@@ -218,16 +235,48 @@ class NetworkService {
           if (hasAuthError && networkStateSync.authEndpoint != null) {
             Debugger.log('Authentication error, trying to reload token');
 
-            if (await AuthService().login(
-              endpoint: networkStateSync.authEndpoint,
-              useRefreshToken: true,
-            )) {
-              return query(endpoint: endpoint, params: params, isRetry: true);
-            } else {
-              await AuthService()
-                  .login(endpoint: networkStateSync.authEndpoint);
+            final AuthMode authMode = networkStateSync.authMode;
 
-              return query(endpoint: endpoint, params: params, isRetry: true);
+            switch (authMode) {
+              case DisabledAuthMode():
+                break;
+              case ManualAuthMode():
+                if (await AuthService().login(
+                  endpoint: networkStateSync.authEndpoint,
+                  useRefreshToken: true,
+                )) {
+                  return query(
+                    endpoint: endpoint,
+                    params: params,
+                    isRetry: true,
+                  );
+                }
+                break;
+              case AutoAuthMode():
+                if (await AuthService().login(
+                  endpoint: networkStateSync.authEndpoint,
+                  useRefreshToken: true,
+                )) {
+                  return query(
+                    endpoint: endpoint,
+                    params: params,
+                    isRetry: true,
+                  );
+                } else {
+                  await AuthService().login(
+                    endpoint: networkStateSync.authEndpoint,
+                    user: authMode.user,
+                    pass: authMode.pass,
+                    grantType: authMode.grantType,
+                  );
+
+                  return query(
+                    endpoint: endpoint,
+                    params: params,
+                    isRetry: true,
+                  );
+                }
+              default:
             }
           }
         }
