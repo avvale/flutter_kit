@@ -83,7 +83,7 @@ class NetworkService {
 
   HttpLink _baseHttpLink({Map<String, String> headers = const {}}) {
     return HttpLink(
-      '{$networkStateSync.}/graphql',
+      '${networkStateSync.apiUrl}/graphql',
       defaultHeaders: headers,
     );
   }
