@@ -263,18 +263,18 @@ class NetworkService {
                     isRetry: true,
                   );
                 } else {
-                  await AuthService().login(
+                  if (await AuthService().login(
                     endpoint: networkStateSync.authEndpoint,
                     user: authMode.user,
                     pass: authMode.pass,
                     grantType: authMode.grantType,
-                  );
-
-                  return query(
-                    endpoint: endpoint,
-                    params: params,
-                    isRetry: true,
-                  );
+                  )) {
+                    return query(
+                      endpoint: endpoint,
+                      params: params,
+                      isRetry: true,
+                    );
+                  }
                 }
               default:
             }
