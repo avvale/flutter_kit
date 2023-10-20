@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_kit/models/auth_mode/auth_mode.dart';
+import 'package:flutter_kit/models/auth_mode/auto_auth_mode.dart';
 import 'package:flutter_kit/models/auth_mode/disabled_auth_mode.dart';
+import 'package:flutter_kit/models/auth_mode/manual_auth_mode.dart';
 import 'package:flutter_kit/models/easy_loading_config.dart';
+import 'package:flutter_kit/models/state/auth_state.dart';
 import 'package:flutter_kit/models/state/network_state.dart';
+import 'package:flutter_kit/services/auth_service.dart';
 import 'package:flutter_kit/services/network_service.dart';
 import 'package:flutter_kit/widgets/space.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -53,6 +57,39 @@ void _initializeLoaderConfig({required EasyLoadingConfig elc}) {
     ..toastPosition = elc.toastPosition ?? EasyLoading.instance.toastPosition
     ..userInteractions =
         elc.userInteractions ?? EasyLoading.instance.userInteractions;
+}
+
+class _AuthWrapper extends StatelessWidget {
+  final Widget child;
+  final AuthMode authMode;
+
+  const _AuthWrapper({
+    Key? key,
+    required this.child,
+    required this.authMode,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    switch (authMode) {
+      case ManualAuthMode():
+      case AutoAuthMode():
+        return StreamBuilder(
+          stream: AuthService().authState,
+          builder: (context, AsyncSnapshot<AuthState> snapshot) {
+            if (!snapshot.hasData || !snapshot.data!.isInitialized) {
+              AuthService().initialize();
+
+              return const Space();
+            }
+
+            return child;
+          },
+        );
+      default:
+        return child;
+    }
+  }
 }
 
 /// Run application with custom configuration
@@ -135,17 +172,20 @@ void fxRunApp<T>({
                 return const Space();
               }
 
-              return MaterialApp(
-                title: title ?? 'Flutter Kit',
-                scaffoldMessengerKey: rootScaffoldMessengerKey,
-                debugShowCheckedModeBanner: false,
-                builder: EasyLoading.init(),
-                routes: routes,
-                color: primaryColor,
-                theme: theme != null
-                    ? theme.copyWith(primaryColor: primaryColor)
-                    : ThemeData(primaryColor: primaryColor),
-                home: home,
+              return _AuthWrapper(
+                authMode: authMode,
+                child: MaterialApp(
+                  title: title ?? 'Flutter Kit',
+                  scaffoldMessengerKey: rootScaffoldMessengerKey,
+                  debugShowCheckedModeBanner: false,
+                  builder: EasyLoading.init(),
+                  routes: routes,
+                  color: primaryColor,
+                  theme: theme != null
+                      ? theme.copyWith(primaryColor: primaryColor)
+                      : ThemeData(primaryColor: primaryColor),
+                  home: home,
+                ),
               );
             },
           ),

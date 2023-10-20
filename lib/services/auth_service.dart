@@ -45,7 +45,7 @@ class AuthService {
 
   /// Comprueba si existe una sesión guardada. Si la hay, la carga en el estado
   /// de la aplicación y lo inicializa. Si no la hay, solo lo inicializa.
-  Future<bool> checkSession() {
+  Future<bool> initialize() {
     return _secureStorage.readAll().then((values) async {
       if (values['accessToken'] != null && values['refreshToken'] != null) {
         await _setUser(
