@@ -8,6 +8,7 @@ import 'package:flutter_kit/models/auth_mode/manual_auth_mode.dart';
 import 'package:flutter_kit/models/state/network_state.dart';
 import 'package:flutter_kit/services/auth_service.dart';
 import 'package:flutter_kit/utils/debugger.dart';
+import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter_kit/utils/toast.dart';
 import 'package:graphql/client.dart';
 import 'package:rxdart/rxdart.dart';
@@ -241,10 +242,11 @@ class NetworkService {
               case DisabledAuthMode():
                 break;
               case ManualAuthMode():
-                if (await AuthService().login(
-                  endpoint: networkStateSync.authEndpoint,
-                  useRefreshToken: true,
-                )) {
+                if (existsNotEmpty(AuthService().authStateSync.refreshToken) &&
+                    await AuthService().login(
+                      endpoint: networkStateSync.authEndpoint,
+                      useRefreshToken: true,
+                    )) {
                   return query(
                     endpoint: endpoint,
                     params: params,
@@ -253,10 +255,11 @@ class NetworkService {
                 }
                 break;
               case AutoAuthMode():
-                if (await AuthService().login(
-                  endpoint: networkStateSync.authEndpoint,
-                  useRefreshToken: true,
-                )) {
+                if (existsNotEmpty(AuthService().authStateSync.refreshToken) &&
+                    await AuthService().login(
+                      endpoint: networkStateSync.authEndpoint,
+                      useRefreshToken: true,
+                    )) {
                   return query(
                     endpoint: endpoint,
                     params: params,
