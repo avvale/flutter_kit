@@ -268,9 +268,7 @@ class NetworkService {
                 } else {
                   if (await AuthService().login(
                     endpoint: networkStateSync.authEndpoint,
-                    user: authMode.user,
-                    pass: authMode.pass,
-                    grantType: authMode.grantType,
+                    authMode: authMode,
                   )) {
                     return query(
                       endpoint: endpoint,

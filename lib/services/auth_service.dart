@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_kit/models/auth_mode/auth_mode.dart';
+import 'package:flutter_kit/models/auth_mode/auto_auth_mode.dart';
+import 'package:flutter_kit/models/auth_mode/manual_auth_mode.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
 import 'package:flutter_kit/services/network_service.dart';
 import 'package:flutter_kit/utils/debugger.dart';
@@ -68,30 +71,42 @@ class AuthService {
   Future<bool> login<T>({
     required T endpoint,
     bool useRefreshToken = false,
+    AuthMode? authMode,
     user = '',
     pass = '',
-    String? grantType,
   }) {
     EasyLoading.show();
+
+    final Map<String, dynamic> params = {};
+
+    if (useRefreshToken) {
+      params['payload'] = {
+        'grantType': 'REFRESH_TOKEN',
+        'refreshToken': authStateSync.refreshToken,
+      };
+    } else if (authMode != null) {
+      switch (authMode) {
+        case ManualAuthMode():
+          params['payload'] = {
+            'grantType': 'PASSWORD',
+            'username': user,
+            'password': pass,
+          };
+          break;
+        case AutoAuthMode():
+          params['payload'] = {
+            'grantType': 'CLIENT_CREDENTIALS',
+            'email': authMode.user,
+            'clientSecret': authMode.pass,
+          };
+      }
+    }
 
     return NetworkService()
         .mutate(
       endpoint: endpoint,
       useBasicAuth: true,
-      params: useRefreshToken
-          ? {
-              'payload': {
-                'grantType': grantType ?? 'REFRESH_TOKEN',
-                'refreshToken': authStateSync.refreshToken,
-              },
-            }
-          : {
-              'payload': {
-                'grantType': grantType ?? 'PASSWORD',
-                'username': user,
-                'password': pass,
-              },
-            },
+      params: params,
     )
         .then((res) async {
       if (res.exception != null) {
