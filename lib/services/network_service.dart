@@ -141,7 +141,7 @@ class NetworkService {
         error?.exception?.linkException?.response != null) {
       Debugger.log('Request error');
 
-      final dynamic statusCode = error?.exception?.graphqlErrors.length > 0
+      dynamic statusCode = error?.exception?.graphqlErrors.length > 0
           ? (error?.exception?.graphqlErrors?[0]?.extensions?['response']
                   ?['statusCode'] ??
               error?.exception?.graphqlErrors?[0]?.extensions?['exception']
@@ -152,29 +152,18 @@ class NetworkService {
 
       Debugger.log('Status code', statusCode);
 
+      if (statusCode?.toString != null) {
+        statusCode = statusCode.toString();
+      }
+
       // Bad request
-      if (statusCode == '400' || statusCode == 400) {
+      if (statusCode == '400') {
         Debugger.log('RE - Bad request');
 
-        if (error?.exception?.graphqlErrors.length > 0) {
-          if (error?.exception?.graphqlErrors?[0]?.message is String) {
-            errorMsg =
-                (error?.exception?.graphqlErrors?[0]?.message as String).trim();
-          }
-        } else {
-          if (error?.exception?.linkException?.response?.body is String) {
-            final List<dynamic>? errors = json.decode(
-              error?.exception?.linkException?.response?.body,
-            )?['errors'];
-
-            if (errors != null && errors.isNotEmpty) {
-              errorMsg = errors[0]['message'];
-            }
-          }
-        }
+        errorMsg = getErrorMessageFromGraphQLError(error) ?? errorMsg;
       }
       // Authentication error
-      else if (statusCode == '401' || statusCode == 401) {
+      else if (statusCode == '401') {
         Debugger.log('RE - Authentication error');
 
         AuthService().logout();
@@ -191,6 +180,12 @@ class NetworkService {
           default:
             errorMsg = 'Ha ocurrido un error inesperado con la sesión';
         }
+      }
+      // Forbidden error
+      else if (statusCode == '403') {
+        Debugger.log('RE - Forbidden error');
+
+        errorMsg = getErrorMessageFromGraphQLError(error) ?? errorMsg;
       } else if (networkStateSync.apiMappedErrorCodes[statusCode.toString()] !=
           null) {
         Debugger.log('RE - Mapped error');

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 Brightness computeColorBrightness(Color color, {bool reverse = false}) {
@@ -42,4 +44,24 @@ bool exists(String? x) {
 
 bool existsNotEmpty(String? x) {
   return exists(x) && x!.isNotEmpty;
+}
+
+String? getErrorMessageFromGraphQLError(dynamic error) {
+  if (error?.exception?.graphqlErrors.length > 0) {
+    if (error?.exception?.graphqlErrors?[0]?.message is String) {
+      return (error?.exception?.graphqlErrors?[0]?.message as String).trim();
+    }
+  } else {
+    if (error?.exception?.linkException?.response?.body is String) {
+      final List<dynamic>? errors = json.decode(
+        error?.exception?.linkException?.response?.body,
+      )?['errors'];
+
+      if (errors != null && errors.isNotEmpty) {
+        return errors[0]['message'];
+      }
+    }
+  }
+
+  return null;
 }
