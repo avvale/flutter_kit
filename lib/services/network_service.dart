@@ -131,12 +131,16 @@ class NetworkService {
 
     // Connection error (most likely)
     if (error?.exception?.linkException?.originalException is SocketException) {
+      Debugger.log('Connection error');
+
       errorMsg = 'Ha habido un error de red, es posible que no tengas conexión';
     }
     // Request error
     else if ((error?.exception?.graphqlErrors != null &&
             error?.exception?.graphqlErrors.isNotEmpty) ||
         error?.exception?.linkException?.response != null) {
+      Debugger.log('Request error');
+
       final dynamic statusCode = error?.exception?.graphqlErrors.length > 0
           ? (error?.exception?.graphqlErrors?[0]?.extensions?['response']
                   ?['statusCode'] ??
@@ -147,6 +151,8 @@ class NetworkService {
           : error?.exception?.linkException?.response?.statusCode;
       // Bad request
       if (statusCode == '400' || statusCode == 400) {
+        Debugger.log('RE - Bad request');
+
         if (error?.exception?.graphqlErrors.length > 0) {
           if (error?.exception?.graphqlErrors?[0]?.message is String) {
             errorMsg =
@@ -166,8 +172,11 @@ class NetworkService {
       }
       // Authentication error
       else if (statusCode == '401' || statusCode == 401) {
+        Debugger.log('RE - Authentication error');
+
         AuthService().logout();
 
+        // TODO mostrar también el error de la API donde proceda
         switch (networkStateSync.authMode) {
           case DisabledAuthMode():
             errorMsg = 'No tienes permisos para realizar esta acción';
@@ -181,6 +190,8 @@ class NetworkService {
         }
       } else if (networkStateSync.apiMappedErrorCodes[statusCode.toString()] !=
           null) {
+        Debugger.log('RE - Mapped error');
+
         errorMsg = networkStateSync.apiMappedErrorCodes[statusCode.toString()]!;
       }
     }
