@@ -149,6 +149,9 @@ class NetworkService {
               error?.exception?.graphqlErrors?[0]?.extensions?['originalError']
                   ?['statusCode'])
           : error?.exception?.linkException?.response?.statusCode;
+
+      Debugger.log('Status code', statusCode);
+
       // Bad request
       if (statusCode == '400' || statusCode == 400) {
         Debugger.log('RE - Bad request');
