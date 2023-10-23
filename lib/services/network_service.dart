@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_kit/models/auth_mode/auth_mode.dart';
 import 'package:flutter_kit/models/auth_mode/auto_auth_mode.dart';
@@ -26,8 +25,6 @@ final initialState = NetworkState(
   apiRepository: {},
   authMode: const DisabledAuthMode(),
 );
-
-// TODO quitar .then() y usar await
 
 /// Servicio de red
 class NetworkService {
@@ -168,7 +165,6 @@ class NetworkService {
 
         AuthService().logout();
 
-        // TODO mostrar también el error de la API donde proceda
         switch (networkStateSync.authMode) {
           case DisabledAuthMode():
             errorMsg = 'No tienes permisos para realizar esta acción';
@@ -319,48 +315,56 @@ class NetworkService {
       required bool isRetry,
     }) handler,
     required GraphQLClient gqlClient,
-  }) {
+  }) async {
     final request = networkStateSync.apiRepository[endpoint]!;
 
     switch (requestType) {
       case RequestType.query:
-        return gqlClient
-            .query(
-          QueryOptions(
-            document: gql(request),
-            variables: params ?? {},
-          ),
-        )
-            .then((queryResult) {
-          Debugger.log('HANDLE GQL QUERY', queryResult);
+        try {
+          final res = await gqlClient.query(
+            QueryOptions(
+              document: gql(request),
+              variables: params ?? {},
+            ),
+          );
+
+          Debugger.log('HANDLE GQL QUERY', res);
 
           return handler(
             endpoint: endpoint,
             requestType: requestType,
             params: params,
-            res: queryResult,
+            res: res,
             isRetry: isRetry,
           );
-        });
+        } catch (e) {
+          Debugger.log('RETHROW GQL QUERY ERROR', e);
+
+          rethrow;
+        }
       case RequestType.mutation:
-        return gqlClient
-            .mutate(
-          MutationOptions(
-            document: gql(request),
-            variables: params ?? {},
-          ),
-        )
-            .then((queryResult) {
-          Debugger.log('HANDLE GQL MUTATION', queryResult);
+        try {
+          final res = await gqlClient.mutate(
+            MutationOptions(
+              document: gql(request),
+              variables: params ?? {},
+            ),
+          );
+
+          Debugger.log('HANDLE GQL MUTATION', res);
 
           return handler(
             endpoint: endpoint,
             requestType: requestType,
             params: params,
-            res: queryResult,
+            res: res,
             isRetry: isRetry,
           );
-        });
+        } catch (e) {
+          Debugger.log('RETHROW GQL MUTATION ERROR', e);
+
+          rethrow;
+        }
     }
   }
 

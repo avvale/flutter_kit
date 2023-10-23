@@ -114,7 +114,7 @@ void fxRunApp<T>({
 
   /// Configuration for loader to be shown on loading data
   EasyLoadingConfig? loaderConfig,
-}) {
+}) async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
   if (splashDuration != null) {
@@ -139,58 +139,56 @@ void fxRunApp<T>({
         ),
   );
 
-  SystemChrome.setPreferredOrientations(orientations).then(
-    (_) {
-      /// We wait a few milliseconds to remove the splash screen so that the
-      /// orientation is fully applied before removing it.
-      if (splashDuration != null) {
-        Future.delayed(
-          splashDuration,
-          () => FlutterNativeSplash.remove(),
-        );
-      }
+  await SystemChrome.setPreferredOrientations(orientations);
 
-      // Initialize app
-      runApp(
-        GestureDetector(
-          /// When tapping outside of a text field, the keyboard is hidden
-          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-          child: StreamBuilder(
-            stream: NetworkService().networkState,
-            builder: (context, AsyncSnapshot<NetworkState> snapshot) {
-              if (!snapshot.hasData || !snapshot.data!.isInitialized) {
-                NetworkService().initialize(
-                  apiUrl: apiUrl,
-                  basicAuthToken: basicAuthToken,
-                  gqlPolicies: gqlPolicies,
-                  apiRepository: apiRepository,
-                  authEndpoint: authEndpoint,
-                  apiMappedErrorCodes: apiMappedErrorCodes,
-                  authMode: authMode,
-                );
+  /// We wait a few milliseconds to remove the splash screen so that the
+  /// orientation is fully applied before removing it.
+  if (splashDuration != null) {
+    Future.delayed(
+      splashDuration,
+      () => FlutterNativeSplash.remove(),
+    );
+  }
 
-                return const Space();
-              }
+  // Initialize app
+  runApp(
+    GestureDetector(
+      /// When tapping outside of a text field, the keyboard is hidden
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: StreamBuilder(
+        stream: NetworkService().networkState,
+        builder: (context, AsyncSnapshot<NetworkState> snapshot) {
+          if (!snapshot.hasData || !snapshot.data!.isInitialized) {
+            NetworkService().initialize(
+              apiUrl: apiUrl,
+              basicAuthToken: basicAuthToken,
+              gqlPolicies: gqlPolicies,
+              apiRepository: apiRepository,
+              authEndpoint: authEndpoint,
+              apiMappedErrorCodes: apiMappedErrorCodes,
+              authMode: authMode,
+            );
 
-              return _AuthWrapper(
-                authMode: authMode,
-                child: MaterialApp(
-                  title: title ?? 'Flutter Kit',
-                  scaffoldMessengerKey: rootScaffoldMessengerKey,
-                  debugShowCheckedModeBanner: false,
-                  builder: EasyLoading.init(),
-                  routes: routes,
-                  color: primaryColor,
-                  theme: theme != null
-                      ? theme.copyWith(primaryColor: primaryColor)
-                      : ThemeData(primaryColor: primaryColor),
-                  home: home,
-                ),
-              );
-            },
-          ),
-        ),
-      );
-    },
+            return const Space();
+          }
+
+          return _AuthWrapper(
+            authMode: authMode,
+            child: MaterialApp(
+              title: title ?? 'Flutter Kit',
+              scaffoldMessengerKey: rootScaffoldMessengerKey,
+              debugShowCheckedModeBanner: false,
+              builder: EasyLoading.init(),
+              routes: routes,
+              color: primaryColor,
+              theme: theme != null
+                  ? theme.copyWith(primaryColor: primaryColor)
+                  : ThemeData(primaryColor: primaryColor),
+              home: home,
+            ),
+          );
+        },
+      ),
+    ),
   );
 }

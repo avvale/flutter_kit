@@ -149,23 +149,23 @@ class TabsService {
     );
   }
 
-  Future<bool> onPopRoute() {
+  Future<bool> onPopRoute() async {
     final GlobalKey<NavigatorState> navigatorKey =
         tabsStateSync.tabsNavigator[tabsStateSync.selectedIndex].navigator;
 
-    return navigatorKey.currentState!.maybePop().then((hasPopped) {
-      if (!hasPopped && tabsStateSync.selectedIndex != 0) {
-        _dataFetcher.add(
-          tabsStateSync.copyWith(
-            selectedIndex: 0,
-          ),
-        );
+    final hasPopped = await navigatorKey.currentState!.maybePop();
 
-        return Future<bool>.value(false);
-      } else {
-        return Future<bool>.value(!hasPopped);
-      }
-    });
+    if (!hasPopped && tabsStateSync.selectedIndex != 0) {
+      _dataFetcher.add(
+        tabsStateSync.copyWith(
+          selectedIndex: 0,
+        ),
+      );
+
+      return Future<bool>.value(false);
+    } else {
+      return Future<bool>.value(!hasPopped);
+    }
   }
 
   void dispose() {

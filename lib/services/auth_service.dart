@@ -45,24 +45,24 @@ class AuthService {
 
   /// Comprueba si existe una sesión guardada. Si la hay, la carga en el estado
   /// de la aplicación y lo inicializa. Si no la hay, solo lo inicializa.
-  Future<bool> initialize() {
-    return _secureStorage.readAll().then((values) async {
-      if (values['accessToken'] != null && values['refreshToken'] != null) {
-        await _setUser(
-          authStateSync.copyWith(
-            isInitialized: true,
-            accessToken: values['accessToken'],
-            refreshToken: values['refreshToken'],
-          ),
-        );
+  Future<bool> initialize() async {
+    final values = await _secureStorage.readAll();
 
-        return true;
-      } else {
-        await _setUser(authStateSync.copyWith(isInitialized: true));
+    if (values['accessToken'] != null && values['refreshToken'] != null) {
+      await _setUser(
+        authStateSync.copyWith(
+          isInitialized: true,
+          accessToken: values['accessToken'],
+          refreshToken: values['refreshToken'],
+        ),
+      );
 
-        return false;
-      }
-    });
+      return true;
+    } else {
+      await _setUser(authStateSync.copyWith(isInitialized: true));
+
+      return false;
+    }
   }
 
   /// Inicia sesión con las credenciales introducidas. Si se ha iniciado sesión
@@ -74,7 +74,7 @@ class AuthService {
     AuthMode? authMode,
     user = '',
     pass = '',
-  }) {
+  }) async {
     EasyLoading.show();
 
     final Map<String, dynamic> params = {};
@@ -102,16 +102,16 @@ class AuthService {
       }
     }
 
-    return NetworkService()
-        .mutate(
-      endpoint: endpoint,
-      useBasicAuth: true,
-      params: params,
-    )
-        .then((res) async {
+    try {
+      final res = await NetworkService().mutate(
+        endpoint: endpoint,
+        useBasicAuth: true,
+        params: params,
+      );
+
       if (res.exception != null) {
         for (var err in res.exception!.graphqlErrors) {
-          Debugger.log('Login error (then)', err);
+          Debugger.log('Login error (try)', err);
         }
 
         if (useRefreshToken) return false;
@@ -154,13 +154,15 @@ class AuthService {
       }
 
       return false;
-    }).catchError((e) {
+    } catch (e) {
       Debugger.log('Login error (catch)', e);
 
       logout();
 
-      return e;
-    }).whenComplete(() => EasyLoading.dismiss());
+      rethrow;
+    } finally {
+      EasyLoading.dismiss();
+    }
   }
 
   /// Cierra la sesión actual y borra los tokens del almacenamiento seguro.
