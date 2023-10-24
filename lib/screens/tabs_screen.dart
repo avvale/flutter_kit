@@ -30,7 +30,7 @@ class TabsScreen extends StatelessWidget {
     return WillPopScope(
       onWillPop: TabsService().onPopRoute,
       child: StreamBuilder(
-        stream: TabsService().tabsState,
+        stream: TabsService().stream,
         builder: (context, AsyncSnapshot<TabsState?> tabsState) {
           if (!tabsState.hasData || !tabsState.data!.isInitialized) {
             TabsService().initialize(context, tabsNavigator);

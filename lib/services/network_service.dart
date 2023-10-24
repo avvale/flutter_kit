@@ -6,9 +6,11 @@ import 'package:flutter_kit/models/auth_mode/disabled_auth_mode.dart';
 import 'package:flutter_kit/models/auth_mode/manual_auth_mode.dart';
 import 'package:flutter_kit/models/state/network_state.dart';
 import 'package:flutter_kit/services/auth_service.dart';
+import 'package:flutter_kit/services/lang_service.dart';
 import 'package:flutter_kit/utils/debugger.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter_kit/utils/toast.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:graphql/client.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -32,9 +34,9 @@ class NetworkService {
 
   final _dataFetcher = BehaviorSubject<NetworkState>()..startWith(initialState);
 
-  NetworkState get networkStateSync =>
+  NetworkState get value =>
       _dataFetcher.hasValue ? _dataFetcher.value : initialState;
-  Stream<NetworkState> get networkState => _dataFetcher.stream;
+  Stream<NetworkState> get stream => _dataFetcher.stream;
 
   factory NetworkService() {
     return _instance;
@@ -51,9 +53,10 @@ class NetworkService {
     T? authEndpoint,
     AuthMode authMode = const DisabledAuthMode(),
     Map<String, String>? apiMappedErrorCodes,
+    String? authTokenPrefix,
   }) async {
     _dataFetcher.add(
-      networkStateSync.copyWith(
+      value.copyWith(
         isInitialized: true,
         gqlClientBasicAuth: GraphQLClient(
           link: AuthLink(getToken: () => basicAuthToken).concat(
@@ -74,13 +77,14 @@ class NetworkService {
         authMode: authMode,
         authEndpoint: authEndpoint,
         apiMappedErrorCodes: apiMappedErrorCodes,
+        authTokenPrefix: authTokenPrefix,
       ),
     );
   }
 
   HttpLink _baseHttpLink({Map<String, String> headers = const {}}) {
     return HttpLink(
-      '${networkStateSync.apiUrl}/graphql',
+      '${value.apiUrl}/graphql',
       defaultHeaders: headers,
     );
   }
@@ -89,17 +93,21 @@ class NetworkService {
   Future<void> setToken(String? token) async {
     Debugger.log('setToken', token);
 
+    final String? lang = L10nService().value.currentLocale?.languageCode;
+
     if (token != null) {
+      final String timezone = await FlutterTimezone.getLocalTimezone();
+
       _dataFetcher.add(
-        networkStateSync.copyWith(
-          gqlClient: networkStateSync.gqlClient.copyWith(
+        value.copyWith(
+          gqlClient: value.gqlClient.copyWith(
             link: AuthLink(
-              getToken: () => 'Bearer $token',
+              getToken: () => '${value.authTokenPrefix} $token',
             ).concat(
               _baseHttpLink(
                 headers: {
-                  'X-Timezone': 'Europe/Madrid',
-                  'content-language': 'es',
+                  'X-Timezone': timezone,
+                  if (lang != null) 'content-language': lang,
                 },
               ),
             ),
@@ -108,8 +116,8 @@ class NetworkService {
       );
     } else {
       _dataFetcher.add(
-        networkStateSync.copyWith(
-          gqlClient: networkStateSync.gqlClient.copyWith(link: _baseHttpLink()),
+        value.copyWith(
+          gqlClient: value.gqlClient.copyWith(link: _baseHttpLink()),
         ),
       );
     }
@@ -133,9 +141,8 @@ class NetworkService {
       errorMsg = 'Ha habido un error de red, es posible que no tengas conexión';
     }
     // Request error
-    else if ((error?.exception?.graphqlErrors != null &&
-            error?.exception?.graphqlErrors.isNotEmpty) ||
-        error?.exception?.linkException?.response != null) {
+    else if (existsNotEmpty(error?.exception?.graphqlErrors) ||
+        exists(error?.exception?.linkException?.response)) {
       Debugger.log('Request error');
 
       dynamic statusCode = error?.exception?.graphqlErrors.length > 0
@@ -155,17 +162,13 @@ class NetworkService {
 
       // Bad request
       if (statusCode == '400') {
-        Debugger.log('RE - Bad request');
-
         errorMsg = getErrorMessageFromGraphQLError(error) ?? errorMsg;
       }
       // Authentication error
       else if (statusCode == '401') {
-        Debugger.log('RE - Authentication error');
-
         AuthService().logout();
 
-        switch (networkStateSync.authMode) {
+        switch (value.authMode) {
           case DisabledAuthMode():
             errorMsg = 'No tienes permisos para realizar esta acción';
             break;
@@ -179,14 +182,9 @@ class NetworkService {
       }
       // Forbidden error
       else if (statusCode == '403') {
-        Debugger.log('RE - Forbidden error');
-
         errorMsg = getErrorMessageFromGraphQLError(error) ?? errorMsg;
-      } else if (networkStateSync.apiMappedErrorCodes[statusCode.toString()] !=
-          null) {
-        Debugger.log('RE - Mapped error');
-
-        errorMsg = networkStateSync.apiMappedErrorCodes[statusCode.toString()]!;
+      } else if (value.apiMappedErrorCodes[statusCode.toString()] != null) {
+        errorMsg = value.apiMappedErrorCodes[statusCode.toString()]!;
       }
     }
 
@@ -238,18 +236,18 @@ class NetworkService {
                 error.extensions?['originalError']?['statusCode'] == 401,
           );
 
-          if (hasAuthError && networkStateSync.authEndpoint != null) {
+          if (hasAuthError && value.authEndpoint != null) {
             Debugger.log('Authentication error, trying to reload token');
 
-            final AuthMode authMode = networkStateSync.authMode;
+            final AuthMode authMode = value.authMode;
 
             switch (authMode) {
               case DisabledAuthMode():
                 break;
               case ManualAuthMode():
-                if (existsNotEmpty(AuthService().authStateSync.refreshToken) &&
+                if (existsNotEmpty(AuthService().value.refreshToken) &&
                     await AuthService().login(
-                      endpoint: networkStateSync.authEndpoint,
+                      endpoint: value.authEndpoint,
                       useRefreshToken: true,
                     )) {
                   return query(
@@ -260,9 +258,9 @@ class NetworkService {
                 }
                 break;
               case AutoAuthMode():
-                if (existsNotEmpty(AuthService().authStateSync.refreshToken) &&
+                if (existsNotEmpty(AuthService().value.refreshToken) &&
                     await AuthService().login(
-                      endpoint: networkStateSync.authEndpoint,
+                      endpoint: value.authEndpoint,
                       useRefreshToken: true,
                     )) {
                   return query(
@@ -272,7 +270,7 @@ class NetworkService {
                   );
                 } else {
                   if (await AuthService().login(
-                    endpoint: networkStateSync.authEndpoint,
+                    endpoint: value.authEndpoint,
                     authMode: authMode,
                   )) {
                     return query(
@@ -291,7 +289,7 @@ class NetworkService {
       _handleError(
         error: res,
         endpoint: endpoint,
-        request: networkStateSync.apiRepository[endpoint]!,
+        request: value.apiRepository[endpoint]!,
         requestType: requestType,
       );
 
@@ -316,7 +314,7 @@ class NetworkService {
     }) handler,
     required GraphQLClient gqlClient,
   }) async {
-    final request = networkStateSync.apiRepository[endpoint]!;
+    final request = value.apiRepository[endpoint]!;
 
     switch (requestType) {
       case RequestType.query:
@@ -381,9 +379,7 @@ class NetworkService {
         requestType: RequestType.query,
         isRetry: isRetry,
         handler: useBasicAuth ? _handleResponseBasicAuth : _handleResponse,
-        gqlClient: useBasicAuth
-            ? networkStateSync.gqlClientBasicAuth
-            : networkStateSync.gqlClient,
+        gqlClient: useBasicAuth ? value.gqlClientBasicAuth : value.gqlClient,
       );
 
   /// Realiza una mutación GraphQL
@@ -399,8 +395,6 @@ class NetworkService {
         requestType: RequestType.mutation,
         isRetry: isRetry,
         handler: useBasicAuth ? _handleResponseBasicAuth : _handleResponse,
-        gqlClient: useBasicAuth
-            ? networkStateSync.gqlClientBasicAuth
-            : networkStateSync.gqlClient,
+        gqlClient: useBasicAuth ? value.gqlClientBasicAuth : value.gqlClient,
       );
 }

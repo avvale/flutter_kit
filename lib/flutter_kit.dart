@@ -9,9 +9,12 @@ import 'package:flutter_kit/models/auth_mode/disabled_auth_mode.dart';
 import 'package:flutter_kit/models/auth_mode/manual_auth_mode.dart';
 import 'package:flutter_kit/models/easy_loading_config.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
+import 'package:flutter_kit/models/state/l10n_state.dart';
 import 'package:flutter_kit/models/state/network_state.dart';
 import 'package:flutter_kit/services/auth_service.dart';
+import 'package:flutter_kit/services/lang_service.dart';
 import 'package:flutter_kit/services/network_service.dart';
+import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter_kit/widgets/space.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:graphql/client.dart';
@@ -59,6 +62,95 @@ void _initializeLoaderConfig({required EasyLoadingConfig elc}) {
         elc.userInteractions ?? EasyLoading.instance.userInteractions;
 }
 
+class _NetworkWrapper<T> extends StatelessWidget {
+  final Widget child;
+  final String apiUrl;
+  final String? basicAuthToken;
+  final Policies? gqlPolicies;
+  final Map<String, String>? apiMappedErrorCodes;
+  final Map<T, String> apiRepository;
+  final T? authEndpoint;
+  final AuthMode authMode;
+  final String authTokenPrefix;
+
+  const _NetworkWrapper({
+    Key? key,
+    required this.child,
+    required this.apiUrl,
+    required this.basicAuthToken,
+    required this.gqlPolicies,
+    required this.apiMappedErrorCodes,
+    required this.apiRepository,
+    required this.authEndpoint,
+    required this.authMode,
+    required this.authTokenPrefix,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: NetworkService().stream,
+      builder: (context, AsyncSnapshot<NetworkState> snapshot) {
+        if (!snapshot.hasData || !snapshot.data!.isInitialized) {
+          NetworkService().initialize(
+            apiUrl: apiUrl,
+            basicAuthToken: basicAuthToken,
+            gqlPolicies: gqlPolicies,
+            apiRepository: apiRepository,
+            authEndpoint: authEndpoint,
+            apiMappedErrorCodes: apiMappedErrorCodes,
+            authMode: authMode,
+            authTokenPrefix: authTokenPrefix,
+          );
+
+          return const Space();
+        }
+
+        return child;
+      },
+    );
+  }
+}
+
+class _L10nWrapper extends StatelessWidget {
+  final bool useLocalization;
+  final Widget child;
+  final String defaultLang;
+  final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
+  final Iterable<Locale>? supportedLocales;
+
+  const _L10nWrapper({
+    Key? key,
+    required this.useLocalization,
+    required this.child,
+    required this.defaultLang,
+    this.localizationsDelegates,
+    this.supportedLocales,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (!useLocalization) return child;
+
+    return StreamBuilder(
+      stream: L10nService().stream,
+      builder: (context, AsyncSnapshot<L10nState> snapshot) {
+        if (!snapshot.hasData || !snapshot.data!.isInitialized) {
+          L10nService().initialize(
+            defaultLang: defaultLang,
+            localizationsDelegates: localizationsDelegates,
+            supportedLocales: supportedLocales,
+          );
+
+          return const Space();
+        }
+
+        return child;
+      },
+    );
+  }
+}
+
 class _AuthWrapper extends StatelessWidget {
   final Widget child;
   final AuthMode authMode;
@@ -75,7 +167,7 @@ class _AuthWrapper extends StatelessWidget {
       case ManualAuthMode():
       case AutoAuthMode():
         return StreamBuilder(
-          stream: AuthService().authState,
+          stream: AuthService().stream,
           builder: (context, AsyncSnapshot<AuthState> snapshot) {
             if (!snapshot.hasData || !snapshot.data!.isInitialized) {
               AuthService().initialize();
@@ -94,27 +186,71 @@ class _AuthWrapper extends StatelessWidget {
 
 /// Run application with custom configuration
 void fxRunApp<T>({
+  /// The title of the application.
   String? title,
+
+  /// The primary color to use for the application.
   Color? primaryColor,
+
+  /// The theme to use for the application.
   ThemeData? theme,
+
+  /// The duration of the splash screen.
   Duration? splashDuration,
+
+  /// The API URL.
   String apiUrl = '',
+
+  /// The authentication mode.
   AuthMode authMode = const DisabledAuthMode(),
+
+  /// The basic auth token.
   String? basicAuthToken,
+
+  /// The GraphQL policies.
   Policies? gqlPolicies,
+
+  /// The API repository.
   Map<T, String> apiRepository = const {},
+
+  /// The auth token prefix.
+  String authTokenPrefix = 'Bearer',
+
+  /// The auth endpoint.
   T? authEndpoint,
+
+  /// The mapped error codes.
   Map<String, String>? apiMappedErrorCodes,
+
+  /// The home page/initial screen.
   Widget? home,
+
+  /// The routes for the application.
   Map<String, Widget Function(BuildContext)> routes =
       const <String, WidgetBuilder>{},
 
   /// The orientations to use for the application.
   List<DeviceOrientation> orientations = const [DeviceOrientation.portraitUp],
 
-  /// Configuration for loader to be shown on loading data
+  /// Configuration for loader to be shown on loading data.
   EasyLoadingConfig? loaderConfig,
+
+  /// Whether to use localization services or not.
+  bool useLocalization = false,
+
+  /// The default language. If localization is used, this parameter is required.
+  String? defaultLang,
+  Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates,
+  Iterable<Locale>? supportedLocales,
 }) async {
+  assert(
+    useLocalization == false ||
+        (existsNotEmpty(defaultLang) &&
+            localizationsDelegates != null &&
+            supportedLocales != null),
+    'If localization is used, defaultLang parameter is required',
+  );
+
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
   if (splashDuration != null) {
@@ -155,24 +291,21 @@ void fxRunApp<T>({
     GestureDetector(
       /// When tapping outside of a text field, the keyboard is hidden
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: StreamBuilder(
-        stream: NetworkService().networkState,
-        builder: (context, AsyncSnapshot<NetworkState> snapshot) {
-          if (!snapshot.hasData || !snapshot.data!.isInitialized) {
-            NetworkService().initialize(
-              apiUrl: apiUrl,
-              basicAuthToken: basicAuthToken,
-              gqlPolicies: gqlPolicies,
-              apiRepository: apiRepository,
-              authEndpoint: authEndpoint,
-              apiMappedErrorCodes: apiMappedErrorCodes,
-              authMode: authMode,
-            );
-
-            return const Space();
-          }
-
-          return _AuthWrapper(
+      child: _NetworkWrapper(
+        apiUrl: apiUrl,
+        basicAuthToken: basicAuthToken,
+        gqlPolicies: gqlPolicies,
+        apiRepository: apiRepository,
+        authEndpoint: authEndpoint,
+        apiMappedErrorCodes: apiMappedErrorCodes,
+        authMode: authMode,
+        authTokenPrefix: authTokenPrefix,
+        child: _L10nWrapper(
+          useLocalization: useLocalization,
+          defaultLang: defaultLang!,
+          localizationsDelegates: localizationsDelegates,
+          supportedLocales: supportedLocales,
+          child: _AuthWrapper(
             authMode: authMode,
             child: MaterialApp(
               title: title ?? 'Flutter Kit',
@@ -186,8 +319,8 @@ void fxRunApp<T>({
                   : ThemeData(primaryColor: primaryColor),
               home: home,
             ),
-          );
-        },
+          ),
+        ),
       ),
     ),
   );

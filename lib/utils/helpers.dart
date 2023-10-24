@@ -38,12 +38,23 @@ MaterialColor createMaterialColor(Color color) {
   return MaterialColor(color.value, swatch);
 }
 
-bool exists(String? x) {
+bool exists(dynamic x) {
   return x != null;
 }
 
-bool existsNotEmpty(String? x) {
-  return exists(x) && x!.isNotEmpty;
+bool existsNotEmpty(dynamic x) {
+  if (!exists(x)) return false;
+
+  switch (x.runtimeType) {
+    case String:
+      return (x as String).trim().isNotEmpty;
+    case List:
+      return (x as List).isNotEmpty;
+    case Map:
+      return (x as Map).isNotEmpty;
+    default:
+      return true;
+  }
 }
 
 String? getErrorMessageFromGraphQLError(dynamic error) {

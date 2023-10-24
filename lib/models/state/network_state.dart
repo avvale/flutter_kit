@@ -10,6 +10,7 @@ class NetworkState<T> {
   final AuthMode authMode;
   final T? authEndpoint;
   final Map<String, String> apiMappedErrorCodes;
+  final String? authTokenPrefix;
 
   const NetworkState({
     required this.isInitialized,
@@ -20,6 +21,7 @@ class NetworkState<T> {
     required this.authMode,
     this.authEndpoint,
     this.apiMappedErrorCodes = const {},
+    this.authTokenPrefix,
   });
 
   NetworkState copyWith({
@@ -31,6 +33,7 @@ class NetworkState<T> {
     AuthMode? authMode,
     T? authEndpoint,
     Map<String, String>? apiMappedErrorCodes,
+    String? authTokenPrefix,
   }) {
     return NetworkState(
       isInitialized: isInitialized ?? this.isInitialized,
@@ -41,6 +44,7 @@ class NetworkState<T> {
       authMode: authMode ?? this.authMode,
       authEndpoint: authEndpoint ?? this.authEndpoint,
       apiMappedErrorCodes: apiMappedErrorCodes ?? this.apiMappedErrorCodes,
+      authTokenPrefix: authTokenPrefix ?? this.authTokenPrefix,
     );
   }
 }

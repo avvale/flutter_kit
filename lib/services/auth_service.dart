@@ -20,18 +20,19 @@ const initialState = AuthState(
 class AuthService {
   static final AuthService _instance = AuthService._internal();
 
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   final _dataFetcher = BehaviorSubject<AuthState>()..startWith(initialState);
 
-  AuthState get authStateSync =>
+  AuthState get value =>
       _dataFetcher.hasValue ? _dataFetcher.value : initialState;
-  Stream<AuthState> get authState => _dataFetcher.stream;
+  Stream<AuthState> get stream => _dataFetcher.stream;
 
   factory AuthService() {
     return _instance;
   }
 
   AuthService._internal();
+
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   /// Guarda los tokens en el almacenamiento seguro, los carga en el estado de
   /// la aplicación y establece el token de la API.
@@ -46,20 +47,21 @@ class AuthService {
   /// Comprueba si existe una sesión guardada. Si la hay, la carga en el estado
   /// de la aplicación y lo inicializa. Si no la hay, solo lo inicializa.
   Future<bool> initialize() async {
-    final values = await _secureStorage.readAll();
+    final secureValues = await _secureStorage.readAll();
 
-    if (values['accessToken'] != null && values['refreshToken'] != null) {
+    if (secureValues['fx_accessToken'] != null &&
+        secureValues['fx_refreshToken'] != null) {
       await _setUser(
-        authStateSync.copyWith(
+        value.copyWith(
           isInitialized: true,
-          accessToken: values['accessToken'],
-          refreshToken: values['refreshToken'],
+          accessToken: secureValues['fx_accessToken'],
+          refreshToken: secureValues['fx_refreshToken'],
         ),
       );
 
       return true;
     } else {
-      await _setUser(authStateSync.copyWith(isInitialized: true));
+      await _setUser(value.copyWith(isInitialized: true));
 
       return false;
     }
@@ -82,7 +84,7 @@ class AuthService {
     if (useRefreshToken) {
       params['payload'] = {
         'grantType': 'REFRESH_TOKEN',
-        'refreshToken': authStateSync.refreshToken,
+        'refreshToken': value.refreshToken,
       };
     } else if (authMode != null) {
       switch (authMode) {
@@ -127,16 +129,16 @@ class AuthService {
           Debugger.log('Login OAuth data', oAuthData);
 
           await _secureStorage.write(
-            key: 'accessToken',
+            key: 'fx_accessToken',
             value: oAuthData['accessToken'],
           );
           await _secureStorage.write(
-            key: 'refreshToken',
+            key: 'fx_refreshToken',
             value: oAuthData['refreshToken'],
           );
 
           _setUser(
-            authStateSync.copyWith(
+            value.copyWith(
               accessToken: oAuthData['accessToken'],
               refreshToken: oAuthData['refreshToken'],
             ),
@@ -169,10 +171,10 @@ class AuthService {
   void logout() {
     Debugger.log('Logout');
 
-    _secureStorage.delete(key: 'accessToken');
-    _secureStorage.delete(key: 'refreshToken');
+    _secureStorage.delete(key: 'fx_accessToken');
+    _secureStorage.delete(key: 'fx_refreshToken');
 
-    _setUser(authStateSync.copyWith(accessToken: '', refreshToken: ''));
+    _setUser(value.copyWith(accessToken: '', refreshToken: ''));
   }
 
   void dispose() {

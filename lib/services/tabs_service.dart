@@ -11,17 +11,18 @@ const initialState = TabsState(
   isInitialized: false,
 );
 
+/// Servicio que gestiona el estado de la navegación por tabs
 class TabsService {
   static final TabsService _instance = TabsService._internal();
+
   final _dataFetcher = BehaviorSubject<TabsState>()
     ..startWith(
       initialState,
     );
-  final List<int> _initTabs = [];
 
-  TabsState get tabsStateSync =>
+  TabsState get value =>
       _dataFetcher.hasValue ? _dataFetcher.value : initialState;
-  Stream<TabsState> get tabsState => _dataFetcher.stream;
+  Stream<TabsState> get stream => _dataFetcher.stream;
 
   factory TabsService() {
     return _instance;
@@ -29,15 +30,17 @@ class TabsService {
 
   TabsService._internal();
 
+  final List<int> _initTabs = [];
+
   _initCurrentTab(BuildContext context) {
     if (!context.mounted) return;
 
-    if (!_initTabs.contains(tabsStateSync.selectedIndex)) {
-      Debugger.log('Init tab ${tabsStateSync.selectedIndex}');
+    if (!_initTabs.contains(value.selectedIndex)) {
+      Debugger.log('Init tab ${value.selectedIndex}');
 
-      _initTabs.add(tabsStateSync.selectedIndex);
+      _initTabs.add(value.selectedIndex);
 
-      tabsStateSync.tabsNavigator[tabsStateSync.selectedIndex].onInit?.call(
+      value.tabsNavigator[value.selectedIndex].onInit?.call(
         context,
       );
     }
@@ -47,7 +50,7 @@ class TabsService {
     final index = ModalRoute.of(context)?.settings.arguments;
 
     _dataFetcher.add(
-      tabsStateSync.copyWith(
+      value.copyWith(
         selectedIndex: (index != null && index is int) ? index : 0,
         tabsNavigator: tabsNavigator,
         isInitialized: true,
@@ -59,7 +62,7 @@ class TabsService {
 
   void updateContext(BuildContext context) {
     _dataFetcher.add(
-      tabsStateSync.copyWith(
+      value.copyWith(
         tabsContext: context,
       ),
     );
@@ -71,8 +74,8 @@ class TabsService {
   ) =>
       MaterialPageRoute<dynamic>(
         builder: (context) => [
-          tabsStateSync.tabsNavigator[index].initialRoute,
-          ...tabsStateSync.tabsNavigator[index].routes,
+          value.tabsNavigator[index].initialRoute,
+          ...value.tabsNavigator[index].routes,
         ].firstWhere((route) => route.route == settings.name).screen,
         settings: settings,
       );
@@ -84,13 +87,13 @@ class TabsService {
   }) {
     FocusManager.instance.primaryFocus?.unfocus();
 
-    if (tabsStateSync.selectedIndex == newIndex) {
-      tabsStateSync.tabsNavigator[newIndex].navigator.currentState!.popUntil(
+    if (value.selectedIndex == newIndex) {
+      value.tabsNavigator[newIndex].navigator.currentState!.popUntil(
         (route) => route.isFirst,
       );
     } else {
       _dataFetcher.add(
-        tabsStateSync.copyWith(
+        value.copyWith(
           selectedIndex: newIndex,
         ),
       );
@@ -105,8 +108,8 @@ class TabsService {
     Object? arguments,
     bool initTab = true,
   }) async {
-    final List<FxNavigator> appNavigator = tabsStateSync.tabsNavigator;
-    int tabIndex = tabsStateSync.selectedIndex;
+    final List<FxNavigator> appNavigator = value.tabsNavigator;
+    int tabIndex = value.selectedIndex;
     BuildContext tabContext = context;
 
     // Primero se busca la ruta en el navigator del tab actual
@@ -136,7 +139,7 @@ class TabsService {
       }
 
       // Antes de navegar a la ruta se resetea el árbol de navegación del tab
-      tabsStateSync.tabsNavigator[tabIndex].navigator.currentState!.popUntil(
+      value.tabsNavigator[tabIndex].navigator.currentState!.popUntil(
         (route) => route.isFirst,
       );
 
@@ -151,13 +154,13 @@ class TabsService {
 
   Future<bool> onPopRoute() async {
     final GlobalKey<NavigatorState> navigatorKey =
-        tabsStateSync.tabsNavigator[tabsStateSync.selectedIndex].navigator;
+        value.tabsNavigator[value.selectedIndex].navigator;
 
     final hasPopped = await navigatorKey.currentState!.maybePop();
 
-    if (!hasPopped && tabsStateSync.selectedIndex != 0) {
+    if (!hasPopped && value.selectedIndex != 0) {
       _dataFetcher.add(
-        tabsStateSync.copyWith(
+        value.copyWith(
           selectedIndex: 0,
         ),
       );
