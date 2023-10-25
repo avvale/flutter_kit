@@ -1,11 +1,39 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
-enum TxSize { xl3, xl2, xl, l, m, m2, s, xs, xs2 }
+abstract class TxSize {
+  static const double xl3 = 32;
+  static const double xl2 = 28;
+  static const double xl = 24;
+  static const double l = 20;
+  static const double m2 = 18;
+  static const double m = 16;
+  static const double s = 14;
+  static const double xs = 12;
+  static const double xs2 = 10;
+  static const double xs3 = 8;
+}
 
-enum TxColor { black, darkGrey, grey, white, blue, red }
+abstract class TxColor {
+  static const Color black = Color(0xff000000);
+  static const Color darkGrey = Color(0xff3d3d3d);
+  static const Color grey = Color(0xff7d7d7d);
+  static const Color lightGrey = Color(0xffc4c4c4);
+  static const Color white = Color(0xffffffff);
+  static const Color blue = Color(0xff0000ff);
+  static const Color red = Color(0xffff0000);
+}
 
-enum TxWeight { normal, w500, w600, bold }
+abstract class TxWeight {
+  static const FontWeight light = FontWeight.w300;
+  static const FontWeight w400 = FontWeight.w400;
+  static const FontWeight normal = FontWeight.normal;
+  static const FontWeight w500 = FontWeight.w500;
+  static const FontWeight w600 = FontWeight.w600;
+  static const FontWeight bold = FontWeight.bold;
+}
+
+// enum TxWeight { normal, w500, w600, bold }
 
 enum TxAlign { left, center, right, justify }
 
@@ -13,31 +41,6 @@ enum TxStyle { normal, italic }
 
 enum TxDecoration { normal, underline }
 
-const Map<TxSize, double> _txSizes = {
-  TxSize.xl3: 32,
-  TxSize.xl2: 28,
-  TxSize.xl: 24,
-  TxSize.l: 20,
-  TxSize.m2: 18,
-  TxSize.m: 16,
-  TxSize.s: 14,
-  TxSize.xs: 12,
-  TxSize.xs2: 10,
-};
-const Map<TxColor, Color> _txColors = {
-  TxColor.black: Colors.black,
-  TxColor.darkGrey: Color(0xff7d7d7d),
-  TxColor.grey: Colors.grey,
-  TxColor.white: Colors.white,
-  TxColor.blue: Colors.blue,
-  TxColor.red: Colors.red,
-};
-const Map<TxWeight, FontWeight> _txWeights = {
-  TxWeight.normal: FontWeight.normal,
-  TxWeight.w500: FontWeight.w500,
-  TxWeight.w600: FontWeight.w600,
-  TxWeight.bold: FontWeight.bold,
-};
 const Map<TxAlign, TextAlign> _txAligns = {
   TxAlign.left: TextAlign.left,
   TxAlign.center: TextAlign.center,
@@ -58,13 +61,13 @@ class Tx extends StatelessWidget {
   final String text;
 
   /// Size of the text.
-  final TxSize size;
+  final double size;
 
   /// Color of the text.
-  final TxColor color;
+  final Color color;
 
   /// Weight of the text.
-  final TxWeight weight;
+  final FontWeight weight;
 
   /// Style of the text.
   final TxStyle style;
@@ -82,7 +85,7 @@ class Tx extends StatelessWidget {
   final bool autoSize;
 
   /// Minimum size of the text when using autoSize.
-  final TxSize? minSize;
+  final double? minSize;
 
   /// Wrapper around Text widget which provides an unified way to style text
   /// wasily allowing features like autosize, multiline, etc.
@@ -100,21 +103,18 @@ class Tx extends StatelessWidget {
     this.minSize,
   }) : super(key: key);
 
-  /// Returns the corresponding Color object based on the provided TxColor.
-  static Color getColorByTxColor(TxColor color) => _txColors[color]!;
-
   /// Returns a TextStyle object based on the Tx parameters.
   static TextStyle getStyle({
-    TxSize size = TxSize.m,
-    TxColor color = TxColor.black,
-    TxWeight weight = TxWeight.normal,
+    double size = TxSize.m,
+    Color color = TxColor.black,
+    FontWeight weight = TxWeight.normal,
     TxStyle style = TxStyle.normal,
     TxDecoration decoration = TxDecoration.normal,
   }) {
     return TextStyle(
-      fontSize: _txSizes[size]!,
-      color: _txColors[color]!,
-      fontWeight: _txWeights[weight]!,
+      fontSize: size,
+      color: color,
+      fontWeight: weight,
       fontStyle: _txStyles[style]!,
       decoration: _txDecorations[decoration]!,
     );
@@ -126,13 +126,13 @@ class Tx extends StatelessWidget {
       return AutoSizeText(
         text,
         maxLines: maxLines,
-        minFontSize: _txSizes[minSize ?? size]!,
+        minFontSize: minSize ?? size,
         overflow: TextOverflow.ellipsis,
         textAlign: _txAligns[align]!,
         style: TextStyle(
-          fontSize: _txSizes[size]!,
-          color: _txColors[color]!,
-          fontWeight: _txWeights[weight]!,
+          fontSize: size,
+          color: color,
+          fontWeight: weight,
           fontStyle: _txStyles[style]!,
           decoration: _txDecorations[decoration]!,
         ),
@@ -144,9 +144,9 @@ class Tx extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         textAlign: _txAligns[align]!,
         style: TextStyle(
-          fontSize: _txSizes[size]!,
-          color: _txColors[color]!,
-          fontWeight: _txWeights[weight]!,
+          fontSize: size,
+          color: color,
+          fontWeight: weight,
           fontStyle: _txStyles[style]!,
           decoration: _txDecorations[decoration]!,
         ),
