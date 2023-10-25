@@ -3,6 +3,7 @@ import 'package:flutter_kit/models/state/l10n_state.dart';
 import 'package:flutter_kit/services/auth_service.dart';
 import 'package:flutter_kit/services/network_service.dart';
 import 'package:flutter_kit/utils/debugger.dart';
+import 'package:flutter_kit/utils/helpers.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -47,14 +48,14 @@ class L10nService {
     prefs.setString('fx_lang', lang);
   }
 
-  Future<void> updateLang(String lang) async {
+  Future<void> updateLang(String? lang) async {
     Debugger.log('Update language', lang);
 
-    if (lang == value.currentLocale?.languageCode) {
+    if (!existsNotEmpty(lang) || lang == value.currentLocale?.languageCode) {
       return;
     }
 
-    _dataFetcher.sink.add(value.copyWith(currentLocale: Locale(lang)));
+    _dataFetcher.sink.add(value.copyWith(currentLocale: Locale(lang!)));
 
     final prefs = await SharedPreferences.getInstance();
 
