@@ -281,10 +281,10 @@ void fxRunApp<T>({
   bool useLocalization = false,
 
   /// The default language. If localization is used, this parameter is required.
-  String defaultLang = 'es',
+  String defaultLang = 'en',
   Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates =
       const <LocalizationsDelegate<dynamic>>[],
-  Iterable<Locale> supportedLocales = const <Locale>[Locale('es', 'ES')],
+  Iterable<Locale> supportedLocales = const <Locale>[Locale('en', 'US')],
 }) async {
   assert(
     useLocalization == false ||
