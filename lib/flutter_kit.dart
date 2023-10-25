@@ -284,7 +284,7 @@ void fxRunApp<T>({
   String defaultLang = 'es',
   Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates =
       const <LocalizationsDelegate<dynamic>>[],
-  Iterable<Locale> supportedLocales = const <Locale>[],
+  Iterable<Locale> supportedLocales = const <Locale>[Locale('es', 'ES')],
 }) async {
   assert(
     useLocalization == false ||
