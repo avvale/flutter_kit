@@ -64,7 +64,7 @@ class Tx extends StatelessWidget {
   final double size;
 
   /// Color of the text.
-  final Color color;
+  final Color? color;
 
   /// Weight of the text.
   final FontWeight weight;
@@ -93,7 +93,7 @@ class Tx extends StatelessWidget {
     this.text, {
     Key? key,
     this.size = TxSize.m,
-    this.color = TxColor.black,
+    this.color,
     this.weight = TxWeight.normal,
     this.style = TxStyle.normal,
     this.decoration = TxDecoration.normal,
@@ -131,7 +131,7 @@ class Tx extends StatelessWidget {
         textAlign: _txAligns[align]!,
         style: TextStyle(
           fontSize: size,
-          color: color,
+          color: color ?? Theme.of(context).textTheme.bodyLarge?.color,
           fontWeight: weight,
           fontStyle: _txStyles[style]!,
           decoration: _txDecorations[decoration]!,
@@ -145,7 +145,7 @@ class Tx extends StatelessWidget {
         textAlign: _txAligns[align]!,
         style: TextStyle(
           fontSize: size,
-          color: color,
+          color: color ?? Theme.of(context).textTheme.bodyLarge?.color,
           fontWeight: weight,
           fontStyle: _txStyles[style]!,
           decoration: _txDecorations[decoration]!,
