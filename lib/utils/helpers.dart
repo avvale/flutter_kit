@@ -76,3 +76,7 @@ String? getErrorMessageFromGraphQLError(dynamic error) {
 
   return null;
 }
+
+String capitalize(String str) {
+  return str[0].toUpperCase() + str.substring(1);
+}
