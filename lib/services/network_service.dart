@@ -44,83 +44,11 @@ class NetworkService {
 
   NetworkService._internal();
 
-  /// Inicializa el servicio de red
-  Future<void> initialize<T>({
-    required String apiUrl,
-    String? basicAuthToken,
-    Policies? gqlPolicies,
-    Map<T, String> apiRepository = const {},
-    T? authEndpoint,
-    AuthMode authMode = const DisabledAuthMode(),
-    Map<String, String>? apiMappedErrorCodes,
-    String? authTokenPrefix,
-  }) async {
-    _dataFetcher.add(
-      value.copyWith(
-        isInitialized: true,
-        gqlClientBasicAuth: GraphQLClient(
-          link: AuthLink(getToken: () => basicAuthToken).concat(
-            HttpLink('$apiUrl/graphql'),
-          ),
-          cache: GraphQLCache(),
-        ),
-        gqlClient: GraphQLClient(
-          link: HttpLink('$apiUrl/graphql'),
-          cache: GraphQLCache(),
-          defaultPolicies: DefaultPolicies(
-            query: gqlPolicies,
-            mutate: gqlPolicies,
-          ),
-        ),
-        apiUrl: apiUrl,
-        apiRepository: apiRepository,
-        authMode: authMode,
-        authEndpoint: authEndpoint,
-        apiMappedErrorCodes: apiMappedErrorCodes,
-        authTokenPrefix: authTokenPrefix,
-      ),
-    );
-  }
-
   HttpLink _baseHttpLink({Map<String, String> headers = const {}}) {
     return HttpLink(
       '${value.apiUrl}/graphql',
       defaultHeaders: headers,
     );
-  }
-
-  /// Establece el token de la API
-  Future<void> setToken(String? token) async {
-    Debugger.log('setToken', token);
-
-    final String? lang = L10nService().value.currentLocale?.languageCode;
-
-    if (token != null) {
-      final String timezone = await FlutterTimezone.getLocalTimezone();
-
-      _dataFetcher.add(
-        value.copyWith(
-          gqlClient: value.gqlClient.copyWith(
-            link: AuthLink(
-              getToken: () => '${value.authTokenPrefix} $token',
-            ).concat(
-              _baseHttpLink(
-                headers: {
-                  'X-Timezone': timezone,
-                  if (lang != null) 'content-language': lang,
-                },
-              ),
-            ),
-          ),
-        ),
-      );
-    } else {
-      _dataFetcher.add(
-        value.copyWith(
-          gqlClient: value.gqlClient.copyWith(link: _baseHttpLink()),
-        ),
-      );
-    }
   }
 
   // Default GraphQL error handler
@@ -363,6 +291,84 @@ class NetworkService {
 
           rethrow;
         }
+    }
+  }
+
+  /// Inicializa el servicio de red
+  Future<void> initialize<T>({
+    required String apiUrl,
+    String? basicAuthToken,
+    Policies? gqlPolicies,
+    Map<T, String> apiRepository = const {},
+    T? authEndpoint,
+    AuthMode authMode = const DisabledAuthMode(),
+    Map<String, String>? apiMappedErrorCodes,
+    String? authTokenPrefix,
+  }) async {
+    _dataFetcher.add(
+      value.copyWith(
+        isInitialized: true,
+        gqlClientBasicAuth: GraphQLClient(
+          link: AuthLink(getToken: () => basicAuthToken).concat(
+            HttpLink('$apiUrl/graphql'),
+          ),
+          cache: GraphQLCache(),
+        ),
+        gqlClient: GraphQLClient(
+          link: HttpLink('$apiUrl/graphql'),
+          cache: GraphQLCache(),
+          defaultPolicies: DefaultPolicies(
+            query: gqlPolicies,
+            mutate: gqlPolicies,
+          ),
+        ),
+        apiUrl: apiUrl,
+        apiRepository: apiRepository,
+        authMode: authMode,
+        authEndpoint: authEndpoint,
+        apiMappedErrorCodes: apiMappedErrorCodes,
+        authTokenPrefix: authTokenPrefix,
+      ),
+    );
+  }
+
+  /// Establece el token de la API
+  Future<void> setToken(String? token) async {
+    Debugger.log('Set auth token', token);
+
+    final String timezone = await FlutterTimezone.getLocalTimezone();
+    final String? lang = L10nService().value.currentLocale?.languageCode;
+
+    if (existsNotEmpty(token)) {
+      _dataFetcher.add(
+        value.copyWith(
+          gqlClient: value.gqlClient.copyWith(
+            link: AuthLink(
+              getToken: () => '${value.authTokenPrefix} $token',
+            ).concat(
+              _baseHttpLink(
+                headers: {
+                  'X-Timezone': timezone,
+                  if (existsNotEmpty(lang)) 'content-language': lang!,
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+    } else {
+      _dataFetcher.add(
+        value.copyWith(
+          gqlClient: value.gqlClient.copyWith(
+            link: _baseHttpLink(
+              headers: {
+                'X-Timezone': timezone,
+                if (existsNotEmpty(lang)) 'content-language': lang!,
+              },
+            ),
+          ),
+        ),
+      );
     }
   }
 

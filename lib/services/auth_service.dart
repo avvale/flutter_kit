@@ -36,11 +36,13 @@ class AuthService {
 
   /// Guarda los tokens en el almacenamiento seguro, los carga en el estado de
   /// la aplicación y establece el token de la API.
-  Future<AuthState?> _setUser(AuthState user) async {
-    Debugger.log('setUser', user);
+  Future<AuthState?> _setAuthCredentials(AuthState user) async {
+    Debugger.log('Set auth credentials', user);
 
     await NetworkService().setToken(user.accessToken);
+
     _dataFetcher.sink.add(user);
+
     return user;
   }
 
@@ -51,7 +53,7 @@ class AuthService {
 
     if (secureValues['fx_accessToken'] != null &&
         secureValues['fx_refreshToken'] != null) {
-      await _setUser(
+      await _setAuthCredentials(
         value.copyWith(
           isInitialized: true,
           accessToken: secureValues['fx_accessToken'],
@@ -61,7 +63,7 @@ class AuthService {
 
       return true;
     } else {
-      await _setUser(value.copyWith(isInitialized: true));
+      await _setAuthCredentials(value.copyWith(isInitialized: true));
 
       return false;
     }
@@ -137,7 +139,7 @@ class AuthService {
             value: oAuthData['refreshToken'],
           );
 
-          _setUser(
+          await _setAuthCredentials(
             value.copyWith(
               accessToken: oAuthData['accessToken'],
               refreshToken: oAuthData['refreshToken'],
@@ -168,13 +170,15 @@ class AuthService {
   }
 
   /// Cierra la sesión actual y borra los tokens del almacenamiento seguro.
-  void logout() {
+  Future<void> logout() async {
     Debugger.log('Logout');
 
-    _secureStorage.delete(key: 'fx_accessToken');
-    _secureStorage.delete(key: 'fx_refreshToken');
+    await _secureStorage.delete(key: 'fx_accessToken');
+    await _secureStorage.delete(key: 'fx_refreshToken');
 
-    _setUser(value.copyWith(accessToken: '', refreshToken: ''));
+    await _setAuthCredentials(
+      value.copyWith(accessToken: '', refreshToken: ''),
+    );
   }
 
   void dispose() {

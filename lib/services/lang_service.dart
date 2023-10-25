@@ -3,7 +3,6 @@ import 'package:flutter_kit/models/state/l10n_state.dart';
 import 'package:flutter_kit/services/auth_service.dart';
 import 'package:flutter_kit/services/network_service.dart';
 import 'package:flutter_kit/utils/debugger.dart';
-import 'package:flutter_kit/utils/helpers.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -63,8 +62,6 @@ class L10nService {
 
     final String accessToken = AuthService().value.accessToken;
 
-    await NetworkService().setToken(
-      existsNotEmpty(accessToken) ? accessToken : null,
-    );
+    await NetworkService().setToken(accessToken);
   }
 }
