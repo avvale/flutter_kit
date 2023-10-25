@@ -59,13 +59,26 @@ class _SafeAreaWrapper extends StatelessWidget {
   final bool safeArea;
   final Widget child;
   final EdgeInsetsGeometry padding;
+  final bool transparentStatusBar;
 
-  const _SafeAreaWrapper(this.safeArea, this.child, this.padding);
+  const _SafeAreaWrapper(
+    this.safeArea,
+    this.child,
+    this.padding,
+    this.transparentStatusBar, {
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return safeArea
-        ? SafeArea(child: Padding(padding: padding, child: child))
+        ? SafeArea(
+            top: !transparentStatusBar,
+            child: Padding(
+              padding: padding,
+              child: child,
+            ),
+          )
         : Padding(padding: padding, child: child);
   }
 }
@@ -124,7 +137,12 @@ class Layout extends StatelessWidget {
                 ),
           body: _RefreshIndicatorWrapper(
             onRefresh: onPullToRefresh,
-            child: _SafeAreaWrapper(safeArea, child, padding),
+            child: _SafeAreaWrapper(
+              safeArea,
+              child,
+              padding,
+              transparentStatusBar,
+            ),
           ),
         ),
       ),
