@@ -105,7 +105,7 @@ class IconBtn extends StatelessWidget {
   /// Button on press callback.
   final VoidCallback onPressed;
 
-  /// Button background color. Used only when backgroundMode is custom.
+  /// Button background color.
   final Color backgroundColor;
 
   const IconBtn({
@@ -116,7 +116,7 @@ class IconBtn extends StatelessWidget {
     this.iconImgType = IconImgType.generic,
     this.svgIconColorFilter,
     this.iconColor,
-    this.backgroundColor = Colors.blue,
+    this.backgroundColor = Colors.transparent,
     this.size = IconBtnSize.normal,
     required this.onPressed,
   })  : assert(icon != null || iconAssetPath != null || iconUrl != null),
