@@ -239,7 +239,7 @@ void fxRunApp<T>({
   bool useLocalization = false,
 
   /// The default language. If localization is used, this parameter is required.
-  String? defaultLang,
+  String defaultLang = 'es',
   Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates,
   Iterable<Locale>? supportedLocales,
 }) async {
@@ -302,7 +302,7 @@ void fxRunApp<T>({
         authTokenPrefix: authTokenPrefix,
         child: _L10nWrapper(
           useLocalization: useLocalization,
-          defaultLang: defaultLang!,
+          defaultLang: defaultLang,
           localizationsDelegates: localizationsDelegates,
           supportedLocales: supportedLocales,
           child: _AuthWrapper(
