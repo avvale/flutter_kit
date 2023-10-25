@@ -114,7 +114,7 @@ class _NetworkWrapper<T> extends StatelessWidget {
 
 class _L10nWrapper extends StatelessWidget {
   final bool useLocalization;
-  final Widget child;
+  final Widget Function(Locale?) child;
   final String defaultLang;
   final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
   final Iterable<Locale>? supportedLocales;
@@ -130,7 +130,7 @@ class _L10nWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!useLocalization) return child;
+    if (!useLocalization) return child(null);
 
     return StreamBuilder(
       stream: L10nService().stream,
@@ -145,7 +145,7 @@ class _L10nWrapper extends StatelessWidget {
           return const Space();
         }
 
-        return child;
+        return child(snapshot.data!.currentLocale);
       },
     );
   }
@@ -188,14 +188,20 @@ class _AppWrapper extends StatelessWidget {
   final String? title;
   final Color? primaryColor;
   final ThemeData Function(BuildContext)? theme;
-  final Widget? home;
+  final Locale? locale;
+  final Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates;
+  final Iterable<Locale> supportedLocales;
   final Map<String, Widget Function(BuildContext)> routes;
+  final Widget? home;
 
   const _AppWrapper({
     Key? key,
     this.title,
     this.primaryColor,
     this.theme,
+    this.locale,
+    required this.localizationsDelegates,
+    required this.supportedLocales,
     this.routes = const <String, WidgetBuilder>{},
     this.home,
   }) : super(key: key);
@@ -203,15 +209,18 @@ class _AppWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: title ?? 'Flutter Kit',
-      scaffoldMessengerKey: rootScaffoldMessengerKey,
       debugShowCheckedModeBanner: false,
-      builder: EasyLoading.init(),
-      routes: routes,
+      title: title ?? 'Flutter Kit',
       color: primaryColor,
       theme: theme != null
           ? theme!(context).copyWith(primaryColor: primaryColor)
           : ThemeData(primaryColor: primaryColor),
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
+      locale: locale,
+      localizationsDelegates: localizationsDelegates,
+      supportedLocales: supportedLocales,
+      routes: routes,
+      builder: EasyLoading.init(),
       home: home,
     );
   }
@@ -273,14 +282,15 @@ void fxRunApp<T>({
 
   /// The default language. If localization is used, this parameter is required.
   String defaultLang = 'es',
-  Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates,
-  Iterable<Locale>? supportedLocales,
+  Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      const <LocalizationsDelegate<dynamic>>[],
+  Iterable<Locale> supportedLocales = const <Locale>[],
 }) async {
   assert(
     useLocalization == false ||
         (existsNotEmpty(defaultLang) &&
-            localizationsDelegates != null &&
-            supportedLocales != null),
+            existsNotEmpty(localizationsDelegates) &&
+            existsNotEmpty(supportedLocales)),
     'If localization is used, defaultLang parameter is required',
   );
 
@@ -338,12 +348,15 @@ void fxRunApp<T>({
           defaultLang: defaultLang,
           localizationsDelegates: localizationsDelegates,
           supportedLocales: supportedLocales,
-          child: _AuthWrapper(
+          child: (locale) => _AuthWrapper(
             authMode: authMode,
             child: _AppWrapper(
               title: title,
               primaryColor: primaryColor,
               theme: theme,
+              locale: locale,
+              localizationsDelegates: localizationsDelegates,
+              supportedLocales: supportedLocales,
               routes: routes,
               home: home,
             ),
