@@ -184,6 +184,39 @@ class _AuthWrapper extends StatelessWidget {
   }
 }
 
+class _AppWrapper extends StatelessWidget {
+  final String? title;
+  final Color? primaryColor;
+  final ThemeData Function(BuildContext)? theme;
+  final Widget? home;
+  final Map<String, Widget Function(BuildContext)> routes;
+
+  const _AppWrapper({
+    Key? key,
+    this.title,
+    this.primaryColor,
+    this.theme,
+    this.routes = const <String, WidgetBuilder>{},
+    this.home,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: title ?? 'Flutter Kit',
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
+      debugShowCheckedModeBanner: false,
+      builder: EasyLoading.init(),
+      routes: routes,
+      color: primaryColor,
+      theme: theme != null
+          ? theme!(context).copyWith(primaryColor: primaryColor)
+          : ThemeData(primaryColor: primaryColor),
+      home: home,
+    );
+  }
+}
+
 /// Run application with custom configuration
 void fxRunApp<T>({
   /// The title of the application.
@@ -193,7 +226,7 @@ void fxRunApp<T>({
   Color? primaryColor,
 
   /// The theme to use for the application.
-  ThemeData? theme,
+  ThemeData Function(BuildContext)? theme,
 
   /// The duration of the splash screen.
   Duration? splashDuration,
@@ -307,16 +340,11 @@ void fxRunApp<T>({
           supportedLocales: supportedLocales,
           child: _AuthWrapper(
             authMode: authMode,
-            child: MaterialApp(
-              title: title ?? 'Flutter Kit',
-              scaffoldMessengerKey: rootScaffoldMessengerKey,
-              debugShowCheckedModeBanner: false,
-              builder: EasyLoading.init(),
+            child: _AppWrapper(
+              title: title,
+              primaryColor: primaryColor,
+              theme: theme,
               routes: routes,
-              color: primaryColor,
-              theme: theme != null
-                  ? theme.copyWith(primaryColor: primaryColor)
-                  : ThemeData(primaryColor: primaryColor),
               home: home,
             ),
           ),
