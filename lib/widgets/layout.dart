@@ -16,17 +16,22 @@ class _AnnotatedRegionWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final statusBarBrightness = brightness ??
+        (statusBarColor != null
+            ? computeColorBrightness(statusBarColor!)
+            : null);
+
+    final reversedStatusBarBrightness = statusBarBrightness != null
+        ? reverseBrightness(statusBarBrightness)
+        : null;
+
     return statusBarColor != null
-        ? AnnotatedRegion<SystemUiOverlayStyle>(
+        ? AnnotatedRegion(
             value: SystemUiOverlayStyle(
-              statusBarBrightness:
-                  brightness ?? computeColorBrightness(statusBarColor!),
-              statusBarIconBrightness: brightness != null
-                  ? reverseBrightness(brightness!)
-                  : computeColorBrightness(
-                      statusBarColor!,
-                      reverse: true,
-                    ),
+              statusBarColor: statusBarColor,
+              statusBarBrightness: statusBarBrightness,
+              statusBarIconBrightness: reversedStatusBarBrightness,
+              systemNavigationBarIconBrightness: reversedStatusBarBrightness,
             ),
             child: child,
           )
