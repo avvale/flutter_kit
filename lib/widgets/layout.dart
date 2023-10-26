@@ -5,19 +5,23 @@ import 'package:flutter_kit/utils/helpers.dart';
 class _AnnotatedRegionWrapper extends StatelessWidget {
   final Widget child;
   final Color statusBarColor;
-  final Brightness? brightness;
+  final Brightness? statusBarForcedBrightness;
+  final bool transparentStatusBar;
 
   const _AnnotatedRegionWrapper({
     Key? key,
     required this.child,
     required this.statusBarColor,
-    this.brightness,
+    this.statusBarForcedBrightness,
+    required this.transparentStatusBar,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final statusBarBrightness =
-        brightness ?? computeColorBrightness(statusBarColor);
+    final statusBarBrightness = statusBarForcedBrightness ??
+        (transparentStatusBar
+            ? Brightness.light
+            : computeColorBrightness(statusBarColor));
 
     final reversedStatusBarBrightness = reverseBrightness(statusBarBrightness);
 
@@ -123,8 +127,11 @@ class Layout extends StatelessWidget {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: _AnnotatedRegionWrapper(
-        statusBarColor: statusBarColor ?? Theme.of(context).primaryColor,
-        brightness: statusBarForcedBrightness,
+        statusBarColor: transparentStatusBar
+            ? Colors.transparent
+            : (statusBarColor ?? Theme.of(context).primaryColor),
+        statusBarForcedBrightness: statusBarForcedBrightness,
+        transparentStatusBar: transparentStatusBar,
         child: Scaffold(
           appBar: transparentStatusBar
               ? null
