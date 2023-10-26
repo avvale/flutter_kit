@@ -4,38 +4,32 @@ import 'package:flutter_kit/utils/helpers.dart';
 
 class _AnnotatedRegionWrapper extends StatelessWidget {
   final Widget child;
-  final Color? statusBarColor;
+  final Color statusBarColor;
   final Brightness? brightness;
 
   const _AnnotatedRegionWrapper({
     Key? key,
     required this.child,
-    this.statusBarColor,
+    required this.statusBarColor,
     this.brightness,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final statusBarBrightness = brightness ??
-        (statusBarColor != null
-            ? computeColorBrightness(statusBarColor!)
-            : null);
+    final statusBarBrightness =
+        brightness ?? computeColorBrightness(statusBarColor);
 
-    final reversedStatusBarBrightness = statusBarBrightness != null
-        ? reverseBrightness(statusBarBrightness)
-        : null;
+    final reversedStatusBarBrightness = reverseBrightness(statusBarBrightness);
 
-    return statusBarColor != null
-        ? AnnotatedRegion(
-            value: SystemUiOverlayStyle(
-              statusBarColor: statusBarColor,
-              statusBarBrightness: statusBarBrightness,
-              statusBarIconBrightness: reversedStatusBarBrightness,
-              systemNavigationBarIconBrightness: reversedStatusBarBrightness,
-            ),
-            child: child,
-          )
-        : child;
+    return AnnotatedRegion(
+      value: SystemUiOverlayStyle(
+        statusBarColor: statusBarColor,
+        statusBarBrightness: statusBarBrightness,
+        statusBarIconBrightness: reversedStatusBarBrightness,
+        systemNavigationBarIconBrightness: reversedStatusBarBrightness,
+      ),
+      child: child,
+    );
   }
 }
 
