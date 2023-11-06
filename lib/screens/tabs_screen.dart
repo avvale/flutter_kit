@@ -72,13 +72,13 @@ class TabsScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        // Positioned.fill(
-                        //   child: tabBar(
-                        //     tabsStateData.tabsNavigator,
-                        //     tabsStateData.selectedIndex,
-                        //     (i) => TabsService().navigateTab(context, i),
-                        //   ),
-                        // ),
+                        Positioned.fill(
+                          child: tabBar(
+                            tabsStateData.tabsNavigator,
+                            tabsStateData.selectedIndex,
+                            (i) => TabsService().navigateTab(context, i),
+                          ),
+                        ),
                       ],
                     ),
                   ),

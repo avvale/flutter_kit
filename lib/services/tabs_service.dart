@@ -75,7 +75,7 @@ class TabsService {
     );
   }
 
-  Route? onGenerateRoute(
+  Route onGenerateRoute(
     RouteSettings settings,
     int index,
   ) {

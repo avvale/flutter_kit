@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 class FxRoute {
+  /// The route path. If it is a mainRoute, it must be '/'
   final String route;
   final Widget? screen;
   final bool external;
