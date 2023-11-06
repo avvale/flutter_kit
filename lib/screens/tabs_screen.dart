@@ -16,6 +16,7 @@ class TabsScreen extends StatelessWidget {
   ) tabBar;
   final int? initialIndex;
   final Color? statusBarColor;
+  final double tabBarPadding;
 
   const TabsScreen({
     Key? key,
@@ -23,6 +24,7 @@ class TabsScreen extends StatelessWidget {
     required this.tabBar,
     this.initialIndex,
     this.statusBarColor,
+    this.tabBarPadding = 0,
   }) : super(key: key);
 
   @override
@@ -68,6 +70,7 @@ class TabsScreen extends StatelessWidget {
                                   TabsService().onGenerateRoute(
                                 settings,
                                 index,
+                                tabBarPadding,
                               ),
                             ),
                           ),

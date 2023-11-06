@@ -18,7 +18,7 @@ class FxNavigator {
   final FxRoute mainRoute;
   final List<FxRoute>? childRoutes;
 
-  // Needed when declaring child routes
+  /// Needed when declaring child routes
   final GlobalKey<NavigatorState>? navigator;
   final IconData? icon;
   final String? iconAssetPath;

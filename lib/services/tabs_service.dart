@@ -77,8 +77,9 @@ class TabsService {
 
   Route onGenerateRoute(
     RouteSettings settings,
-    int index,
-  ) {
+    int index, [
+    double bottomPadding = 0,
+  ]) {
     final route = [
       value.tabsNavigator[index].mainRoute,
       if (existsNotEmpty(value.tabsNavigator[index].childRoutes))
@@ -86,7 +87,12 @@ class TabsService {
     ].firstWhereOrNull((route) => route.route == settings.name);
 
     return MaterialPageRoute<dynamic>(
-      builder: (context) => route?.screen ?? const Space(),
+      builder: (context) => route?.screen != null
+          ? Padding(
+              padding: EdgeInsets.only(bottom: bottomPadding),
+              child: route!.screen!,
+            )
+          : const Space(),
       settings: settings,
     );
   }
