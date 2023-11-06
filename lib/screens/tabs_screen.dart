@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_kit/models/routing.dart';
 import 'package:flutter_kit/models/state/tabs_state.dart';
 import 'package:flutter_kit/services/tabs_service.dart';
+import 'package:flutter_kit/widgets/layout.dart';
 import 'package:flutter_kit/widgets/space.dart';
 
 class TabsScreen extends StatelessWidget {
@@ -16,6 +17,7 @@ class TabsScreen extends StatelessWidget {
   ) tabBar;
   final int? initialIndex;
   final Color? statusBarColor;
+  final bool transparentStatusBar;
   final double tabBarPadding;
 
   const TabsScreen({
@@ -24,6 +26,7 @@ class TabsScreen extends StatelessWidget {
     required this.tabBar,
     this.initialIndex,
     this.statusBarColor,
+    this.transparentStatusBar = false,
     this.tabBarPadding = 0,
   }) : super(key: key);
 
@@ -44,48 +47,37 @@ class TabsScreen extends StatelessWidget {
 
           final TabsState tabsStateData = tabsState.data!;
 
-          // TODO probar implementar Layout
-          return AnnotatedRegion(
-            value: SystemUiOverlayStyle(
-              statusBarColor: statusBarColor,
-              statusBarBrightness: Brightness.dark,
-              statusBarIconBrightness: Brightness.light,
-              systemNavigationBarIconBrightness: Brightness.light,
-            ),
-            child: Center(
-              child: Scaffold(
-                body: SafeArea(
-                  child: SizedBox(
-                    height: double.infinity,
-                    width: double.infinity,
-                    child: Stack(
-                      children: [
-                        IndexedStack(
-                          index: tabsStateData.selectedIndex,
-                          children: List<Widget>.generate(
-                            tabsStateData.tabsNavigator.length,
-                            (index) => Navigator(
-                              key: tabsStateData.tabsNavigator[index].navigator,
-                              onGenerateRoute: (RouteSettings settings) =>
-                                  TabsService().onGenerateRoute(
-                                settings,
-                                index,
-                                tabBarPadding,
-                              ),
-                            ),
-                          ),
+          return Layout(
+            statusBarColor: statusBarColor,
+            transparentStatusBar: transparentStatusBar,
+            child: SizedBox(
+              height: double.infinity,
+              width: double.infinity,
+              child: Stack(
+                children: [
+                  IndexedStack(
+                    index: tabsStateData.selectedIndex,
+                    children: List<Widget>.generate(
+                      tabsStateData.tabsNavigator.length,
+                      (index) => Navigator(
+                        key: tabsStateData.tabsNavigator[index].navigator,
+                        onGenerateRoute: (RouteSettings settings) =>
+                            TabsService().onGenerateRoute(
+                          settings,
+                          index,
+                          tabBarPadding,
                         ),
-                        Positioned.fill(
-                          child: tabBar(
-                            tabsStateData.tabsNavigator,
-                            tabsStateData.selectedIndex,
-                            (i) => TabsService().navigateTab(context, i),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
+                  Positioned.fill(
+                    child: tabBar(
+                      tabsStateData.tabsNavigator,
+                      tabsStateData.selectedIndex,
+                      (i) => TabsService().navigateTab(context, i),
+                    ),
+                  ),
+                ],
               ),
             ),
           );

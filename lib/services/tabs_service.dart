@@ -14,6 +14,9 @@ const initialState = TabsState(
   isInitialized: false,
 );
 
+// TODO: actualmente el servicio solo puede gestionar un único conjunto de tabs
+// refactorizar para que pueda gestionar varios conjuntos
+
 /// Servicio que gestiona el estado de la navegación por tabs
 class TabsService {
   static final TabsService _instance = TabsService._internal();
