@@ -58,10 +58,12 @@ class TabsService {
     int? initialIndex,
   ]) {
     final index = initialIndex ?? ModalRoute.of(context)?.settings.arguments;
+    final iIndex = (index != null && index is int) ? index : 0;
 
     _dataFetcher.add(
       value.copyWith(
-        selectedIndex: (index != null && index is int) ? index : 0,
+        selectedIndex: iIndex,
+        initialIndex: iIndex,
         tabsNavigator: tabsNavigator,
         isInitialized: true,
       ),
@@ -186,10 +188,10 @@ class TabsService {
 
     final hasPopped = await navigatorKey?.currentState!.maybePop() ?? false;
 
-    if (!hasPopped && value.selectedIndex != 0) {
+    if (!hasPopped && value.selectedIndex != value.initialIndex) {
       _dataFetcher.add(
         value.copyWith(
-          selectedIndex: 0,
+          selectedIndex: value.initialIndex,
         ),
       );
 
