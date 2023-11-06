@@ -113,6 +113,12 @@ class TabsService {
       bool hasPopped = true;
 
       while (context.mounted && Navigator.of(context).canPop() && hasPopped) {
+        Debugger.log('WHILE', {
+          'hasPopped': hasPopped,
+          'context mounted': context.mounted,
+          'canPop': context.mounted && Navigator.of(context).canPop(),
+        });
+
         hasPopped = await Navigator.of(context).maybePop();
       }
     } else {
