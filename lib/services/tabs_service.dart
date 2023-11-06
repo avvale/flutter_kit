@@ -112,6 +112,12 @@ class TabsService {
     if (value.selectedIndex == newIndex) {
       bool hasPopped = true;
 
+      Debugger.log('PRE WHILE', {
+        'hasPopped': hasPopped,
+        'context mounted': context.mounted,
+        'canPop': context.mounted && Navigator.of(context).canPop(),
+      });
+
       while (context.mounted && Navigator.of(context).canPop() && hasPopped) {
         Debugger.log('WHILE', {
           'hasPopped': hasPopped,
