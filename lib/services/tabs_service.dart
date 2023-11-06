@@ -52,13 +52,25 @@ class TabsService {
     }
   }
 
+  _popRoot(NavigatorState? navState) async {
+    if (navState == null) return;
+
+    if (navState.canPop()) {
+      bool hasPopped = await navState.maybePop();
+
+      if (hasPopped) {
+        _popRoot(navState);
+      }
+    }
+  }
+
   void initialize(
     BuildContext context,
     List<FxNavigator> tabsNavigator, [
     int? initialIndex,
   ]) {
     final index = initialIndex ?? ModalRoute.of(context)?.settings.arguments;
-    final iIndex = (index != null && index is int) ? index : 0;
+    final iIndex = (index is int) ? index : 0;
 
     _dataFetcher.add(
       value.copyWith(
@@ -110,29 +122,7 @@ class TabsService {
     FocusManager.instance.primaryFocus?.unfocus();
 
     if (value.selectedIndex == newIndex) {
-      bool hasPopped = true;
-
-      // Debugger.log('PRE WHILE', {
-      //   'hasPopped': hasPopped,
-      //   'context mounted': context.mounted,
-      //   'canPop': context.mounted && Navigator.of(context).canPop(),
-      // });
-
-      final navState = value.tabsNavigator[newIndex].navigator?.currentState;
-
-      while (navState != null && navState.canPop() && hasPopped) {
-        // Debugger.log('WHILE', {
-        //   'hasPopped': hasPopped,
-        //   'context mounted': context.mounted,
-        //   'canPop': context.mounted && Navigator.of(context).canPop(),
-        // });
-
-        hasPopped = await navState.maybePop();
-      }
-
-      // value.tabsNavigator[newIndex].navigator?.currentState!.popUntil(
-      //   (route) => route.isFirst,
-      // );
+      _popRoot(value.tabsNavigator[newIndex].navigator?.currentState);
     } else {
       if (value.tabsNavigator[newIndex].mainRoute.external) {
         if (await canLaunchUrlString(
@@ -209,11 +199,7 @@ class TabsService {
     final hasPopped = await navigatorKey?.currentState!.maybePop() ?? false;
 
     if (!hasPopped && value.selectedIndex != value.initialIndex) {
-      _dataFetcher.add(
-        value.copyWith(
-          selectedIndex: value.initialIndex,
-        ),
-      );
+      _dataFetcher.add(value.copyWith(selectedIndex: value.initialIndex));
 
       return Future<bool>.value(false);
     } else {
