@@ -112,21 +112,27 @@ class TabsService {
     if (value.selectedIndex == newIndex) {
       bool hasPopped = true;
 
-      Debugger.log('PRE WHILE', {
-        'hasPopped': hasPopped,
-        'context mounted': context.mounted,
-        'canPop': context.mounted && Navigator.of(context).canPop(),
-      });
+      // Debugger.log('PRE WHILE', {
+      //   'hasPopped': hasPopped,
+      //   'context mounted': context.mounted,
+      //   'canPop': context.mounted && Navigator.of(context).canPop(),
+      // });
 
-      while (context.mounted && Navigator.of(context).canPop() && hasPopped) {
-        Debugger.log('WHILE', {
-          'hasPopped': hasPopped,
-          'context mounted': context.mounted,
-          'canPop': context.mounted && Navigator.of(context).canPop(),
-        });
+      final navState = value.tabsNavigator[newIndex].navigator?.currentState;
 
-        hasPopped = await Navigator.of(context).maybePop();
+      while (navState != null && navState.canPop() && hasPopped) {
+        // Debugger.log('WHILE', {
+        //   'hasPopped': hasPopped,
+        //   'context mounted': context.mounted,
+        //   'canPop': context.mounted && Navigator.of(context).canPop(),
+        // });
+
+        hasPopped = await navState.maybePop();
       }
+
+      // value.tabsNavigator[newIndex].navigator?.currentState!.popUntil(
+      //   (route) => route.isFirst,
+      // );
     } else {
       if (value.tabsNavigator[newIndex].mainRoute.external) {
         if (await canLaunchUrlString(
