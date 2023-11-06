@@ -3,6 +3,7 @@ import 'package:flutter_kit/models/routing.dart';
 import 'package:flutter_kit/models/state/tabs_state.dart';
 import 'package:flutter_kit/utils/debugger.dart';
 import 'package:flutter_kit/utils/helpers.dart';
+import 'package:flutter_kit/widgets/space.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:collection/collection.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -84,12 +85,8 @@ class TabsService {
         ...value.tabsNavigator[index].childRoutes!,
     ].firstWhere((route) => route.route == settings.name);
 
-    if (route.external) {
-      return null;
-    }
-
     return MaterialPageRoute<dynamic>(
-      builder: (context) => route.screen!,
+      builder: (context) => route.screen ?? const Space(),
       settings: settings,
     );
   }
