@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_kit/models/routing.dart';
 import 'package:flutter_kit/models/state/tabs_state.dart';
 import 'package:flutter_kit/utils/debugger.dart';
+import 'package:flutter_kit/utils/helpers.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:collection/collection.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 const initialState = TabsState(
   selectedIndex: 0,
@@ -46,8 +48,12 @@ class TabsService {
     }
   }
 
-  void initialize(BuildContext context, List<FxNavigator> tabsNavigator) {
-    final index = ModalRoute.of(context)?.settings.arguments;
+  void initialize(
+    BuildContext context,
+    List<FxNavigator> tabsNavigator, [
+    int? initialIndex,
+  ]) {
+    final index = initialIndex ?? ModalRoute.of(context)?.settings.arguments;
 
     _dataFetcher.add(
       value.copyWith(
@@ -68,37 +74,51 @@ class TabsService {
     );
   }
 
-  Route onGenerateRoute(
+  Route? onGenerateRoute(
     RouteSettings settings,
     int index,
-  ) =>
-      MaterialPageRoute<dynamic>(
-        builder: (context) => [
-          value.tabsNavigator[index].initialRoute,
-          ...value.tabsNavigator[index].routes,
-        ].firstWhere((route) => route.route == settings.name).screen,
-        settings: settings,
-      );
+  ) {
+    final route = [
+      value.tabsNavigator[index].mainRoute,
+      if (existsNotEmpty(value.tabsNavigator[index].childRoutes))
+        ...value.tabsNavigator[index].childRoutes!,
+    ].firstWhere((route) => route.route == settings.name);
+
+    if (route.external) {
+      return null;
+    }
+
+    return MaterialPageRoute<dynamic>(
+      builder: (context) => route.screen!,
+      settings: settings,
+    );
+  }
 
   void navigateTab(
     BuildContext context,
     int newIndex, {
     bool initTab = true,
-  }) {
+  }) async {
     FocusManager.instance.primaryFocus?.unfocus();
 
     if (value.selectedIndex == newIndex) {
-      value.tabsNavigator[newIndex].navigator.currentState!.popUntil(
+      value.tabsNavigator[newIndex].navigator?.currentState!.popUntil(
         (route) => route.isFirst,
       );
     } else {
-      _dataFetcher.add(
-        value.copyWith(
-          selectedIndex: newIndex,
-        ),
-      );
+      if (value.tabsNavigator[newIndex].mainRoute.external) {
+        if (await canLaunchUrlString(
+          value.tabsNavigator[newIndex].mainRoute.route,
+        )) {
+          launchUrlString(value.tabsNavigator[newIndex].mainRoute.route);
+        }
 
-      if (initTab) _initCurrentTab(context);
+        return;
+      }
+
+      _dataFetcher.add(value.copyWith(selectedIndex: newIndex));
+
+      if (initTab && context.mounted) _initCurrentTab(context);
     }
   }
 
@@ -114,8 +134,9 @@ class TabsService {
 
     // Primero se busca la ruta en el navigator del tab actual
     Widget? newPage = [
-      appNavigator[tabIndex].initialRoute,
-      ...appNavigator[tabIndex].routes,
+      appNavigator[tabIndex].mainRoute,
+      if (existsNotEmpty(appNavigator[tabIndex].childRoutes))
+        ...appNavigator[tabIndex].childRoutes!,
     ].firstWhereOrNull((route) => route.route == routeName)?.screen;
 
     // Si no se encuentra, se busca en los navigators del resto de tabs
@@ -124,8 +145,9 @@ class TabsService {
 
       for (int i = 0; i < appNavigator.length; i++) {
         Widget? nestedPage = [
-          appNavigator[i].initialRoute,
-          ...appNavigator[i].routes,
+          appNavigator[i].mainRoute,
+          if (existsNotEmpty(appNavigator[i].childRoutes))
+            ...appNavigator[i].childRoutes!,
         ].firstWhereOrNull((route) => route.route == routeName)?.screen;
 
         // Utilizamos el index, context y page del tab donde se encuentra la ruta
@@ -133,13 +155,13 @@ class TabsService {
           Debugger.log('Route found in tab $i');
 
           tabIndex = i;
-          tabContext = appNavigator[i].navigator.currentContext!;
+          tabContext = appNavigator[i].navigator?.currentContext! ?? context;
           newPage = nestedPage;
         }
       }
 
       // Antes de navegar a la ruta se resetea el árbol de navegación del tab
-      value.tabsNavigator[tabIndex].navigator.currentState!.popUntil(
+      value.tabsNavigator[tabIndex].navigator?.currentState!.popUntil(
         (route) => route.isFirst,
       );
 
@@ -153,10 +175,10 @@ class TabsService {
   }
 
   Future<bool> onPopRoute() async {
-    final GlobalKey<NavigatorState> navigatorKey =
+    final GlobalKey<NavigatorState>? navigatorKey =
         value.tabsNavigator[value.selectedIndex].navigator;
 
-    final hasPopped = await navigatorKey.currentState!.maybePop();
+    final hasPopped = await navigatorKey?.currentState!.maybePop() ?? false;
 
     if (!hasPopped && value.selectedIndex != 0) {
       _dataFetcher.add(

@@ -14,12 +14,14 @@ class TabsScreen extends StatelessWidget {
     int selectedIndex,
     Function(int) onTap,
   ) tabBar;
+  final int? initialIndex;
   final Color? statusBarColor;
 
   const TabsScreen({
     Key? key,
     required this.tabsNavigator,
     required this.tabBar,
+    this.initialIndex,
     this.statusBarColor,
   }) : super(key: key);
 
@@ -33,13 +35,14 @@ class TabsScreen extends StatelessWidget {
         stream: TabsService().stream,
         builder: (context, AsyncSnapshot<TabsState?> tabsState) {
           if (!tabsState.hasData || !tabsState.data!.isInitialized) {
-            TabsService().initialize(context, tabsNavigator);
+            TabsService().initialize(context, tabsNavigator, initialIndex);
 
             return const Space();
           }
 
           final TabsState tabsStateData = tabsState.data!;
 
+          // TODO probar implementar Layout
           return AnnotatedRegion(
             value: SystemUiOverlayStyle(
               statusBarColor: statusBarColor,
