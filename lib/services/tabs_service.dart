@@ -55,15 +55,19 @@ class TabsService {
   _popRoot(NavigatorState? navState) async {
     if (navState == null) return;
 
-    if (navState.canPop()) {
-      bool hasPopped = await navState.maybePop();
+      navState.popUntil(
+        (route) => route.isFirst,
+      );
 
-      Debugger.log('Pop root: $hasPopped');
+    // if (navState.canPop()) {
+    //   bool hasPopped = await navState.maybePop();
 
-      if (hasPopped) {
-        _popRoot(navState);
-      }
-    }
+    //   Debugger.log('Pop root: $hasPopped');
+
+    //   if (hasPopped) {
+    //     _popRoot(navState);
+    //   }
+    // }
   }
 
   void initialize(
@@ -124,7 +128,8 @@ class TabsService {
     FocusManager.instance.primaryFocus?.unfocus();
 
     if (value.selectedIndex == newIndex) {
-      _popRoot(value.tabsNavigator[newIndex].navigator?.currentState);
+      // TODO ajustar, no funciona correctamente
+      // _popRoot(value.tabsNavigator[newIndex].navigator?.currentState);
     } else {
       if (value.tabsNavigator[newIndex].mainRoute.external) {
         if (await canLaunchUrlString(
