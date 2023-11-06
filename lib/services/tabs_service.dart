@@ -83,10 +83,10 @@ class TabsService {
       value.tabsNavigator[index].mainRoute,
       if (existsNotEmpty(value.tabsNavigator[index].childRoutes))
         ...value.tabsNavigator[index].childRoutes!,
-    ].firstWhere((route) => route.route == settings.name);
+    ].firstWhereOrNull((route) => route.route == settings.name);
 
     return MaterialPageRoute<dynamic>(
-      builder: (context) => route.screen ?? const Space(),
+      builder: (context) => route?.screen ?? const Space(),
       settings: settings,
     );
   }
