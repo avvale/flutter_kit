@@ -58,6 +58,8 @@ class TabsService {
     if (navState.canPop()) {
       bool hasPopped = await navState.maybePop();
 
+      Debugger.log('Pop root: $hasPopped');
+
       if (hasPopped) {
         _popRoot(navState);
       }
