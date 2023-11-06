@@ -110,9 +110,11 @@ class TabsService {
     FocusManager.instance.primaryFocus?.unfocus();
 
     if (value.selectedIndex == newIndex) {
-      value.tabsNavigator[newIndex].navigator?.currentState!.popUntil(
-        (route) => route.isFirst,
-      );
+      bool hasPopped = true;
+
+      while (context.mounted && Navigator.of(context).canPop() && hasPopped) {
+        hasPopped = await Navigator.of(context).maybePop();
+      }
     } else {
       if (value.tabsNavigator[newIndex].mainRoute.external) {
         if (await canLaunchUrlString(
