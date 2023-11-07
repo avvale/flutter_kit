@@ -10,7 +10,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 
 const initialState = TabsState(
   selectedIndex: 0,
-  tabsNavigator: [],
+  tabNavigators: [],
   isInitialized: false,
 );
 
@@ -39,24 +39,20 @@ class TabsService {
   final List<int> _initTabs = [];
 
   _initCurrentTab(BuildContext context) {
-    if (!context.mounted) return;
-
     if (!_initTabs.contains(value.selectedIndex)) {
       Debugger.log('Init tab ${value.selectedIndex}');
 
       _initTabs.add(value.selectedIndex);
 
-      value.tabsNavigator[value.selectedIndex].onInit?.call(
-        context,
-      );
+      value.tabNavigators[value.selectedIndex].onInit?.call(context);
     }
   }
 
   // TODO ajustar, no funciona correctamente
   _popRoot(NavigatorState? navState) async {
-    // Antigua funcionalidad
     // if (navState == null) return;
 
+    // Antigua funcionalidad
     // navState.popUntil(
     //   (route) => route.isFirst,
     // );
@@ -74,26 +70,6 @@ class TabsService {
     // }
   }
 
-  void initialize(
-    BuildContext context,
-    List<FxNavigator> tabsNavigator, [
-    int? initialIndex,
-  ]) {
-    final index = initialIndex ?? ModalRoute.of(context)?.settings.arguments;
-    final iIndex = (index is int) ? index : 0;
-
-    _dataFetcher.add(
-      value.copyWith(
-        selectedIndex: iIndex,
-        initialIndex: iIndex,
-        tabsNavigator: tabsNavigator,
-        isInitialized: true,
-      ),
-    );
-
-    _initCurrentTab(context);
-  }
-
   void updateContext(BuildContext context) {
     _dataFetcher.add(
       value.copyWith(
@@ -102,20 +78,67 @@ class TabsService {
     );
   }
 
+  void initialize(
+    BuildContext context,
+    List<FxNavigator> tabNavigators, [
+    int? initialIndex,
+  ]) {
+    final index = initialIndex ?? ModalRoute.of(context)?.settings.arguments;
+    final i = (index is int) ? index : 0;
+
+    _dataFetcher.add(
+      value.copyWith(
+        selectedIndex: i,
+        initialIndex: i,
+        tabNavigators: tabNavigators,
+        isInitialized: true,
+      ),
+    );
+
+    _initCurrentTab(context);
+  }
+
+  /// Devuelve la ruta correspondiente al nombre de ruta y tab recibidos
   Route onGenerateRoute(RouteSettings settings, int index) {
     final route = [
-      value.tabsNavigator[index].mainRoute,
-      if (existsNotEmpty(value.tabsNavigator[index].childRoutes))
-        ...value.tabsNavigator[index].childRoutes!,
+      value.tabNavigators[index].mainRoute,
+      if (existsNotEmpty(value.tabNavigators[index].childRoutes))
+        ...value.tabNavigators[index].childRoutes!,
     ].firstWhere((route) => route.route == settings.name);
 
     return MaterialPageRoute<dynamic>(
+      settings: settings,
       builder: (context) =>
           route.screen != null ? route.screen! : const Space(),
-      settings: settings,
     );
   }
 
+  Future<bool> onWillPop() async {
+    // Navigator del tab actual
+    final NavigatorState? navigator =
+        value.tabNavigators[value.selectedIndex].navigator?.currentState;
+
+    if (navigator == null) return true;
+
+    if (navigator.canPop()) {
+      // Realiza un intento de retroceder en el navigator del tab actual,
+      // llamando si existe a la función onWillPop de la pantalla visible
+      navigator.maybePop();
+
+      return false;
+    } else {
+      if (value.selectedIndex != value.initialIndex) {
+        _dataFetcher.add(value.copyWith(selectedIndex: value.initialIndex));
+
+        return false;
+      } else {
+        return true;
+      }
+    }
+  }
+
+  // Navigation logic between tabs. If the tab has an externalUrl, it will be
+  // launched in the browser. Otherwise, the tab will be selected.
   void navigateTab(
     BuildContext context,
     int newIndex, {
@@ -124,13 +147,13 @@ class TabsService {
     FocusManager.instance.primaryFocus?.unfocus();
 
     if (value.selectedIndex == newIndex) {
-      _popRoot(value.tabsNavigator[newIndex].navigator?.currentState);
+      _popRoot(value.tabNavigators[newIndex].navigator?.currentState);
     } else {
-      if (value.tabsNavigator[newIndex].mainRoute.externalUrl != null) {
+      if (value.tabNavigators[newIndex].mainRoute.externalUrl != null) {
         if (await canLaunchUrlString(
-          value.tabsNavigator[newIndex].mainRoute.externalUrl!,
+          value.tabNavigators[newIndex].mainRoute.externalUrl!,
         )) {
-          launchUrlString(value.tabsNavigator[newIndex].mainRoute.externalUrl!);
+          launchUrlString(value.tabNavigators[newIndex].mainRoute.externalUrl!);
         }
 
         return;
@@ -148,7 +171,7 @@ class TabsService {
     Object? arguments,
     bool initTab = true,
   }) async {
-    final List<FxNavigator> appNavigator = value.tabsNavigator;
+    final List<FxNavigator> appNavigator = value.tabNavigators;
     int tabIndex = value.selectedIndex;
     BuildContext tabContext = context;
 
@@ -181,7 +204,7 @@ class TabsService {
       }
 
       // Antes de navegar a la ruta se resetea el árbol de navegación del tab
-      value.tabsNavigator[tabIndex].navigator?.currentState!.popUntil(
+      value.tabNavigators[tabIndex].navigator?.currentState!.popUntil(
         (route) => route.isFirst,
       );
 
@@ -192,21 +215,6 @@ class TabsService {
       routeName,
       arguments: arguments,
     );
-  }
-
-  Future<bool> onPopRoute() async {
-    final GlobalKey<NavigatorState>? navigatorKey =
-        value.tabsNavigator[value.selectedIndex].navigator;
-
-    final hasPopped = await navigatorKey?.currentState!.maybePop() ?? false;
-
-    if (!hasPopped && value.selectedIndex != value.initialIndex) {
-      _dataFetcher.add(value.copyWith(selectedIndex: value.initialIndex));
-
-      return Future<bool>.value(false);
-    } else {
-      return Future<bool>.value(!hasPopped);
-    }
   }
 
   void dispose() {

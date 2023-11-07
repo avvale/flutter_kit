@@ -8,7 +8,7 @@ import 'package:flutter_kit/widgets/space.dart';
 class TabsScreen extends StatelessWidget {
   static const routeName = '/tabs';
 
-  final List<FxNavigator> tabsNavigator;
+  final List<FxNavigator> tabNavigators;
   final Widget Function(
     List<FxNavigator> navigator,
     int selectedIndex,
@@ -20,7 +20,7 @@ class TabsScreen extends StatelessWidget {
 
   const TabsScreen({
     Key? key,
-    required this.tabsNavigator,
+    required this.tabNavigators,
     required this.tabBar,
     this.initialIndex,
     this.statusBarColor,
@@ -32,12 +32,12 @@ class TabsScreen extends StatelessWidget {
     TabsService().updateContext(context);
 
     return WillPopScope(
-      onWillPop: TabsService().onPopRoute,
+      onWillPop: TabsService().onWillPop,
       child: StreamBuilder(
         stream: TabsService().stream,
         builder: (context, AsyncSnapshot<TabsState?> tabsState) {
           if (!tabsState.hasData || !tabsState.data!.isInitialized) {
-            TabsService().initialize(context, tabsNavigator, initialIndex);
+            TabsService().initialize(context, tabNavigators, initialIndex);
 
             return const Space();
           }
@@ -55,9 +55,9 @@ class TabsScreen extends StatelessWidget {
                   IndexedStack(
                     index: tabsStateData.selectedIndex,
                     children: List<Widget>.generate(
-                      tabsStateData.tabsNavigator.length,
+                      tabsStateData.tabNavigators.length,
                       (index) => Navigator(
-                        key: tabsStateData.tabsNavigator[index].navigator,
+                        key: tabsStateData.tabNavigators[index].navigator,
                         onGenerateRoute: (RouteSettings settings) =>
                             TabsService().onGenerateRoute(
                           settings,
@@ -68,7 +68,7 @@ class TabsScreen extends StatelessWidget {
                   ),
                   Positioned.fill(
                     child: tabBar(
-                      tabsStateData.tabsNavigator,
+                      tabsStateData.tabNavigators,
                       tabsStateData.selectedIndex,
                       (i) => TabsService().navigateTab(context, i),
                     ),
