@@ -330,8 +330,6 @@ void fxRunApp<T>({
     );
   }
 
-  Debugger.log('TEST TAG 0.0.3');
-
   // Initialize app
   runApp(
     GestureDetector(
