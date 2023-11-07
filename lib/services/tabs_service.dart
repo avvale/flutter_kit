@@ -126,11 +126,11 @@ class TabsService {
     if (value.selectedIndex == newIndex) {
       _popRoot(value.tabsNavigator[newIndex].navigator?.currentState);
     } else {
-      if (value.tabsNavigator[newIndex].mainRoute.external) {
+      if (value.tabsNavigator[newIndex].mainRoute.externalUrl != null) {
         if (await canLaunchUrlString(
-          value.tabsNavigator[newIndex].mainRoute.route,
+          value.tabsNavigator[newIndex].mainRoute.externalUrl!,
         )) {
-          launchUrlString(value.tabsNavigator[newIndex].mainRoute.route);
+          launchUrlString(value.tabsNavigator[newIndex].mainRoute.externalUrl!);
         }
 
         return;
