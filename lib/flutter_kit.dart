@@ -14,6 +14,7 @@ import 'package:flutter_kit/models/state/network_state.dart';
 import 'package:flutter_kit/services/auth_service.dart';
 import 'package:flutter_kit/services/l10n_service.dart';
 import 'package:flutter_kit/services/network_service.dart';
+import 'package:flutter_kit/utils/debugger.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter_kit/widgets/space.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -328,6 +329,8 @@ void fxRunApp<T>({
       () => FlutterNativeSplash.remove(),
     );
   }
+
+  Debugger.log('TEST TAG 0.0.2');
 
   // Initialize app
   runApp(
