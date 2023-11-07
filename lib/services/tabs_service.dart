@@ -52,13 +52,17 @@ class TabsService {
     }
   }
 
+  // TODO ajustar, no funciona correctamente
   _popRoot(NavigatorState? navState) async {
-    if (navState == null) return;
+    // Antigua funcionalidad
+    // if (navState == null) return;
 
-    navState.popUntil(
-      (route) => route.isFirst,
-    );
+    // navState.popUntil(
+    //   (route) => route.isFirst,
+    // );
 
+    // Nuevo approach - se espera que maybePop devuelva false cuando no se
+    // permita retroceder, pero llega true
     // if (navState.canPop()) {
     //   bool hasPopped = await navState.maybePop();
 
@@ -120,8 +124,7 @@ class TabsService {
     FocusManager.instance.primaryFocus?.unfocus();
 
     if (value.selectedIndex == newIndex) {
-      // TODO ajustar, no funciona correctamente
-      // _popRoot(value.tabsNavigator[newIndex].navigator?.currentState);
+      _popRoot(value.tabsNavigator[newIndex].navigator?.currentState);
     } else {
       if (value.tabsNavigator[newIndex].mainRoute.external) {
         if (await canLaunchUrlString(
