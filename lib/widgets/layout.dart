@@ -30,7 +30,7 @@ class _AnnotatedRegionWrapper extends StatelessWidget {
         statusBarColor: statusBarColor,
         statusBarBrightness: statusBarBrightness,
         statusBarIconBrightness: reversedStatusBarBrightness,
-        systemNavigationBarIconBrightness: reversedStatusBarBrightness,
+        systemNavigationBarIconBrightness: statusBarBrightness,
       ),
       child: child,
     );

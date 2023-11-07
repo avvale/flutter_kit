@@ -55,9 +55,9 @@ class TabsService {
   _popRoot(NavigatorState? navState) async {
     if (navState == null) return;
 
-      navState.popUntil(
-        (route) => route.isFirst,
-      );
+    navState.popUntil(
+      (route) => route.isFirst,
+    );
 
     // if (navState.canPop()) {
     //   bool hasPopped = await navState.maybePop();
@@ -98,11 +98,7 @@ class TabsService {
     );
   }
 
-  Route onGenerateRoute(
-    RouteSettings settings,
-    int index, [
-    double bottomPadding = 0,
-  ]) {
+  Route onGenerateRoute(RouteSettings settings, int index) {
     final route = [
       value.tabsNavigator[index].mainRoute,
       if (existsNotEmpty(value.tabsNavigator[index].childRoutes))
@@ -110,12 +106,8 @@ class TabsService {
     ].firstWhereOrNull((route) => route.route == settings.name);
 
     return MaterialPageRoute<dynamic>(
-      builder: (context) => route?.screen != null
-          ? Padding(
-              padding: EdgeInsets.only(bottom: bottomPadding),
-              child: route!.screen!,
-            )
-          : const Space(),
+      builder: (context) =>
+          route?.screen != null ? route!.screen! : const Space(),
       settings: settings,
     );
   }
