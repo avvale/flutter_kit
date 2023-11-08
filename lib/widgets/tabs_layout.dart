@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_kit/widgets/layout.dart';
 
-class TabsScreen extends StatelessWidget {
+class TabsLayout extends StatelessWidget {
   static const routeName = '/tabs';
 
   final Widget child;
@@ -9,7 +9,7 @@ class TabsScreen extends StatelessWidget {
   final Color? statusBarColor;
   final bool transparentStatusBar;
 
-  const TabsScreen({
+  const TabsLayout({
     Key? key,
     required this.child,
     this.tabBar,
