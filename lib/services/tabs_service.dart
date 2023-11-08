@@ -1,3 +1,5 @@
+// TODO: actualmente el servicio solo puede gestionar un único conjunto de tabs, refactorizar para que pueda gestionar varios conjuntos
+
 import 'package:flutter/material.dart';
 import 'package:flutter_kit/models/routing.dart';
 import 'package:flutter_kit/models/state/tabs_state.dart';
@@ -8,14 +10,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:collection/collection.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-const initialState = TabsState(
-  selectedIndex: 0,
-  tabNavigators: [],
-  isInitialized: false,
-);
-
-// TODO: actualmente el servicio solo puede gestionar un único conjunto de tabs
-// refactorizar para que pueda gestionar varios conjuntos
+const initialState = TabsState();
 
 /// Servicio que gestiona el estado de la navegación por tabs
 class TabsService {

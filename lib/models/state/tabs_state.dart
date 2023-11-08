@@ -7,13 +7,15 @@ class TabsState {
   final List<FxNavigator> tabNavigators;
   final bool isInitialized;
   final BuildContext? tabsContext;
+  final FxRoute? currentRoute;
 
   const TabsState({
-    required this.selectedIndex,
+    this.selectedIndex = 0,
     this.initialIndex = 0,
-    required this.tabNavigators,
-    required this.isInitialized,
+    this.tabNavigators = const [],
+    this.isInitialized = false,
     this.tabsContext,
+    this.currentRoute,
   });
 
   TabsState copyWith({
