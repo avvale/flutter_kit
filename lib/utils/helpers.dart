@@ -83,31 +83,42 @@ String capitalize(String str) {
   return str[0].toUpperCase() + str.substring(1);
 }
 
-List<RouteBase> generateRoutes(List<FkRoute> routes) {
+List<RouteBase> generateRoutes(FkNavigator navigator) {
   List<RouteBase> parsedRoutes = [];
 
-  for (FkRoute route in routes) {
+  for (FkRoute route in navigator.routes) {
     if (route is FkScreenRoute) {
       parsedRoutes.add(
         GoRoute(
+          parentNavigatorKey: navigator.key,
           path: route.path,
           builder: (context, state) => route.screen,
-          routes: generateRoutes(route.routes ?? []),
+          routes: generateRoutes(
+            FkNavigator(
+              key: navigator.key,
+              routes: route.routes ?? [],
+            ),
+          ),
         ),
       );
     } else if (route is FkNestedRoute) {
       parsedRoutes.add(
         ShellRoute(
           navigatorKey: route.key,
+          parentNavigatorKey: navigator.key,
           builder: route.builder,
           routes: generateRoutes(
-            route.routes ?? [],
+            FkNavigator(
+              key: route.key,
+              routes: route.routes ?? [],
+            ),
           ),
         ),
       );
     } else if (route is FkExternalRoute) {
       parsedRoutes.add(
         GoRoute(
+          parentNavigatorKey: navigator.key,
           path: route.path,
           redirect: (context, routerState) async {
             if (await canLaunchUrlString(route.externalUrl)) {

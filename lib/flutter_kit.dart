@@ -223,7 +223,7 @@ class _AppWrapper extends StatelessWidget {
       routerConfig: GoRouter(
         navigatorKey: navigator.key,
         initialLocation: navigator.initialLocation,
-        routes: generateRoutes(navigator.routes),
+        routes: generateRoutes(navigator),
       ),
     );
   }
