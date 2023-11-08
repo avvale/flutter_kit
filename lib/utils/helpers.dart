@@ -91,6 +91,7 @@ List<RouteBase> generateRoutes(FkNavigator navigator) {
       parsedRoutes.add(
         GoRoute(
           parentNavigatorKey: navigator.key,
+          name: route.name,
           path: route.path,
           builder: (context, state) => route.screen,
           routes: generateRoutes(
@@ -120,6 +121,7 @@ List<RouteBase> generateRoutes(FkNavigator navigator) {
         GoRoute(
           parentNavigatorKey: navigator.key,
           path: route.path,
+          name: route.name,
           redirect: (context, routerState) async {
             if (await canLaunchUrlString(route.externalUrl)) {
               launchUrlString(route.externalUrl);

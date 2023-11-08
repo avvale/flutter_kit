@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 abstract class FkRoute {
   final String path;
+  final String? name;
   final String? label;
   final IconData? icon;
   final String? iconAssetPath;
@@ -13,6 +14,7 @@ abstract class FkRoute {
 
   FkRoute({
     required this.path,
+    this.name,
     this.label,
     this.icon,
     this.iconAssetPath,
@@ -27,6 +29,7 @@ class FkScreenRoute extends FkRoute {
   FkScreenRoute({
     required this.screen,
     required String path,
+    String? name,
     String? label,
     IconData? icon,
     String? iconAssetPath,
@@ -34,6 +37,7 @@ class FkScreenRoute extends FkRoute {
     List<FkRoute>? routes,
   }) : super(
           path: path,
+          name: name,
           label: label,
           icon: icon,
           iconAssetPath: iconAssetPath,
@@ -50,6 +54,7 @@ class FkNestedRoute extends FkRoute {
     this.key,
     this.builder,
     required path,
+    String? name,
     String? label,
     IconData? icon,
     String? iconAssetPath,
@@ -57,6 +62,7 @@ class FkNestedRoute extends FkRoute {
     List<FkRoute>? routes,
   }) : super(
           path: path,
+          name: name,
           label: label,
           icon: icon,
           iconAssetPath: iconAssetPath,
@@ -71,6 +77,7 @@ class FkExternalRoute extends FkRoute {
   FkExternalRoute({
     required this.externalUrl,
     required path,
+    String? name,
     String? label,
     IconData? icon,
     String? iconAssetPath,
@@ -78,6 +85,7 @@ class FkExternalRoute extends FkRoute {
     List<FkRoute>? routes,
   }) : super(
           path: path,
+          name: name,
           label: label,
           icon: icon,
           iconAssetPath: iconAssetPath,
