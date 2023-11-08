@@ -2,22 +2,44 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 abstract class FkRoute {
+  final String path;
+  final String? label;
+  final IconData? icon;
+  final String? iconAssetPath;
+  final String? iconUrl;
   final List<FkRoute>? routes;
+  // TODO: Implement onInit
+  // final Function(BuildContext)? onInit;
 
   FkRoute({
+    required this.path,
+    this.label,
+    this.icon,
+    this.iconAssetPath,
+    this.iconUrl,
     this.routes,
   });
 }
 
 class FkScreenRoute extends FkRoute {
-  final String path;
   final Widget screen;
 
   FkScreenRoute({
-    required this.path,
     required this.screen,
+    required String path,
+    String? label,
+    IconData? icon,
+    String? iconAssetPath,
+    String? iconUrl,
     List<FkRoute>? routes,
-  }) : super(routes: routes);
+  }) : super(
+          path: path,
+          label: label,
+          icon: icon,
+          iconAssetPath: iconAssetPath,
+          iconUrl: iconUrl,
+          routes: routes,
+        );
 }
 
 class FkNestedRoute extends FkRoute {
@@ -27,19 +49,27 @@ class FkNestedRoute extends FkRoute {
   FkNestedRoute({
     this.key,
     this.builder,
+    required path,
+    String? label,
+    IconData? icon,
+    String? iconAssetPath,
+    String? iconUrl,
     List<FkRoute>? routes,
-  }) : super(routes: routes);
+  }) : super(path: path, routes: routes);
 }
 
 class FkExternalRoute extends FkRoute {
-  final String path;
   final String externalUrl;
 
   FkExternalRoute({
-    required this.path,
     required this.externalUrl,
+    required path,
+    String? label,
+    IconData? icon,
+    String? iconAssetPath,
+    String? iconUrl,
     List<FkRoute>? routes,
-  }) : super(routes: routes);
+  }) : super(path: path, routes: routes);
 }
 
 class FkNavigator {
