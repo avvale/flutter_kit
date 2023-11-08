@@ -21,11 +21,11 @@ class FkScreenRoute extends FkRoute {
 }
 
 class FkNestedRoute extends FkRoute {
-  final GlobalKey<NavigatorState> key;
+  final GlobalKey<NavigatorState>? key;
   Widget Function(BuildContext, GoRouterState, Widget)? builder;
 
   FkNestedRoute({
-    required this.key,
+    this.key,
     this.builder,
     List<FkRoute>? routes,
   }) : super(routes: routes);
