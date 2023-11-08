@@ -1,6 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_kit/models/routing2.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 Brightness computeColorBrightness(Color color, {bool reverse = false}) {
   final brightness = ThemeData.estimateBrightnessForColor(color);
@@ -79,4 +81,45 @@ String? getErrorMessageFromGraphQLError(dynamic error) {
 
 String capitalize(String str) {
   return str[0].toUpperCase() + str.substring(1);
+}
+
+List<RouteBase> generateRoutes(List<FkRoute> routes) {
+  List<RouteBase> parsedRoutes = [];
+
+  for (FkRoute route in routes) {
+    if (route is FkScreenRoute) {
+      parsedRoutes.add(
+        GoRoute(
+          path: route.path,
+          builder: (context, state) => route.screen,
+          routes: generateRoutes(route.routes ?? []),
+        ),
+      );
+    } else if (route is FkNestedRoute) {
+      parsedRoutes.add(
+        ShellRoute(
+          navigatorKey: route.key,
+          builder: route.builder,
+          routes: generateRoutes(
+            route.routes ?? [],
+          ),
+        ),
+      );
+    } else if (route is FkExternalRoute) {
+      parsedRoutes.add(
+        GoRoute(
+          path: route.path,
+          redirect: (context, routerState) async {
+            if (await canLaunchUrlString(route.externalUrl)) {
+              launchUrlString(route.externalUrl);
+            }
+
+            return;
+          },
+        ),
+      );
+    }
+  }
+
+  return parsedRoutes;
 }

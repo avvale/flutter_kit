@@ -8,6 +8,7 @@ import 'package:flutter_kit/models/auth_mode/auto_auth_mode.dart';
 import 'package:flutter_kit/models/auth_mode/disabled_auth_mode.dart';
 import 'package:flutter_kit/models/auth_mode/manual_auth_mode.dart';
 import 'package:flutter_kit/models/easy_loading_config.dart';
+import 'package:flutter_kit/models/routing2.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
 import 'package:flutter_kit/models/state/l10n_state.dart';
 import 'package:flutter_kit/models/state/network_state.dart';
@@ -17,6 +18,7 @@ import 'package:flutter_kit/services/network_service.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter_kit/widgets/space.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:go_router/go_router.dart';
 import 'package:graphql/client.dart';
 
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
@@ -191,8 +193,7 @@ class _AppWrapper extends StatelessWidget {
   final Locale? locale;
   final Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates;
   final Iterable<Locale> supportedLocales;
-  final Map<String, Widget Function(BuildContext)> routes;
-  final Widget? home;
+  final FkNavigator navigator;
 
   const _AppWrapper({
     Key? key,
@@ -202,13 +203,12 @@ class _AppWrapper extends StatelessWidget {
     this.locale,
     required this.localizationsDelegates,
     required this.supportedLocales,
-    this.routes = const <String, WidgetBuilder>{},
-    this.home,
+    required this.navigator,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: title ?? 'Flutter Kit',
       color: primaryColor,
@@ -219,9 +219,12 @@ class _AppWrapper extends StatelessWidget {
       locale: locale,
       localizationsDelegates: localizationsDelegates,
       supportedLocales: supportedLocales,
-      routes: routes,
       builder: EasyLoading.init(),
-      home: home,
+      routerConfig: GoRouter(
+        navigatorKey: navigator.key,
+        initialLocation: navigator.initialLocation,
+        routes: generateRoutes(navigator.routes),
+      ),
     );
   }
 }
@@ -264,12 +267,8 @@ void fxRunApp<T>({
   /// The mapped error codes.
   Map<String, String>? apiMappedErrorCodes,
 
-  /// The home page/initial screen.
-  Widget? home,
-
-  /// The routes for the application.
-  Map<String, Widget Function(BuildContext)> routes =
-      const <String, WidgetBuilder>{},
+  /// App navigator
+  required FkNavigator navigator,
 
   /// The orientations to use for the application.
   List<DeviceOrientation> orientations = const [DeviceOrientation.portraitUp],
@@ -357,8 +356,7 @@ void fxRunApp<T>({
               locale: locale,
               localizationsDelegates: localizationsDelegates,
               supportedLocales: supportedLocales,
-              routes: routes,
-              home: home,
+              navigator: navigator,
             ),
           ),
         ),
