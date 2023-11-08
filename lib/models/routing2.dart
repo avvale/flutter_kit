@@ -55,7 +55,14 @@ class FkNestedRoute extends FkRoute {
     String? iconAssetPath,
     String? iconUrl,
     List<FkRoute>? routes,
-  }) : super(path: path, routes: routes);
+  }) : super(
+          path: path,
+          label: label,
+          icon: icon,
+          iconAssetPath: iconAssetPath,
+          iconUrl: iconUrl,
+          routes: routes,
+        );
 }
 
 class FkExternalRoute extends FkRoute {
@@ -69,7 +76,14 @@ class FkExternalRoute extends FkRoute {
     String? iconAssetPath,
     String? iconUrl,
     List<FkRoute>? routes,
-  }) : super(path: path, routes: routes);
+  }) : super(
+          path: path,
+          label: label,
+          icon: icon,
+          iconAssetPath: iconAssetPath,
+          iconUrl: iconUrl,
+          routes: routes,
+        );
 }
 
 class FkNavigator {

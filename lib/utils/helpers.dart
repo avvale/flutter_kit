@@ -125,7 +125,7 @@ List<RouteBase> generateRoutes(FkNavigator navigator) {
               launchUrlString(route.externalUrl);
             }
 
-            return;
+            return null;
           },
         ),
       );
