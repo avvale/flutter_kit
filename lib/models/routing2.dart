@@ -71,6 +71,9 @@ class FkNestedRoute extends FkRoute {
         );
 }
 
+/// Route config for a route that redirects to an external URL. This route is
+/// not rendered in the app nor passed to the router; it is declared only for
+/// information purposes and it's logic must be implemented manually.
 class FkExternalRoute extends FkRoute {
   final String externalUrl;
 

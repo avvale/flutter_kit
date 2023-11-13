@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_kit/models/routing2.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 Brightness computeColorBrightness(Color color, {bool reverse = false}) {
   final brightness = ThemeData.estimateBrightnessForColor(color);
@@ -114,21 +113,6 @@ List<RouteBase> generateRoutes(FkNavigator navigator) {
               routes: route.routes ?? [],
             ),
           ),
-        ),
-      );
-    } else if (route is FkExternalRoute) {
-      parsedRoutes.add(
-        GoRoute(
-          parentNavigatorKey: navigator.key,
-          path: route.path,
-          name: route.name,
-          redirect: (context, routerState) async {
-            if (await canLaunchUrlString(route.externalUrl)) {
-              launchUrlString(route.externalUrl);
-            }
-
-            return routerState.fullPath;
-          },
         ),
       );
     }
