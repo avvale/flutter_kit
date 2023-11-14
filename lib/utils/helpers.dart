@@ -45,15 +45,14 @@ bool exists(dynamic x) {
 bool existsNotEmpty(dynamic x) {
   if (!exists(x)) return false;
 
-  switch (x.runtimeType) {
-    case String:
-      return (x as String).trim().isNotEmpty;
-    case List:
-      return (x as List).isNotEmpty;
-    case Map:
-      return (x as Map).isNotEmpty;
-    default:
-      return true;
+  if (x is String) {
+    return x.trim().isNotEmpty;
+  } else if (x is List) {
+    return x.isNotEmpty;
+  } else if (x is Map) {
+    return x.isNotEmpty;
+  } else {
+    return true;
   }
 }
 
