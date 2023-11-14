@@ -102,19 +102,44 @@ List<RouteBase> generateRoutes(FkNavigator navigator) {
         ),
       );
     } else if (route is FkNestedRoute) {
+      // New behavior
+      final childRoutes = generateRoutes(
+        FkNavigator(
+          key: route.key,
+          routes: route.routes ?? [],
+        ),
+      );
+
       parsedRoutes.add(
-        ShellRoute(
-          navigatorKey: route.key,
+        StatefulShellRoute.indexedStack(
           parentNavigatorKey: navigator.key,
           builder: route.builder,
-          routes: generateRoutes(
-            FkNavigator(
-              key: route.key,
-              routes: route.routes ?? [],
+          branches: List<StatefulShellBranch>.generate(
+            childRoutes.length,
+            (index) => StatefulShellBranch(
+              navigatorKey: route.key,
+              routes: childRoutes,
             ),
           ),
         ),
       );
+      // / New behavior
+
+      // Old behavior
+      // parsedRoutes.add(
+      //   ShellRoute(
+      //     navigatorKey: route.key,
+      //     parentNavigatorKey: navigator.key,
+      //     builder: route.builder,
+      //     routes: generateRoutes(
+      //       FkNavigator(
+      //         key: route.key,
+      //         routes: route.routes ?? [],
+      //       ),
+      //     ),
+      //   ),
+      // );
+      // / Old behavior
     }
   }
 

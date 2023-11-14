@@ -48,7 +48,12 @@ class FkScreenRoute extends FkRoute {
 
 class FkNestedRoute extends FkRoute {
   final GlobalKey<NavigatorState>? key;
-  Widget Function(BuildContext, GoRouterState, Widget)? builder;
+  Widget Function(
+    BuildContext,
+    GoRouterState,
+    // Widget,
+    StatefulNavigationShell,
+  )? builder;
 
   FkNestedRoute({
     this.key,
@@ -85,7 +90,6 @@ class FkExternalRoute extends FkRoute {
     IconData? icon,
     String? iconAssetPath,
     String? iconUrl,
-    List<FkRoute>? routes,
   }) : super(
           path: path,
           name: name,
@@ -93,7 +97,6 @@ class FkExternalRoute extends FkRoute {
           icon: icon,
           iconAssetPath: iconAssetPath,
           iconUrl: iconUrl,
-          routes: routes,
         );
 }
 
