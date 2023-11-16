@@ -113,6 +113,9 @@ class Tx extends StatelessWidget {
   /// Minimum size of the text when using autoSize.
   final double? minSize;
 
+  /// Height of the text.
+  final double? height;
+
   /// Wrapper around Text widget which provides an unified way to style text
   /// wasily allowing features like autosize, multiline, etc.
   const Tx(
@@ -128,6 +131,7 @@ class Tx extends StatelessWidget {
     this.maxLines = 1,
     this.autoSize = false,
     this.minSize,
+    this.height,
   }) : super(key: key);
 
   /// Returns a TextStyle object based on the Tx parameters.
@@ -164,6 +168,7 @@ class Tx extends StatelessWidget {
             fontWeight: weight,
             fontStyle: _txStyles[style]!,
             decoration: _txDecorations[decoration]!,
+            height: height,
           ),
         ),
       );
@@ -181,6 +186,7 @@ class Tx extends StatelessWidget {
             fontWeight: weight,
             fontStyle: _txStyles[style]!,
             decoration: _txDecorations[decoration]!,
+            height: height,
           ),
         ),
       );
