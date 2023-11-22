@@ -10,8 +10,6 @@ abstract class FkRoute {
   final String? iconAssetPath;
   final String? iconUrl;
   final List<FkRoute>? routes;
-  // TODO: Implement onInit
-  // final Function(BuildContext)? onInit;
 
   FkRoute({
     required this.path,
@@ -27,10 +25,12 @@ abstract class FkRoute {
 class FkScreenRoute extends FkRoute {
   final Widget screen;
   FutureOr<bool> Function(BuildContext)? onExit;
+  final Function(BuildContext)? onInit;
 
   FkScreenRoute({
     required this.screen,
     this.onExit,
+    this.onInit,
     required String path,
     String? name,
     String? label,

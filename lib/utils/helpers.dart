@@ -92,7 +92,11 @@ List<RouteBase> generateRoutes(FkNavigator navigator) {
           parentNavigatorKey: navigator.key,
           name: route.name,
           path: route.path,
-          builder: (context, state) => route.screen,
+          builder: (context, state) {
+            route.onInit?.call(context);
+
+            return route.screen;
+          },
           onExit: (context) async => route.onExit?.call(context) ?? true,
           routes: generateRoutes(
             FkNavigator(
