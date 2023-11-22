@@ -193,7 +193,7 @@ class _AppWrapper extends StatelessWidget {
   final Locale? locale;
   final Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates;
   final Iterable<Locale> supportedLocales;
-  final FkNavigator navigator;
+  final FkNavigator Function(BuildContext) navigator;
 
   const _AppWrapper({
     Key? key,
@@ -208,6 +208,8 @@ class _AppWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appNavigator = navigator(context);
+
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: title ?? 'Flutter Kit',
@@ -221,9 +223,9 @@ class _AppWrapper extends StatelessWidget {
       supportedLocales: supportedLocales,
       builder: EasyLoading.init(),
       routerConfig: GoRouter(
-        navigatorKey: navigator.key,
-        initialLocation: navigator.initialLocation,
-        routes: generateRoutes(navigator),
+        navigatorKey: appNavigator.key,
+        initialLocation: appNavigator.initialLocation,
+        routes: generateRoutes(appNavigator),
       ),
     );
   }
@@ -268,7 +270,7 @@ void fxRunApp<T>({
   Map<String, String>? apiMappedErrorCodes,
 
   /// App navigator
-  required FkNavigator navigator,
+  required FkNavigator Function(BuildContext) navigator,
 
   /// The orientations to use for the application.
   List<DeviceOrientation> orientations = const [DeviceOrientation.portraitUp],
