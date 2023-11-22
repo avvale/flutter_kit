@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
@@ -25,9 +26,11 @@ abstract class FkRoute {
 
 class FkScreenRoute extends FkRoute {
   final Widget screen;
+  FutureOr<bool> Function(BuildContext)? onExit;
 
   FkScreenRoute({
     required this.screen,
+    this.onExit,
     required String path,
     String? name,
     String? label,
