@@ -312,6 +312,8 @@ void fxRunApp<T>({
 
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
+  if (useLocalization) await EasyLocalization.ensureInitialized();
+
   if (splashDuration != null) {
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   }
