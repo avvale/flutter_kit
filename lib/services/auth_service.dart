@@ -51,13 +51,13 @@ class AuthService {
   Future<bool> initialize() async {
     final secureValues = await _secureStorage.readAll();
 
-    if (secureValues['fx_accessToken'] != null &&
-        secureValues['fx_refreshToken'] != null) {
+    if (secureValues['fk_accessToken'] != null &&
+        secureValues['fk_refreshToken'] != null) {
       await _setAuthCredentials(
         value.copyWith(
           isInitialized: true,
-          accessToken: secureValues['fx_accessToken'],
-          refreshToken: secureValues['fx_refreshToken'],
+          accessToken: secureValues['fk_accessToken'],
+          refreshToken: secureValues['fk_refreshToken'],
         ),
       );
 
@@ -131,11 +131,11 @@ class AuthService {
           Debugger.log('Login OAuth data', oAuthData);
 
           await _secureStorage.write(
-            key: 'fx_accessToken',
+            key: 'fk_accessToken',
             value: oAuthData['accessToken'],
           );
           await _secureStorage.write(
-            key: 'fx_refreshToken',
+            key: 'fk_refreshToken',
             value: oAuthData['refreshToken'],
           );
 
@@ -173,8 +173,8 @@ class AuthService {
   Future<void> logout() async {
     Debugger.log('Logout');
 
-    await _secureStorage.delete(key: 'fx_accessToken');
-    await _secureStorage.delete(key: 'fx_refreshToken');
+    await _secureStorage.delete(key: 'fk_accessToken');
+    await _secureStorage.delete(key: 'fk_refreshToken');
 
     await _setAuthCredentials(
       value.copyWith(accessToken: '', refreshToken: ''),

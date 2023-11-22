@@ -34,7 +34,7 @@ class L10nService {
     String? forceLang,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    final String lang = forceLang ?? prefs.getString('fx_lang') ?? defaultLang;
+    final String lang = forceLang ?? prefs.getString('fk_lang') ?? defaultLang;
 
     _dataFetcher.add(
       value.copyWith(
@@ -45,7 +45,7 @@ class L10nService {
       ),
     );
 
-    prefs.setString('fx_lang', lang);
+    prefs.setString('fk_lang', lang);
   }
 
   Future<void> updateLang(String? lang) async {
@@ -59,7 +59,7 @@ class L10nService {
 
     final prefs = await SharedPreferences.getInstance();
 
-    prefs.setString('fx_lang', lang);
+    prefs.setString('fk_lang', lang);
 
     final String accessToken = AuthService().value.accessToken;
 

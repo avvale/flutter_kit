@@ -56,6 +56,29 @@ const Map<TxDecoration, TextDecoration> _txDecorations = {
   TxDecoration.underline: TextDecoration.underline,
 };
 
+class _PaddingWrapper extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry? padding;
+
+  const _PaddingWrapper({
+    Key? key,
+    required this.child,
+    this.padding,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (padding != null) {
+      return Padding(
+        padding: padding!,
+        child: child,
+      );
+    } else {
+      return child;
+    }
+  }
+}
+
 class Tx extends StatelessWidget {
   /// Text to be displayed.
   final String text;
@@ -68,6 +91,9 @@ class Tx extends StatelessWidget {
 
   /// Weight of the text.
   final FontWeight weight;
+
+  /// Padding of the text.
+  final EdgeInsetsGeometry? padding;
 
   /// Style of the text.
   final TxStyle style;
@@ -87,6 +113,9 @@ class Tx extends StatelessWidget {
   /// Minimum size of the text when using autoSize.
   final double? minSize;
 
+  /// Height of the text.
+  final double? height;
+
   /// Wrapper around Text widget which provides an unified way to style text
   /// wasily allowing features like autosize, multiline, etc.
   const Tx(
@@ -95,12 +124,14 @@ class Tx extends StatelessWidget {
     this.size = TxSize.m,
     this.color,
     this.weight = TxWeight.normal,
+    this.padding,
     this.style = TxStyle.normal,
     this.decoration = TxDecoration.normal,
     this.align = TxAlign.left,
     this.maxLines = 1,
     this.autoSize = false,
     this.minSize,
+    this.height,
   }) : super(key: key);
 
   /// Returns a TextStyle object based on the Tx parameters.
@@ -123,32 +154,40 @@ class Tx extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (autoSize) {
-      return AutoSizeText(
-        text,
-        maxLines: maxLines,
-        minFontSize: minSize ?? size,
-        overflow: TextOverflow.ellipsis,
-        textAlign: _txAligns[align]!,
-        style: TextStyle(
-          fontSize: size,
-          color: color ?? Theme.of(context).textTheme.bodyLarge?.color,
-          fontWeight: weight,
-          fontStyle: _txStyles[style]!,
-          decoration: _txDecorations[decoration]!,
+      return _PaddingWrapper(
+        padding: padding,
+        child: AutoSizeText(
+          text,
+          maxLines: maxLines,
+          minFontSize: minSize ?? size,
+          overflow: TextOverflow.ellipsis,
+          textAlign: _txAligns[align]!,
+          style: TextStyle(
+            fontSize: size,
+            color: color ?? Theme.of(context).textTheme.bodyLarge?.color,
+            fontWeight: weight,
+            fontStyle: _txStyles[style]!,
+            decoration: _txDecorations[decoration]!,
+            height: height,
+          ),
         ),
       );
     } else {
-      return Text(
-        text,
-        maxLines: maxLines,
-        overflow: TextOverflow.ellipsis,
-        textAlign: _txAligns[align]!,
-        style: TextStyle(
-          fontSize: size,
-          color: color ?? Theme.of(context).textTheme.bodyLarge?.color,
-          fontWeight: weight,
-          fontStyle: _txStyles[style]!,
-          decoration: _txDecorations[decoration]!,
+      return _PaddingWrapper(
+        padding: padding,
+        child: Text(
+          text,
+          maxLines: maxLines,
+          overflow: TextOverflow.ellipsis,
+          textAlign: _txAligns[align]!,
+          style: TextStyle(
+            fontSize: size,
+            color: color ?? Theme.of(context).textTheme.bodyLarge?.color,
+            fontWeight: weight,
+            fontStyle: _txStyles[style]!,
+            decoration: _txDecorations[decoration]!,
+            height: height,
+          ),
         ),
       );
     }

@@ -5,6 +5,8 @@ class CurvedNavigationBar extends StatefulWidget {
   final int index;
   final ValueChanged<int>? onTap;
   final bool Function(int value) allowIndexChange;
+  final Color? tabBarColor;
+  final Color? buttonBackgroundColor;
 
   /// Widget procedente del paquete "curved_navigation_bar", modificado para
   /// adaptarse al diseño y funcionalidad de la app
@@ -13,6 +15,8 @@ class CurvedNavigationBar extends StatefulWidget {
     required this.items,
     this.index = 0,
     this.onTap,
+    this.tabBarColor,
+    this.buttonBackgroundColor,
     bool Function(int value)? letIndexChange,
   })  : allowIndexChange = letIndexChange ?? ((_) => true),
         assert(items.isNotEmpty),
@@ -25,8 +29,6 @@ class CurvedNavigationBar extends StatefulWidget {
 
 class CurvedNavigationBarState extends State<CurvedNavigationBar>
     with SingleTickerProviderStateMixin {
-  final Color? tabBarColor;
-  final Color? buttonBackgroundColor;
   final Curve _animationCurve = Curves.easeInOutCubic;
   final Duration _animationDuration = const Duration(milliseconds: 300);
   late final int _length;
@@ -36,8 +38,6 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
   late double _startingPos;
   int _endingIndex = 0;
   double _buttonHide = 0;
-
-  CurvedNavigationBarState({this.tabBarColor, this.buttonBackgroundColor});
 
   @override
   void initState() {
@@ -128,7 +128,7 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
                       width: 46,
                       height: 46,
                       decoration: BoxDecoration(
-                        color: buttonBackgroundColor ??
+                        color: widget.buttonBackgroundColor ??
                             Theme.of(context).primaryColor,
                         borderRadius: BorderRadius.circular(128),
                       ),
@@ -150,7 +150,7 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
               painter: _NavCustomPainter(
                 _pos,
                 _length,
-                tabBarColor ?? Theme.of(context).primaryColor,
+                widget.tabBarColor ?? Theme.of(context).primaryColor,
                 Directionality.of(context),
               ),
               child: Container(
