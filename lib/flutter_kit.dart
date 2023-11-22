@@ -1,5 +1,6 @@
 library flutter_kit;
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -10,10 +11,8 @@ import 'package:flutter_kit/models/auth_mode/manual_auth_mode.dart';
 import 'package:flutter_kit/models/easy_loading_config.dart';
 import 'package:flutter_kit/models/routing2.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
-import 'package:flutter_kit/models/state/l10n_state.dart';
 import 'package:flutter_kit/models/state/network_state.dart';
 import 'package:flutter_kit/services/auth_service.dart';
-import 'package:flutter_kit/services/l10n_service.dart';
 import 'package:flutter_kit/services/network_service.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter_kit/widgets/space.dart';
@@ -117,38 +116,53 @@ class _NetworkWrapper<T> extends StatelessWidget {
 class _L10nWrapper extends StatelessWidget {
   final bool useLocalization;
   final Widget Function(Locale?) child;
-  final String defaultLang;
-  final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
+  final String? defaultLang;
+  // final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
   final Iterable<Locale>? supportedLocales;
+  final String? translationsPath;
 
-  const _L10nWrapper({
+  _L10nWrapper({
     Key? key,
     required this.useLocalization,
     required this.child,
-    required this.defaultLang,
-    this.localizationsDelegates,
+    this.defaultLang,
+    // this.localizationsDelegates,
     this.supportedLocales,
-  }) : super(key: key);
+    this.translationsPath,
+  })  : assert(
+          useLocalization == false ||
+              (existsNotEmpty(defaultLang) &&
+                  existsNotEmpty(translationsPath) &&
+                  existsNotEmpty(supportedLocales)),
+          'If localization is used, defaultLang parameter is required',
+        ),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
     if (!useLocalization) return child(null);
 
-    return StreamBuilder(
-      stream: L10nService().stream,
-      builder: (context, AsyncSnapshot<L10nState> snapshot) {
-        if (!snapshot.hasData || !snapshot.data!.isInitialized) {
-          L10nService().initialize(
-            defaultLang: defaultLang,
-            localizationsDelegates: localizationsDelegates,
-            supportedLocales: supportedLocales,
-          );
+    return EasyLocalization(
+      supportedLocales: supportedLocales!.toList(),
+      path: translationsPath!,
+      fallbackLocale: Locale(defaultLang!),
+      child: child(null),
+      // StreamBuilder(
+      //   stream: L10nService().stream,
+      //   builder: (context, AsyncSnapshot<L10nState> snapshot) {
+      //     if (!snapshot.hasData || !snapshot.data!.isInitialized) {
+      //       L10nService().initialize(
+      //         defaultLang: defaultLang!,
+      //         // localizationsDelegates: localizationsDelegates,
+      //         supportedLocales: supportedLocales,
+      //       );
 
-          return const Space();
-        }
+      //       return const Space();
+      //     }
 
-        return child(snapshot.data!.currentLocale);
-      },
+      //     return child(snapshot.data!.currentLocale);
+      //   },
+      // ),
     );
   }
 }
@@ -190,9 +204,9 @@ class _AppWrapper extends StatelessWidget {
   final String? title;
   final Color? primaryColor;
   final ThemeData Function(BuildContext)? theme;
-  final Locale? locale;
-  final Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates;
-  final Iterable<Locale> supportedLocales;
+  // final Locale? locale;
+  // final Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates;
+  // final Iterable<Locale> supportedLocales;
   final FkNavigator Function(BuildContext) navigator;
 
   const _AppWrapper({
@@ -200,9 +214,9 @@ class _AppWrapper extends StatelessWidget {
     this.title,
     this.primaryColor,
     this.theme,
-    this.locale,
-    required this.localizationsDelegates,
-    required this.supportedLocales,
+    // this.locale,
+    // required this.localizationsDelegates,
+    // required this.supportedLocales,
     required this.navigator,
   }) : super(key: key);
 
@@ -218,9 +232,9 @@ class _AppWrapper extends StatelessWidget {
           ? theme!(context).copyWith(primaryColor: primaryColor)
           : ThemeData(primaryColor: primaryColor),
       scaffoldMessengerKey: rootScaffoldMessengerKey,
-      locale: locale,
-      localizationsDelegates: localizationsDelegates,
-      supportedLocales: supportedLocales,
+      locale: context.locale,
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
       builder: EasyLoading.init(),
       routerConfig: GoRouter(
         navigatorKey: appNavigator.key,
@@ -283,14 +297,15 @@ void fxRunApp<T>({
 
   /// The default language. If localization is used, this parameter is required.
   String defaultLang = 'en',
-  Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      const <LocalizationsDelegate<dynamic>>[],
+  String translationsPath = '',
+  // Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates =
+  //     const <LocalizationsDelegate<dynamic>>[],
   Iterable<Locale> supportedLocales = const <Locale>[Locale('en', 'US')],
 }) async {
   assert(
     useLocalization == false ||
         (existsNotEmpty(defaultLang) &&
-            existsNotEmpty(localizationsDelegates) &&
+            existsNotEmpty(translationsPath) &&
             existsNotEmpty(supportedLocales)),
     'If localization is used, defaultLang parameter is required',
   );
@@ -347,7 +362,8 @@ void fxRunApp<T>({
         child: _L10nWrapper(
           useLocalization: useLocalization,
           defaultLang: defaultLang,
-          localizationsDelegates: localizationsDelegates,
+          translationsPath: translationsPath,
+          // localizationsDelegates: localizationsDelegates,
           supportedLocales: supportedLocales,
           child: (locale) => _AuthWrapper(
             authMode: authMode,
@@ -355,9 +371,9 @@ void fxRunApp<T>({
               title: title,
               primaryColor: primaryColor,
               theme: theme,
-              locale: locale,
-              localizationsDelegates: localizationsDelegates,
-              supportedLocales: supportedLocales,
+              // locale: locale,
+              // localizationsDelegates: localizationsDelegates,
+              // supportedLocales: supportedLocales,
               navigator: navigator,
             ),
           ),
