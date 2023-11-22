@@ -92,8 +92,6 @@ class _L10nWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!useLocalization) return child;
 
-    context.locale;
-
     return EasyLocalization(
       supportedLocales: supportedLocales!.toList(),
       path: translationsPath!,
