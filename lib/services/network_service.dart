@@ -6,7 +6,6 @@ import 'package:flutter_kit/models/auth_mode/disabled_auth_mode.dart';
 import 'package:flutter_kit/models/auth_mode/manual_auth_mode.dart';
 import 'package:flutter_kit/models/state/network_state.dart';
 import 'package:flutter_kit/services/auth_service.dart';
-import 'package:flutter_kit/services/l10n_service.dart';
 import 'package:flutter_kit/utils/debugger.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter_kit/utils/toast.dart';
@@ -26,6 +25,7 @@ final initialState = NetworkState(
   apiUrl: '',
   apiRepository: {},
   authMode: const DisabledAuthMode(),
+  localeCode: '',
 );
 
 /// Servicio de red
@@ -302,6 +302,7 @@ class NetworkService {
     Map<T, String> apiRepository = const {},
     T? authEndpoint,
     AuthMode authMode = const DisabledAuthMode(),
+    String localeCode = '',
     Map<String, String>? apiMappedErrorCodes,
     String? authTokenPrefix,
   }) async {
@@ -325,6 +326,7 @@ class NetworkService {
         apiUrl: apiUrl,
         apiRepository: apiRepository,
         authMode: authMode,
+        localeCode: localeCode,
         authEndpoint: authEndpoint,
         apiMappedErrorCodes: apiMappedErrorCodes,
         authTokenPrefix: authTokenPrefix,
@@ -337,7 +339,7 @@ class NetworkService {
     Debugger.log('Set auth token', token);
 
     final String timezone = await FlutterTimezone.getLocalTimezone();
-    final String? lang = L10nService().value.currentLocale?.languageCode;
+    // final String? lang = L10nService().value.currentLocale?.languageCode;
 
     if (existsNotEmpty(token)) {
       _dataFetcher.add(
@@ -349,7 +351,8 @@ class NetworkService {
               _baseHttpLink(
                 headers: {
                   'X-Timezone': timezone,
-                  if (existsNotEmpty(lang)) 'content-language': lang!,
+                  if (existsNotEmpty(value.localeCode))
+                    'content-language': value.localeCode,
                 },
               ),
             ),
@@ -363,13 +366,22 @@ class NetworkService {
             link: _baseHttpLink(
               headers: {
                 'X-Timezone': timezone,
-                if (existsNotEmpty(lang)) 'content-language': lang!,
+                if (existsNotEmpty(value.localeCode))
+                  'content-language': value.localeCode,
               },
             ),
           ),
         ),
       );
     }
+  }
+
+  void updateLocale(String localeCode) {
+    Debugger.log('Update locale', localeCode);
+
+    _dataFetcher.add(
+      value.copyWith(localeCode: localeCode),
+    );
   }
 
   /// Realiza una petición GraphQL

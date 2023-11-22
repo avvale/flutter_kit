@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_kit/models/routing2.dart';
+import 'package:flutter_kit/services/auth_service.dart';
+import 'package:flutter_kit/services/network_service.dart';
 import 'package:go_router/go_router.dart';
 
 Brightness computeColorBrightness(Color color, {bool reverse = false}) {
@@ -148,4 +151,14 @@ List<RouteBase> generateRoutes(FkNavigator navigator) {
   }
 
   return parsedRoutes;
+}
+
+void updateLanguage(BuildContext context, String? lang) {
+  if (lang != null) {
+    context.setLocale(Locale(lang));
+    NetworkService().setToken(AuthService().value.accessToken);
+  } else {
+    context.resetLocale();
+    NetworkService().setToken(AuthService().value.accessToken);
+  }
 }

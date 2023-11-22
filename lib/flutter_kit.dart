@@ -63,6 +63,62 @@ void _initializeLoaderConfig({required EasyLoadingConfig elc}) {
         elc.userInteractions ?? EasyLoading.instance.userInteractions;
 }
 
+class _L10nWrapper extends StatelessWidget {
+  final bool useLocalization;
+  final Widget child;
+  final String? defaultLang;
+  // final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
+  final Iterable<Locale>? supportedLocales;
+  final String? translationsPath;
+
+  _L10nWrapper({
+    Key? key,
+    required this.useLocalization,
+    required this.child,
+    this.defaultLang,
+    // this.localizationsDelegates,
+    this.supportedLocales,
+    this.translationsPath,
+  })  : assert(
+          useLocalization == false ||
+              (existsNotEmpty(defaultLang) &&
+                  existsNotEmpty(translationsPath) &&
+                  existsNotEmpty(supportedLocales)),
+          'If localization is used, defaultLang parameter is required',
+        ),
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (!useLocalization) return child;
+
+    context.locale;
+
+    return EasyLocalization(
+      supportedLocales: supportedLocales!.toList(),
+      path: translationsPath!,
+      fallbackLocale: Locale(defaultLang!),
+      child: child,
+      // StreamBuilder(
+      //   stream: L10nService().stream,
+      //   builder: (context, AsyncSnapshot<L10nState> snapshot) {
+      //     if (!snapshot.hasData || !snapshot.data!.isInitialized) {
+      //       L10nService().initialize(
+      //         defaultLang: defaultLang!,
+      //         // localizationsDelegates: localizationsDelegates,
+      //         supportedLocales: supportedLocales,
+      //       );
+
+      //       return const Space();
+      //     }
+
+      //     return child(snapshot.data!.currentLocale);
+      //   },
+      // ),
+    );
+  }
+}
+
 class _NetworkWrapper<T> extends StatelessWidget {
   final Widget child;
   final String apiUrl;
@@ -101,6 +157,7 @@ class _NetworkWrapper<T> extends StatelessWidget {
             authEndpoint: authEndpoint,
             apiMappedErrorCodes: apiMappedErrorCodes,
             authMode: authMode,
+            localeCode: context.locale.languageCode,
             authTokenPrefix: authTokenPrefix,
           );
 
@@ -109,60 +166,6 @@ class _NetworkWrapper<T> extends StatelessWidget {
 
         return child;
       },
-    );
-  }
-}
-
-class _L10nWrapper extends StatelessWidget {
-  final bool useLocalization;
-  final Widget Function(Locale?) child;
-  final String? defaultLang;
-  // final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
-  final Iterable<Locale>? supportedLocales;
-  final String? translationsPath;
-
-  _L10nWrapper({
-    Key? key,
-    required this.useLocalization,
-    required this.child,
-    this.defaultLang,
-    // this.localizationsDelegates,
-    this.supportedLocales,
-    this.translationsPath,
-  })  : assert(
-          useLocalization == false ||
-              (existsNotEmpty(defaultLang) &&
-                  existsNotEmpty(translationsPath) &&
-                  existsNotEmpty(supportedLocales)),
-          'If localization is used, defaultLang parameter is required',
-        ),
-        super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    if (!useLocalization) return child(null);
-
-    return EasyLocalization(
-      supportedLocales: supportedLocales!.toList(),
-      path: translationsPath!,
-      fallbackLocale: Locale(defaultLang!),
-      child: child(null),
-      // StreamBuilder(
-      //   stream: L10nService().stream,
-      //   builder: (context, AsyncSnapshot<L10nState> snapshot) {
-      //     if (!snapshot.hasData || !snapshot.data!.isInitialized) {
-      //       L10nService().initialize(
-      //         defaultLang: defaultLang!,
-      //         // localizationsDelegates: localizationsDelegates,
-      //         supportedLocales: supportedLocales,
-      //       );
-
-      //       return const Space();
-      //     }
-
-      //     return child(snapshot.data!.currentLocale);
-      //   },
-      // ),
     );
   }
 }
@@ -352,22 +355,21 @@ void fxRunApp<T>({
     GestureDetector(
       /// When tapping outside of a text field, the keyboard is hidden
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: _NetworkWrapper(
-        apiUrl: apiUrl,
-        basicAuthToken: basicAuthToken,
-        gqlPolicies: gqlPolicies,
-        apiRepository: apiRepository,
-        authEndpoint: authEndpoint,
-        apiMappedErrorCodes: apiMappedErrorCodes,
-        authMode: authMode,
-        authTokenPrefix: authTokenPrefix,
-        child: _L10nWrapper(
-          useLocalization: useLocalization,
-          defaultLang: defaultLang,
-          translationsPath: translationsPath,
-          // localizationsDelegates: localizationsDelegates,
-          supportedLocales: supportedLocales,
-          child: (locale) => _AuthWrapper(
+      child: _L10nWrapper(
+        useLocalization: useLocalization,
+        defaultLang: defaultLang,
+        translationsPath: translationsPath,
+        supportedLocales: supportedLocales,
+        child: _NetworkWrapper(
+          apiUrl: apiUrl,
+          basicAuthToken: basicAuthToken,
+          gqlPolicies: gqlPolicies,
+          apiRepository: apiRepository,
+          authEndpoint: authEndpoint,
+          apiMappedErrorCodes: apiMappedErrorCodes,
+          authMode: authMode,
+          authTokenPrefix: authTokenPrefix,
+          child: _AuthWrapper(
             authMode: authMode,
             child: _AppWrapper(
               title: title,
