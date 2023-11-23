@@ -25,11 +25,12 @@ class L10nService {
 
   L10nService._internal();
 
-  Future<void> initialize({required String defaultLang}) async {
+  Future<void> initialize({String? defaultLang}) async {
     _dataFetcher.add(
       value.copyWith(
         isInitialized: true,
-        currentLocale: Locale(defaultLang),
+        currentLocale:
+            existsNotEmpty(defaultLang) ? Locale(defaultLang!) : null,
       ),
     );
   }

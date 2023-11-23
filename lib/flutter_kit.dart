@@ -88,7 +88,20 @@ class _L10nWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!useLocalization) return child;
+    if (!useLocalization) {
+      return StreamBuilder(
+        stream: L10nService().stream,
+        builder: (context, AsyncSnapshot<L10nState> snapshot) {
+          if (!snapshot.hasData || !snapshot.data!.isInitialized) {
+            L10nService().initialize();
+
+            return const Space();
+          }
+
+          return child;
+        },
+      );
+    }
 
     return EasyLocalization(
       supportedLocales: supportedLocales!.toList(),
@@ -148,7 +161,6 @@ class _NetworkWrapper<T> extends StatelessWidget {
             authEndpoint: authEndpoint,
             apiMappedErrorCodes: apiMappedErrorCodes,
             authMode: authMode,
-            localeCode: context.locale.languageCode,
             authTokenPrefix: authTokenPrefix,
           );
 

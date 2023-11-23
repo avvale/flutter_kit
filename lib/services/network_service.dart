@@ -304,7 +304,6 @@ class NetworkService {
     Map<T, String> apiRepository = const {},
     T? authEndpoint,
     AuthMode authMode = const DisabledAuthMode(),
-    String localeCode = '',
     Map<String, String>? apiMappedErrorCodes,
     String? authTokenPrefix,
   }) async {
@@ -328,7 +327,6 @@ class NetworkService {
         apiUrl: apiUrl,
         apiRepository: apiRepository,
         authMode: authMode,
-        // localeCode: localeCode,
         authEndpoint: authEndpoint,
         apiMappedErrorCodes: apiMappedErrorCodes,
         authTokenPrefix: authTokenPrefix,
