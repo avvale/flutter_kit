@@ -90,20 +90,21 @@ class _L10nWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!useLocalization) {
-      return StreamBuilder(
-        stream: L10nService().stream,
-        builder: (context, AsyncSnapshot<L10nState> snapshot) {
-          if (!snapshot.hasData || !snapshot.data!.isInitialized) {
-            L10nService().initialize();
+    if (!useLocalization) return child;
+    // {
+    //   return StreamBuilder(
+    //     stream: L10nService().stream,
+    //     builder: (context, AsyncSnapshot<L10nState> snapshot) {
+    //       if (!snapshot.hasData || !snapshot.data!.isInitialized) {
+    //         L10nService().initialize();
 
-            return const Space();
-          }
+    //         return const Space();
+    //       }
 
-          return child;
-        },
-      );
-    }
+    //       return child;
+    //     },
+    //   );
+    // }
 
     return EasyLocalization(
       supportedLocales: supportedLocales!.toList(),
