@@ -163,7 +163,6 @@ class _NetworkWrapper<T> extends StatelessWidget {
             authEndpoint: authEndpoint,
             apiMappedErrorCodes: apiMappedErrorCodes,
             authMode: authMode,
-            localeCode: context.locale.languageCode,
             authTokenPrefix: authTokenPrefix,
           );
 
