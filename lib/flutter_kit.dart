@@ -65,7 +65,7 @@ void _initializeLoaderConfig({required EasyLoadingConfig elc}) {
 
 class _L10nWrapper extends StatelessWidget {
   final bool useLocalization;
-  final Widget child;
+  final Widget Function(Locale?) child;
   final String? defaultLang;
   final List<Locale>? supportedLocales;
   final String? translationsPath;
@@ -88,7 +88,7 @@ class _L10nWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!useLocalization) return child;
+    if (!useLocalization) return child(null);
     // {
     //   return StreamBuilder(
     //     stream: L10nService().stream,
@@ -117,7 +117,7 @@ class _L10nWrapper extends StatelessWidget {
             return const Space();
           }
 
-          return child;
+          return child(context.locale);
         },
       ),
     );
@@ -213,6 +213,7 @@ class _AppWrapper extends StatelessWidget {
   final ThemeData Function(BuildContext)? theme;
   final Map<String, Widget Function(BuildContext)> routes;
   final Widget? home;
+  final Locale? locale;
 
   const _AppWrapper({
     Key? key,
@@ -221,6 +222,7 @@ class _AppWrapper extends StatelessWidget {
     this.theme,
     this.routes = const <String, WidgetBuilder>{},
     this.home,
+    this.locale,
   }) : super(key: key);
 
   @override
@@ -233,7 +235,7 @@ class _AppWrapper extends StatelessWidget {
           ? theme!(context).copyWith(primaryColor: primaryColor)
           : ThemeData(primaryColor: primaryColor),
       scaffoldMessengerKey: rootScaffoldMessengerKey,
-      locale: context.locale,
+      locale: locale,
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       routes: routes,
@@ -357,7 +359,7 @@ void fxRunApp<T>({
         defaultLang: defaultLang,
         translationsPath: translationsPath,
         supportedLocales: supportedLocales,
-        child: _NetworkWrapper(
+        child: (locale) => _NetworkWrapper(
           apiUrl: apiUrl,
           basicAuthToken: basicAuthToken,
           gqlPolicies: gqlPolicies,
@@ -374,6 +376,7 @@ void fxRunApp<T>({
               theme: theme,
               routes: routes,
               home: home,
+              locale: locale,
             ),
           ),
         ),
