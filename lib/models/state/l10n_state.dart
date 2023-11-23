@@ -4,8 +4,8 @@ class L10nState {
   final bool isInitialized;
   final Locale? currentLocale;
 
-  L10nState({
-    required this.isInitialized,
+  const L10nState({
+    this.isInitialized = false,
     this.currentLocale,
   });
 

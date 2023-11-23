@@ -67,8 +67,7 @@ class _L10nWrapper extends StatelessWidget {
   final bool useLocalization;
   final Widget child;
   final String? defaultLang;
-  // final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
-  final Iterable<Locale>? supportedLocales;
+  final List<Locale>? supportedLocales;
   final String? translationsPath;
 
   _L10nWrapper({
@@ -76,7 +75,6 @@ class _L10nWrapper extends StatelessWidget {
     required this.useLocalization,
     required this.child,
     this.defaultLang,
-    // this.localizationsDelegates,
     this.supportedLocales,
     this.translationsPath,
   })  : assert(
@@ -96,17 +94,11 @@ class _L10nWrapper extends StatelessWidget {
       supportedLocales: supportedLocales!.toList(),
       path: translationsPath!,
       fallbackLocale: Locale(defaultLang!),
-      child:
-          // child,
-          StreamBuilder(
+      child: StreamBuilder(
         stream: L10nService().stream,
         builder: (context, AsyncSnapshot<L10nState> snapshot) {
           if (!snapshot.hasData || !snapshot.data!.isInitialized) {
-            L10nService().initialize(
-              defaultLang: context.locale.languageCode,
-              // localizationsDelegates: localizationsDelegates,
-              // supportedLocales: supportedLocales,
-            );
+            L10nService().initialize(defaultLang: context.locale.languageCode);
 
             return const Space();
           }
@@ -206,9 +198,6 @@ class _AppWrapper extends StatelessWidget {
   final String? title;
   final Color? primaryColor;
   final ThemeData Function(BuildContext)? theme;
-  // final Locale? locale;
-  // final Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates;
-  // final Iterable<Locale> supportedLocales;
   final Map<String, Widget Function(BuildContext)> routes;
   final Widget? home;
 
@@ -217,9 +206,6 @@ class _AppWrapper extends StatelessWidget {
     this.title,
     this.primaryColor,
     this.theme,
-    // this.locale,
-    // required this.localizationsDelegates,
-    // required this.supportedLocales,
     this.routes = const <String, WidgetBuilder>{},
     this.home,
   }) : super(key: key);
@@ -301,9 +287,7 @@ void fxRunApp<T>({
   /// The default language. If localization is used, this parameter is required.
   String defaultLang = 'en',
   String translationsPath = '',
-  // Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates =
-  //     const <LocalizationsDelegate<dynamic>>[],
-  Iterable<Locale> supportedLocales = const <Locale>[Locale('en', 'US')],
+  List<Locale> supportedLocales = const <Locale>[Locale('en', 'US')],
 }) async {
   assert(
     useLocalization == false ||
@@ -375,9 +359,6 @@ void fxRunApp<T>({
               title: title,
               primaryColor: primaryColor,
               theme: theme,
-              // locale: locale,
-              // localizationsDelegates: localizationsDelegates,
-              // supportedLocales: supportedLocales,
               routes: routes,
               home: home,
             ),

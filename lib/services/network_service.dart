@@ -20,15 +20,7 @@ enum RequestType {
   mutation,
 }
 
-final initialState = NetworkState(
-  isInitialized: false,
-  gqlClient: GraphQLClient(link: HttpLink(''), cache: GraphQLCache()),
-  gqlClientBasicAuth: GraphQLClient(link: HttpLink(''), cache: GraphQLCache()),
-  apiUrl: '',
-  apiRepository: {},
-  authMode: const DisabledAuthMode(),
-  // localeCode: '',
-);
+const initialState = NetworkState();
 
 /// Servicio de red
 class NetworkService {
@@ -57,7 +49,7 @@ class NetworkService {
   Future<QueryResult> _handleError<T>({
     required dynamic error,
     required T endpoint,
-    required String request,
+    required String? request,
     required RequestType requestType,
   }) {
     Debugger.log('Handle error', error);
@@ -219,7 +211,7 @@ class NetworkService {
       _handleError(
         error: res,
         endpoint: endpoint,
-        request: value.apiRepository[endpoint]!,
+        request: value.apiRepository?[endpoint],
         requestType: requestType,
       );
 
@@ -242,9 +234,17 @@ class NetworkService {
       required QueryResult res,
       required bool isRetry,
     }) handler,
-    required GraphQLClient gqlClient,
+    required GraphQLClient? gqlClient,
   }) async {
-    final request = value.apiRepository[endpoint]!;
+    final request = value.apiRepository?[endpoint];
+
+    if (request == null) {
+      throw Exception('No request found for endpoint $endpoint');
+    }
+
+    if (gqlClient == null) {
+      throw Exception('No GraphQL client found');
+    }
 
     switch (requestType) {
       case RequestType.query:
@@ -346,7 +346,7 @@ class NetworkService {
     if (existsNotEmpty(token)) {
       _dataFetcher.add(
         value.copyWith(
-          gqlClient: value.gqlClient.copyWith(
+          gqlClient: value.gqlClient?.copyWith(
             link: AuthLink(
               getToken: () => '${value.authTokenPrefix} $token',
             ).concat(
@@ -363,7 +363,7 @@ class NetworkService {
     } else {
       _dataFetcher.add(
         value.copyWith(
-          gqlClient: value.gqlClient.copyWith(
+          gqlClient: value.gqlClient?.copyWith(
             link: _baseHttpLink(
               headers: {
                 'X-Timezone': timezone,
