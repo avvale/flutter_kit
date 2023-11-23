@@ -1,5 +1,6 @@
 library flutter_kit;
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -9,10 +10,8 @@ import 'package:flutter_kit/models/auth_mode/disabled_auth_mode.dart';
 import 'package:flutter_kit/models/auth_mode/manual_auth_mode.dart';
 import 'package:flutter_kit/models/easy_loading_config.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
-import 'package:flutter_kit/models/state/l10n_state.dart';
 import 'package:flutter_kit/models/state/network_state.dart';
 import 'package:flutter_kit/services/auth_service.dart';
-import 'package:flutter_kit/services/l10n_service.dart';
 import 'package:flutter_kit/services/network_service.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter_kit/widgets/space.dart';
@@ -62,6 +61,60 @@ void _initializeLoaderConfig({required EasyLoadingConfig elc}) {
         elc.userInteractions ?? EasyLoading.instance.userInteractions;
 }
 
+class _L10nWrapper extends StatelessWidget {
+  final bool useLocalization;
+  final Widget child;
+  final String? defaultLang;
+  // final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
+  final Iterable<Locale>? supportedLocales;
+  final String? translationsPath;
+
+  _L10nWrapper({
+    Key? key,
+    required this.useLocalization,
+    required this.child,
+    this.defaultLang,
+    // this.localizationsDelegates,
+    this.supportedLocales,
+    this.translationsPath,
+  })  : assert(
+          useLocalization == false ||
+              (existsNotEmpty(defaultLang) &&
+                  existsNotEmpty(translationsPath) &&
+                  existsNotEmpty(supportedLocales)),
+          'If localization is used, defaultLang parameter is required',
+        ),
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (!useLocalization) return child;
+
+    return EasyLocalization(
+      supportedLocales: supportedLocales!.toList(),
+      path: translationsPath!,
+      fallbackLocale: Locale(defaultLang!),
+      child: child,
+      // StreamBuilder(
+      //   stream: L10nService().stream,
+      //   builder: (context, AsyncSnapshot<L10nState> snapshot) {
+      //     if (!snapshot.hasData || !snapshot.data!.isInitialized) {
+      //       L10nService().initialize(
+      //         defaultLang: defaultLang!,
+      //         // localizationsDelegates: localizationsDelegates,
+      //         supportedLocales: supportedLocales,
+      //       );
+
+      //       return const Space();
+      //     }
+
+      //     return child(snapshot.data!.currentLocale);
+      //   },
+      // ),
+    );
+  }
+}
+
 class _NetworkWrapper<T> extends StatelessWidget {
   final Widget child;
   final String apiUrl;
@@ -100,6 +153,7 @@ class _NetworkWrapper<T> extends StatelessWidget {
             authEndpoint: authEndpoint,
             apiMappedErrorCodes: apiMappedErrorCodes,
             authMode: authMode,
+            localeCode: context.locale.languageCode,
             authTokenPrefix: authTokenPrefix,
           );
 
@@ -107,45 +161,6 @@ class _NetworkWrapper<T> extends StatelessWidget {
         }
 
         return child;
-      },
-    );
-  }
-}
-
-class _L10nWrapper extends StatelessWidget {
-  final bool useLocalization;
-  final Widget Function(Locale?) child;
-  final String defaultLang;
-  final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
-  final Iterable<Locale>? supportedLocales;
-
-  const _L10nWrapper({
-    Key? key,
-    required this.useLocalization,
-    required this.child,
-    required this.defaultLang,
-    this.localizationsDelegates,
-    this.supportedLocales,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    if (!useLocalization) return child(null);
-
-    return StreamBuilder(
-      stream: L10nService().stream,
-      builder: (context, AsyncSnapshot<L10nState> snapshot) {
-        if (!snapshot.hasData || !snapshot.data!.isInitialized) {
-          L10nService().initialize(
-            defaultLang: defaultLang,
-            localizationsDelegates: localizationsDelegates,
-            supportedLocales: supportedLocales,
-          );
-
-          return const Space();
-        }
-
-        return child(snapshot.data!.currentLocale);
       },
     );
   }
@@ -188,9 +203,9 @@ class _AppWrapper extends StatelessWidget {
   final String? title;
   final Color? primaryColor;
   final ThemeData Function(BuildContext)? theme;
-  final Locale? locale;
-  final Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates;
-  final Iterable<Locale> supportedLocales;
+  // final Locale? locale;
+  // final Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates;
+  // final Iterable<Locale> supportedLocales;
   final Map<String, Widget Function(BuildContext)> routes;
   final Widget? home;
 
@@ -199,9 +214,9 @@ class _AppWrapper extends StatelessWidget {
     this.title,
     this.primaryColor,
     this.theme,
-    this.locale,
-    required this.localizationsDelegates,
-    required this.supportedLocales,
+    // this.locale,
+    // required this.localizationsDelegates,
+    // required this.supportedLocales,
     this.routes = const <String, WidgetBuilder>{},
     this.home,
   }) : super(key: key);
@@ -216,9 +231,9 @@ class _AppWrapper extends StatelessWidget {
           ? theme!(context).copyWith(primaryColor: primaryColor)
           : ThemeData(primaryColor: primaryColor),
       scaffoldMessengerKey: rootScaffoldMessengerKey,
-      locale: locale,
-      localizationsDelegates: localizationsDelegates,
-      supportedLocales: supportedLocales,
+      locale: context.locale,
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
       routes: routes,
       builder: EasyLoading.init(),
       home: home,
@@ -282,19 +297,22 @@ void fxRunApp<T>({
 
   /// The default language. If localization is used, this parameter is required.
   String defaultLang = 'en',
-  Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      const <LocalizationsDelegate<dynamic>>[],
+  String translationsPath = '',
+  // Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates =
+  //     const <LocalizationsDelegate<dynamic>>[],
   Iterable<Locale> supportedLocales = const <Locale>[Locale('en', 'US')],
 }) async {
   assert(
     useLocalization == false ||
         (existsNotEmpty(defaultLang) &&
-            existsNotEmpty(localizationsDelegates) &&
+            existsNotEmpty(translationsPath) &&
             existsNotEmpty(supportedLocales)),
     'If localization is used, defaultLang parameter is required',
   );
 
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
+  if (useLocalization) await EasyLocalization.ensureInitialized();
 
   if (splashDuration != null) {
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -334,29 +352,29 @@ void fxRunApp<T>({
     GestureDetector(
       /// When tapping outside of a text field, the keyboard is hidden
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: _NetworkWrapper(
-        apiUrl: apiUrl,
-        basicAuthToken: basicAuthToken,
-        gqlPolicies: gqlPolicies,
-        apiRepository: apiRepository,
-        authEndpoint: authEndpoint,
-        apiMappedErrorCodes: apiMappedErrorCodes,
-        authMode: authMode,
-        authTokenPrefix: authTokenPrefix,
-        child: _L10nWrapper(
-          useLocalization: useLocalization,
-          defaultLang: defaultLang,
-          localizationsDelegates: localizationsDelegates,
-          supportedLocales: supportedLocales,
-          child: (locale) => _AuthWrapper(
+      child: _L10nWrapper(
+        useLocalization: useLocalization,
+        defaultLang: defaultLang,
+        translationsPath: translationsPath,
+        supportedLocales: supportedLocales,
+        child: _NetworkWrapper(
+          apiUrl: apiUrl,
+          basicAuthToken: basicAuthToken,
+          gqlPolicies: gqlPolicies,
+          apiRepository: apiRepository,
+          authEndpoint: authEndpoint,
+          apiMappedErrorCodes: apiMappedErrorCodes,
+          authMode: authMode,
+          authTokenPrefix: authTokenPrefix,
+          child: _AuthWrapper(
             authMode: authMode,
             child: _AppWrapper(
               title: title,
               primaryColor: primaryColor,
               theme: theme,
-              locale: locale,
-              localizationsDelegates: localizationsDelegates,
-              supportedLocales: supportedLocales,
+              // locale: locale,
+              // localizationsDelegates: localizationsDelegates,
+              // supportedLocales: supportedLocales,
               routes: routes,
               home: home,
             ),
