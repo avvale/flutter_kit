@@ -4,16 +4,14 @@ class L10nState {
   final bool isInitialized;
   final Locale? currentLocale;
 
-  L10nState({
-    required this.isInitialized,
+  const L10nState({
+    this.isInitialized = false,
     this.currentLocale,
   });
 
   L10nState copyWith({
     bool? isInitialized,
     Locale? currentLocale,
-    Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates,
-    Iterable<Locale>? supportedLocales,
   }) =>
       L10nState(
         isInitialized: isInitialized ?? this.isInitialized,

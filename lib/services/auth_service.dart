@@ -10,11 +10,7 @@ import 'package:flutter_kit/utils/toast.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:rxdart/rxdart.dart';
 
-const initialState = AuthState(
-  isInitialized: false,
-  accessToken: '',
-  refreshToken: '',
-);
+const initialState = AuthState();
 
 /// Servicio de autenticación
 class AuthService {

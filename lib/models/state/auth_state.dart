@@ -4,9 +4,9 @@ class AuthState {
   final String refreshToken;
 
   const AuthState({
-    required this.isInitialized,
-    required this.accessToken,
-    required this.refreshToken,
+    this.isInitialized = false,
+    this.accessToken = '',
+    this.refreshToken = '',
   });
 
   AuthState copyWith({
