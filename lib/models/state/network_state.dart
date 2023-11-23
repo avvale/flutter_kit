@@ -8,7 +8,7 @@ class NetworkState<T> {
   final String apiUrl;
   final Map<T, String> apiRepository;
   final AuthMode authMode;
-  final String localeCode;
+  // final String localeCode;
   final T? authEndpoint;
   final Map<String, String> apiMappedErrorCodes;
   final String? authTokenPrefix;
@@ -20,7 +20,7 @@ class NetworkState<T> {
     required this.apiUrl,
     required this.apiRepository,
     required this.authMode,
-    required this.localeCode,
+    // required this.localeCode,
     this.authEndpoint,
     this.apiMappedErrorCodes = const {},
     this.authTokenPrefix,
@@ -33,7 +33,7 @@ class NetworkState<T> {
     String? apiUrl,
     Map<T, String>? apiRepository,
     AuthMode? authMode,
-    String? localeCode,
+    // String? localeCode,
     T? authEndpoint,
     Map<String, String>? apiMappedErrorCodes,
     String? authTokenPrefix,
@@ -45,7 +45,7 @@ class NetworkState<T> {
       apiUrl: apiUrl ?? this.apiUrl,
       apiRepository: apiRepository ?? this.apiRepository,
       authMode: authMode ?? this.authMode,
-      localeCode: localeCode ?? this.localeCode,
+      // localeCode: localeCode ?? this.localeCode,
       authEndpoint: authEndpoint ?? this.authEndpoint,
       apiMappedErrorCodes: apiMappedErrorCodes ?? this.apiMappedErrorCodes,
       authTokenPrefix: authTokenPrefix ?? this.authTokenPrefix,

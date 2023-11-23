@@ -10,8 +10,10 @@ import 'package:flutter_kit/models/auth_mode/disabled_auth_mode.dart';
 import 'package:flutter_kit/models/auth_mode/manual_auth_mode.dart';
 import 'package:flutter_kit/models/easy_loading_config.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
+import 'package:flutter_kit/models/state/l10n_state.dart';
 import 'package:flutter_kit/models/state/network_state.dart';
 import 'package:flutter_kit/services/auth_service.dart';
+import 'package:flutter_kit/services/l10n_service.dart';
 import 'package:flutter_kit/services/network_service.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter_kit/widgets/space.dart';
@@ -94,23 +96,24 @@ class _L10nWrapper extends StatelessWidget {
       supportedLocales: supportedLocales!.toList(),
       path: translationsPath!,
       fallbackLocale: Locale(defaultLang!),
-      child: child,
-      // StreamBuilder(
-      //   stream: L10nService().stream,
-      //   builder: (context, AsyncSnapshot<L10nState> snapshot) {
-      //     if (!snapshot.hasData || !snapshot.data!.isInitialized) {
-      //       L10nService().initialize(
-      //         defaultLang: defaultLang!,
-      //         // localizationsDelegates: localizationsDelegates,
-      //         supportedLocales: supportedLocales,
-      //       );
+      child:
+          // child,
+          StreamBuilder(
+        stream: L10nService().stream,
+        builder: (context, AsyncSnapshot<L10nState> snapshot) {
+          if (!snapshot.hasData || !snapshot.data!.isInitialized) {
+            L10nService().initialize(
+              defaultLang: context.locale.languageCode,
+              // localizationsDelegates: localizationsDelegates,
+              // supportedLocales: supportedLocales,
+            );
 
-      //       return const Space();
-      //     }
+            return const Space();
+          }
 
-      //     return child(snapshot.data!.currentLocale);
-      //   },
-      // ),
+          return child;
+        },
+      ),
     );
   }
 }
