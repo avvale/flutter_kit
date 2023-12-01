@@ -43,7 +43,13 @@ class TabsScreen extends StatelessWidget {
         stream: TabsService().stream,
         builder: (context, AsyncSnapshot<TabsState?> tabsState) {
           if (!tabsState.hasData || !tabsState.data!.isInitialized) {
-            TabsService().initialize(context, tabNavigators, initialIndex);
+            final argsIndex = ModalRoute.of(context)?.settings.arguments;
+
+            TabsService().initialize(
+              context,
+              tabNavigators,
+              argsIndex is int ? argsIndex : initialIndex,
+            );
 
             return const Space();
           }
