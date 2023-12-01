@@ -124,7 +124,7 @@ class TabsService {
 
     // Realiza un intento de retroceder en el navigator del tab actual,
     // llamando si existe a la función onWillPop de la pantalla visible
-    navigator.maybePop();
+    navigator.pop();
 
     return false;
 
