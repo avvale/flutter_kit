@@ -36,7 +36,7 @@ class TabsScreen extends StatelessWidget {
       onPopInvoked: (bool didPop) async {
         if (didPop) return;
 
-        if (await TabsService().onWillPop() && context.mounted) {
+        if (await TabsService().canPopTabs() && context.mounted) {
           Navigator.of(context).pop();
         }
       },

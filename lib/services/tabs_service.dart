@@ -108,7 +108,12 @@ class TabsService {
     );
   }
 
-  Future<bool> onWillPop() async {
+  /// Comprueba si se puede retroceder en el árbol de navegación del tab actual.
+  /// Si se puede, devuelve false para evitar retroceder en los tabs. Si no se
+  /// puede, comprueba si el tab actual es el inicial. Si no lo es, se navega
+  /// al tab inicial. Si lo es, devuelve true para permitir retroceder en los
+  /// tabs.
+  Future<bool> canPopTabs() async {
     // Navigator del tab actual
     final NavigatorState? navigator =
         value.tabNavigators[value.selectedIndex].navigator?.currentState;
@@ -118,7 +123,7 @@ class TabsService {
     if (navigator.canPop()) {
       // Realiza un intento de retroceder en el navigator del tab actual,
       // llamando si existe a la función onWillPop de la pantalla visible
-      navigator.maybePop();
+      navigator.pop();
 
       return false;
     } else {
