@@ -120,21 +120,21 @@ class TabsService {
 
     if (navigator == null) return true;
 
-    if (navigator.canPop()) {
-      // Realiza un intento de retroceder en el navigator del tab actual,
-      // llamando si existe a la función onWillPop de la pantalla visible
-      navigator.maybePop();
+    Debugger.log('Can pop tabs: ${navigator.canPop()}');
 
-      return false;
-    } else {
-      if (value.selectedIndex != value.initialIndex) {
-        _dataFetcher.add(value.copyWith(selectedIndex: value.initialIndex));
+    // Realiza un intento de retroceder en el navigator del tab actual,
+    // llamando si existe a la función onWillPop de la pantalla visible
+    navigator.maybePop();
 
-        return false;
-      } else {
-        return true;
-      }
-    }
+    return false;
+
+    // if (value.selectedIndex != value.initialIndex) {
+    //   _dataFetcher.add(value.copyWith(selectedIndex: value.initialIndex));
+
+    //   return false;
+    // } else {
+    //   return true;
+    // }
   }
 
   // Navigation logic between tabs. If the tab has an externalUrl, it will be
