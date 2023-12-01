@@ -2,6 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 
+class _PopScopeWrapper extends StatelessWidget {
+  final Future<bool> Function()? onWillPop;
+  final Widget child;
+
+  const _PopScopeWrapper({
+    Key? key,
+    required this.onWillPop,
+    required this.child,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (onWillPop == null) return child;
+
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) async {
+        if (didPop) return;
+
+        if (await onWillPop!() && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: child,
+    );
+  }
+}
+
 class _AnnotatedRegionWrapper extends StatelessWidget {
   final Widget child;
   final Color statusBarColor;
@@ -114,25 +142,10 @@ class Layout extends StatelessWidget {
     this.onWillPop,
   }) : super(key: key);
 
-  Future<bool> _onWillPop() async {
-    if (onWillPop != null) {
-      return onWillPop!();
-    }
-
-    return true;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (bool didPop) async {
-        if (didPop) return;
-
-        if (await _onWillPop() && context.mounted) {
-          Navigator.of(context).pop();
-        }
-      },
+    return _PopScopeWrapper(
+      onWillPop: onWillPop,
       child: _AnnotatedRegionWrapper(
         statusBarColor: transparentStatusBar
             ? Colors.transparent

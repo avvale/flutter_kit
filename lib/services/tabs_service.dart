@@ -115,26 +115,24 @@ class TabsService {
   /// tabs.
   Future<bool> canPopTabs() async {
     // Navigator del tab actual
-    final NavigatorState? navigator =
+    final NavigatorState? currentTabNavigator =
         value.tabNavigators[value.selectedIndex].navigator?.currentState;
 
-    if (navigator == null) return true;
+    if (currentTabNavigator != null && currentTabNavigator.canPop()) {
+      // Realiza un intento de retroceder en el navigator del tab actual,
+      // llamando si existe a la función onWillPop de la pantalla visible
+      currentTabNavigator.maybePop();
 
-    Debugger.log('Can pop tabs: ${navigator.canPop()}');
+      return false;
+    } else {
+      if (value.selectedIndex != value.initialIndex) {
+        _dataFetcher.add(value.copyWith(selectedIndex: value.initialIndex));
 
-    // Realiza un intento de retroceder en el navigator del tab actual,
-    // llamando si existe a la función onWillPop de la pantalla visible
-    navigator.pop();
-
-    return false;
-
-    // if (value.selectedIndex != value.initialIndex) {
-    //   _dataFetcher.add(value.copyWith(selectedIndex: value.initialIndex));
-
-    //   return false;
-    // } else {
-    //   return true;
-    // }
+        return false;
+      } else {
+        return true;
+      }
+    }
   }
 
   // Navigation logic between tabs. If the tab has an externalUrl, it will be
