@@ -31,8 +31,15 @@ class TabsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     TabsService().updateContext(context);
 
-    return WillPopScope(
-      onWillPop: TabsService().onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) async {
+        if (didPop) return;
+
+        if (await TabsService().onWillPop() && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
       child: StreamBuilder(
         stream: TabsService().stream,
         builder: (context, AsyncSnapshot<TabsState?> tabsState) {

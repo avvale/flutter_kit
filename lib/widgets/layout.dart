@@ -124,8 +124,15 @@ class Layout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) async {
+        if (didPop) return;
+
+        if (await _onWillPop() && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
       child: _AnnotatedRegionWrapper(
         statusBarColor: transparentStatusBar
             ? Colors.transparent
