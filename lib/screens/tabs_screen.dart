@@ -68,12 +68,15 @@ class TabsScreen extends StatelessWidget {
                     index: tabsStateData.selectedIndex,
                     children: List<Widget>.generate(
                       tabsStateData.tabNavigators.length,
-                      (index) => Navigator(
-                        key: tabsStateData.tabNavigators[index].navigator,
-                        onGenerateRoute: (RouteSettings settings) =>
-                            TabsService().onGenerateRoute(
-                          settings,
-                          index,
+                      (index) => HeroControllerScope(
+                        controller: MaterialApp.createMaterialHeroController(),
+                        child: Navigator(
+                          key: tabsStateData.tabNavigators[index].navigator,
+                          onGenerateRoute: (RouteSettings settings) =>
+                              TabsService().onGenerateRoute(
+                            settings,
+                            index,
+                          ),
                         ),
                       ),
                     ),
