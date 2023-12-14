@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_kit/models/routing.dart';
 import 'package:flutter_kit/models/state/tabs_state.dart';
 import 'package:flutter_kit/services/tabs_service.dart';
 import 'package:flutter_kit/widgets/layout.dart';
 import 'package:flutter_kit/widgets/space.dart';
 
-class TabsScreen extends StatelessWidget {
+class TabsScreen extends StatefulWidget {
   static const routeName = '/tabs';
 
   final List<FxNavigator> tabNavigators;
@@ -17,6 +18,7 @@ class TabsScreen extends StatelessWidget {
   final int? initialIndex;
   final Color? statusBarColor;
   final bool transparentStatusBar;
+  final void Function(BuildContext context)? onInit;
 
   const TabsScreen({
     Key? key,
@@ -25,7 +27,22 @@ class TabsScreen extends StatelessWidget {
     this.initialIndex,
     this.statusBarColor,
     this.transparentStatusBar = false,
+    this.onInit,
   }) : super(key: key);
+
+  @override
+  State<TabsScreen> createState() => _TabsScreenState();
+}
+
+class _TabsScreenState extends State<TabsScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    SchedulerBinding.instance.addPostFrameCallback(
+      (_) => widget.onInit?.call(context),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,8 +64,8 @@ class TabsScreen extends StatelessWidget {
 
             TabsService().initialize(
               context,
-              tabNavigators,
-              argsIndex is int ? argsIndex : initialIndex,
+              widget.tabNavigators,
+              argsIndex is int ? argsIndex : widget.initialIndex,
             );
 
             return const Space();
@@ -57,8 +74,8 @@ class TabsScreen extends StatelessWidget {
           final TabsState tabsStateData = tabsState.data!;
 
           return Layout(
-            statusBarColor: statusBarColor,
-            transparentStatusBar: transparentStatusBar,
+            statusBarColor: widget.statusBarColor,
+            transparentStatusBar: widget.transparentStatusBar,
             child: SizedBox(
               height: double.infinity,
               width: double.infinity,
@@ -82,7 +99,7 @@ class TabsScreen extends StatelessWidget {
                     ),
                   ),
                   Positioned.fill(
-                    child: tabBar(
+                    child: widget.tabBar(
                       tabsStateData.tabNavigators,
                       tabsStateData.selectedIndex,
                       (i) => TabsService().navigateTab(context, i),

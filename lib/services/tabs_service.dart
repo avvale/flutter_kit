@@ -118,6 +118,9 @@ class TabsService {
     final NavigatorState? currentTabNavigator =
         value.tabNavigators[value.selectedIndex].navigator?.currentState;
 
+    // TODO actualmente canPop siempre devuelve true, por lo que nunca entra en
+    // la segunda condición y en caso de que el sea la pantalla raíz del tab
+    // actual, se cierra la app
     if (currentTabNavigator != null && currentTabNavigator.canPop()) {
       // Realiza un intento de retroceder en el navigator del tab actual,
       // llamando si existe a la función onWillPop de la pantalla visible
