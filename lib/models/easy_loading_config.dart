@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
+// TODO quitar propiedades que dependen de EasyLoading
 class EasyLoadingConfig {
   final Duration? animationDuration;
   final EasyLoadingAnimationStyle? animationStyle;

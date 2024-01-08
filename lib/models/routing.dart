@@ -37,6 +37,7 @@ class FxNavigator {
   final Function(BuildContext)? onInit;
 
   FxNavigator({
+    // TODO ¿Es necesario que el label sea requerido?
     required this.label,
     required this.mainRoute,
     this.navigator,
