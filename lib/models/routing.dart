@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-class FxRoute {
+class FkRoute {
   /// The route path. If it is a mainRoute, it must be '/'
   final String route;
 
@@ -10,7 +10,7 @@ class FxRoute {
   /// The external URL to be opened when the route is called
   final String? externalUrl;
 
-  FxRoute({
+  FkRoute({
     required this.route,
     this.screen,
     this.externalUrl,
@@ -24,10 +24,10 @@ class FxRoute {
         );
 }
 
-class FxNavigator {
+class FkNavigator {
   final String label;
-  final FxRoute mainRoute;
-  final List<FxRoute>? childRoutes;
+  final FkRoute mainRoute;
+  final List<FkRoute>? childRoutes;
 
   /// Needed when declaring child routes
   final GlobalKey<NavigatorState>? navigator;
@@ -36,7 +36,7 @@ class FxNavigator {
   final String? iconUrl;
   final Function(BuildContext)? onInit;
 
-  FxNavigator({
+  FkNavigator({
     // TODO ¿Es necesario que el label sea requerido?
     required this.label,
     required this.mainRoute,

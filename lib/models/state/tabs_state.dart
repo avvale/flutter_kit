@@ -4,10 +4,10 @@ import 'package:flutter_kit/models/routing.dart';
 class TabsState {
   final int selectedIndex;
   final int initialIndex;
-  final List<FxNavigator> tabNavigators;
+  final List<FkNavigator> tabNavigators;
   final bool isInitialized;
   final BuildContext? tabsContext;
-  final FxRoute? currentRoute;
+  final FkRoute? currentRoute;
 
   const TabsState({
     this.selectedIndex = 0,
@@ -21,7 +21,7 @@ class TabsState {
   TabsState copyWith({
     int? selectedIndex,
     int? initialIndex,
-    List<FxNavigator>? tabNavigators,
+    List<FkNavigator>? tabNavigators,
     bool? isInitialized,
     BuildContext? tabsContext,
   }) {

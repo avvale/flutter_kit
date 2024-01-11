@@ -75,7 +75,7 @@ class TabsService {
 
   void initialize(
     BuildContext context,
-    List<FxNavigator> tabNavigators, [
+    List<FkNavigator> tabNavigators, [
     int? initialIndex,
   ]) {
     final index = initialIndex ?? ModalRoute.of(context)?.settings.arguments;
@@ -172,7 +172,7 @@ class TabsService {
     Object? arguments,
     bool initTab = true,
   }) async {
-    final List<FxNavigator> appNavigator = value.tabNavigators;
+    final List<FkNavigator> appNavigator = value.tabNavigators;
     int tabIndex = value.selectedIndex;
     BuildContext tabContext = context;
 

@@ -63,13 +63,10 @@ void _initializeLoaderConfig({required EasyLoadingConfig elc}) {
         elc.userInteractions ?? EasyLoading.instance.userInteractions;
 }
 
+/// Handles localization logic
 class _L10nWrapper extends StatelessWidget {
   final bool useLocalization;
-  final Widget Function(
-    Locale?,
-    Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates,
-    Iterable<Locale>? supportedLocales,
-  ) child;
+  final Widget child;
   final String? defaultLang;
   final List<Locale>? supportedLocales;
   final String? translationsPath;
@@ -93,7 +90,7 @@ class _L10nWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!useLocalization) {
-      return child(null, null, null);
+      return child;
     }
 
     return EasyLocalization(
@@ -109,11 +106,7 @@ class _L10nWrapper extends StatelessWidget {
             return const Space();
           }
 
-          return child(
-            context.locale,
-            context.localizationDelegates,
-            supportedLocales!,
-          );
+          return child;
         },
       ),
     );
@@ -209,9 +202,7 @@ class _AppWrapper extends StatelessWidget {
   final ThemeData Function(BuildContext)? theme;
   final Map<String, Widget Function(BuildContext)> routes;
   final Widget? home;
-  final Locale? locale;
-  final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
-  final Iterable<Locale>? supportedLocales;
+  final bool useLocalization;
 
   const _AppWrapper({
     Key? key,
@@ -220,9 +211,7 @@ class _AppWrapper extends StatelessWidget {
     this.theme,
     this.routes = const <String, WidgetBuilder>{},
     this.home,
-    this.locale,
-    this.localizationsDelegates,
-    this.supportedLocales,
+    required this.useLocalization,
   }) : super(key: key);
 
   @override
@@ -235,10 +224,13 @@ class _AppWrapper extends StatelessWidget {
           ? theme!(context).copyWith(primaryColor: primaryColor)
           : ThemeData(primaryColor: primaryColor),
       scaffoldMessengerKey: rootScaffoldMessengerKey,
-      locale: locale,
+      locale: useLocalization ? context.locale : null,
       routes: routes,
-      localizationsDelegates: localizationsDelegates,
-      supportedLocales: supportedLocales ?? const <Locale>[Locale('en', 'US')],
+      localizationsDelegates:
+          useLocalization ? context.localizationDelegates : null,
+      supportedLocales: useLocalization
+          ? context.supportedLocales
+          : const <Locale>[Locale('en', 'US')],
       builder: EasyLoading.init(),
       home: home,
     );
@@ -246,23 +238,27 @@ class _AppWrapper extends StatelessWidget {
 }
 
 /// Run application with custom configuration
-void fxRunApp<T>({
+void fkRunApp<T>({
   /// The title of the application.
   String? title,
 
-  /// The primary color to use for the application.
+  /// The primary color for the application. It is defined separately from the
+  /// theme to be able to use it is more specific areas like the loader.
   Color? primaryColor,
 
-  /// The theme to use for the application.
+  /// The theme for the application.
   ThemeData Function(BuildContext)? theme,
 
-  /// The duration of the splash screen.
+  /// The duration of the native splash screen.
   Duration? splashDuration,
 
   /// The API URL.
   String apiUrl = '',
 
   /// The authentication mode.
+  /// Defaults to [DisabledAuthMode].
+  /// Use [AutoAuthMode] when Aurora generic token is used.
+  /// Use [ManualAuthMode] when the user must be authenticated.
   AuthMode authMode = const DisabledAuthMode(),
 
   /// The basic auth token.
@@ -272,6 +268,8 @@ void fxRunApp<T>({
   Policies? gqlPolicies,
 
   /// The API repository.
+  /// This is a map of the API endpoints and their respective names.
+  /// [T] is the type of the endpoint name (commonly an enum)
   Map<T, String> apiRepository = const {},
 
   /// The auth token prefix.
@@ -281,6 +279,7 @@ void fxRunApp<T>({
   T? authEndpoint,
 
   /// The mapped error codes.
+  /// These are Aurora custom error codes mapped to their respective messages.
   Map<String, String>? apiMappedErrorCodes,
 
   /// The home page/initial screen.
@@ -290,10 +289,10 @@ void fxRunApp<T>({
   Map<String, Widget Function(BuildContext)> routes =
       const <String, WidgetBuilder>{},
 
-  /// The orientations to use for the application.
+  /// The allowed orientations for the application.
   List<DeviceOrientation> orientations = const [DeviceOrientation.portraitUp],
 
-  /// Configuration for loader to be shown on loading data.
+  /// Style for the loader to be shown on loading data.
   EasyLoadingConfig? loaderConfig,
 
   /// Whether to use localization services or not.
@@ -301,7 +300,13 @@ void fxRunApp<T>({
 
   /// The default language. If localization is used, this parameter is required.
   String? defaultLang,
+
+  /// The path to the translations folder. If localization is used, this
+  /// parameter is required.
   String? translationsPath,
+
+  /// The supported locales. If localization is used, this parameter is
+  /// required.
   List<Locale>? supportedLocales,
 }) async {
   assert(
@@ -359,8 +364,7 @@ void fxRunApp<T>({
         defaultLang: defaultLang,
         translationsPath: translationsPath,
         supportedLocales: supportedLocales,
-        child: (locale, localizationsDelegates, supportedLocales) =>
-            _NetworkWrapper(
+        child: _NetworkWrapper(
           apiUrl: apiUrl,
           basicAuthToken: basicAuthToken,
           gqlPolicies: gqlPolicies,
@@ -377,9 +381,7 @@ void fxRunApp<T>({
               theme: theme,
               routes: routes,
               home: home,
-              locale: locale,
-              localizationsDelegates: localizationsDelegates,
-              supportedLocales: supportedLocales,
+              useLocalization: useLocalization,
             ),
           ),
         ),

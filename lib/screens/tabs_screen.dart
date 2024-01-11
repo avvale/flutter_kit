@@ -9,9 +9,9 @@ import 'package:flutter_kit/widgets/space.dart';
 class TabsScreen extends StatefulWidget {
   static const routeName = '/tabs';
 
-  final List<FxNavigator> tabNavigators;
+  final List<FkNavigator> tabNavigators;
   final Widget Function(
-    List<FxNavigator> navigator,
+    List<FkNavigator> navigator,
     int selectedIndex,
     Function(int) onTap,
   ) tabBar;
