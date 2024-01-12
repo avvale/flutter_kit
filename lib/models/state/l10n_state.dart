@@ -1,19 +1,19 @@
 import 'package:flutter/widgets.dart';
 
-class L10nState {
+class FkL10nState {
   final bool isInitialized;
   final Locale? currentLocale;
 
-  const L10nState({
+  const FkL10nState({
     this.isInitialized = false,
     this.currentLocale,
   });
 
-  L10nState copyWith({
+  FkL10nState copyWith({
     bool? isInitialized,
     Locale? currentLocale,
   }) =>
-      L10nState(
+      FkL10nState(
         isInitialized: isInitialized ?? this.isInitialized,
         currentLocale: currentLocale ?? this.currentLocale,
       );

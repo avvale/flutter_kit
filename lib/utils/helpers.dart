@@ -1,6 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_kit/models/router.dart';
+import 'package:flutter_kit/models/state/auth_state.dart';
+import 'package:go_router/go_router.dart';
 
 Brightness computeColorBrightness(Color color, {bool reverse = false}) {
   final brightness = ThemeData.estimateBrightnessForColor(color);
@@ -78,4 +80,64 @@ String? getErrorMessageFromGraphQLError(dynamic error) {
 
 String capitalize(String str) {
   return str[0].toUpperCase() + str.substring(1);
+}
+
+List<StatefulShellBranch> generateBranches(
+  List<FkRouteTreeBranch> branches,
+  FkAuthState? authState,
+) {
+  return branches.map((branch) {
+    return StatefulShellBranch(
+      navigatorKey: branch.navigatorKey,
+      initialLocation: branch.initialLocation,
+      routes: generateRoutes(branch.routes, authState),
+      observers: branch.observers,
+    );
+  }).toList();
+}
+
+List<RouteBase> generateRoutes(
+  List<FkRouteBase> routes,
+  FkAuthState? authState,
+) {
+  return routes.map((route) {
+    if (route is FkRoute) {
+      return GoRoute(
+        path: route.path,
+        name: route.name,
+        builder: route.builder,
+        pageBuilder: route.pageBuilder,
+        redirect: (context, state) => route.redirect?.call(
+          context,
+          state,
+          authState,
+        ),
+        routes: generateRoutes(route.routes, authState),
+      );
+    } else if (route is FkRouteTree) {
+      return StatefulShellRoute.indexedStack(
+        branches: generateBranches(route.branches, authState),
+        builder: route.builder,
+        pageBuilder: route.pageBuilder,
+      );
+    } else {
+      throw Exception('Invalid route type');
+    }
+  }).toList();
+}
+
+GoRouter generateRouter(FkRouter fkRouter, FkAuthState? authState) {
+  return GoRouter(
+    navigatorKey: fkRouter.navigatorKey,
+    initialLocation: fkRouter.initialLocation,
+    routes: generateRoutes(fkRouter.routes, authState),
+    redirect: (context, state) => fkRouter.redirect?.call(
+      context,
+      state,
+      authState,
+    ),
+    onException: fkRouter.onException,
+    errorPageBuilder: fkRouter.errorPageBuilder,
+    errorBuilder: fkRouter.errorBuilder,
+  );
 }

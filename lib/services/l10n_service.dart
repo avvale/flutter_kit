@@ -7,23 +7,23 @@ import 'package:flutter_kit/utils/debugger.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:rxdart/rxdart.dart';
 
-const initialState = L10nState();
+const initialState = FkL10nState();
 
 /// Servicio de idioma
-class L10nService {
-  static final L10nService _instance = L10nService._internal();
+class FkL10nService {
+  static final FkL10nService _instance = FkL10nService._internal();
 
-  final _dataFetcher = BehaviorSubject<L10nState>()..startWith(initialState);
+  final _dataFetcher = BehaviorSubject<FkL10nState>()..startWith(initialState);
 
-  L10nState get value =>
+  FkL10nState get value =>
       _dataFetcher.hasValue ? _dataFetcher.value : initialState;
-  Stream<L10nState> get stream => _dataFetcher.stream;
+  Stream<FkL10nState> get stream => _dataFetcher.stream;
 
-  factory L10nService() {
+  factory FkL10nService() {
     return _instance;
   }
 
-  L10nService._internal();
+  FkL10nService._internal();
 
   Future<void> initialize({String? defaultLang}) async {
     _dataFetcher.add(
@@ -54,7 +54,7 @@ class L10nService {
     _dataFetcher.sink.add(value.copyWith(currentLocale: locale));
 
     // Se recarga el token de autenticación para que se actualice el idioma
-    final String accessToken = AuthService().value.accessToken;
-    await NetworkService().setToken(accessToken);
+    final String accessToken = FkAuthService().value.accessToken;
+    await FkNetworkService().setToken(accessToken);
   }
 }

@@ -1,42 +1,41 @@
-import 'package:flutter_kit/models/auth_mode/auth_mode.dart';
-import 'package:flutter_kit/models/auth_mode/disabled_auth_mode.dart';
+import 'package:flutter_kit/models/auth_mode.dart';
 import 'package:graphql/client.dart';
 
-class NetworkState<T> {
+class FkNetworkState<EndpointT> {
   final bool isInitialized;
   final GraphQLClient? gqlClient;
   final GraphQLClient? gqlClientBasicAuth;
   final String? apiUrl;
-  final Map<T, String>? apiRepository;
-  final AuthMode authMode;
-  final T? authEndpoint;
+  final Map<EndpointT, String>? apiRepository;
+  final FkAuthMode authMode;
+  final EndpointT? authEndpoint;
   final Map<String, String> apiMappedErrorCodes;
   final String? authTokenPrefix;
 
-  const NetworkState({
+  const FkNetworkState({
     this.isInitialized = false,
     this.gqlClient,
     this.gqlClientBasicAuth,
     this.apiUrl,
     this.apiRepository,
-    this.authMode = const DisabledAuthMode(),
+    this.authMode = const FkDisabledAuthMode(),
     this.authEndpoint,
     this.apiMappedErrorCodes = const {},
     this.authTokenPrefix,
   });
 
-  NetworkState copyWith({
+  FkNetworkState copyWith({
     bool? isInitialized,
     GraphQLClient? gqlClient,
     GraphQLClient? gqlClientBasicAuth,
     String? apiUrl,
-    Map<T, String>? apiRepository,
-    AuthMode? authMode,
-    T? authEndpoint,
+    Map<EndpointT, String>? apiRepository,
+    FkAuthMode? authMode,
+    EndpointT? authEndpoint,
     Map<String, String>? apiMappedErrorCodes,
     String? authTokenPrefix,
   }) {
-    return NetworkState(
+    return FkNetworkState(
       isInitialized: isInitialized ?? this.isInitialized,
       gqlClient: gqlClient ?? this.gqlClient,
       gqlClientBasicAuth: gqlClientBasicAuth ?? this.gqlClientBasicAuth,

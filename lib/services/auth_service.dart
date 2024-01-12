@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_kit/models/auth_mode/auth_mode.dart';
-import 'package:flutter_kit/models/auth_mode/auto_auth_mode.dart';
-import 'package:flutter_kit/models/auth_mode/manual_auth_mode.dart';
+import 'package:flutter_kit/models/auth_mode.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
 import 'package:flutter_kit/services/network_service.dart';
 import 'package:flutter_kit/utils/debugger.dart';
@@ -10,32 +8,32 @@ import 'package:flutter_kit/utils/toast.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:rxdart/rxdart.dart';
 
-const initialState = AuthState();
+const initialState = FkAuthState();
 
 /// Servicio de autenticación
-class AuthService {
-  static final AuthService _instance = AuthService._internal();
+class FkAuthService {
+  static final FkAuthService _instance = FkAuthService._internal();
 
-  final _dataFetcher = BehaviorSubject<AuthState>()..startWith(initialState);
+  final _dataFetcher = BehaviorSubject<FkAuthState>()..startWith(initialState);
 
-  AuthState get value =>
+  FkAuthState get value =>
       _dataFetcher.hasValue ? _dataFetcher.value : initialState;
-  Stream<AuthState> get stream => _dataFetcher.stream;
+  Stream<FkAuthState> get stream => _dataFetcher.stream;
 
-  factory AuthService() {
+  factory FkAuthService() {
     return _instance;
   }
 
-  AuthService._internal();
+  FkAuthService._internal();
 
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   /// Guarda los tokens en el almacenamiento seguro, los carga en el estado de
   /// la aplicación y establece el token de la API.
-  Future<AuthState?> _setAuthCredentials(AuthState user) async {
+  Future<FkAuthState?> _setNetworkAuthToken(FkAuthState user) async {
     Debugger.log('Set auth credentials', user);
 
-    await NetworkService().setToken(user.accessToken);
+    await FkNetworkService().setToken(user.accessToken);
 
     _dataFetcher.sink.add(user);
 
@@ -49,7 +47,7 @@ class AuthService {
 
     if (secureValues['fk_accessToken'] != null &&
         secureValues['fk_refreshToken'] != null) {
-      await _setAuthCredentials(
+      await _setNetworkAuthToken(
         value.copyWith(
           isInitialized: true,
           accessToken: secureValues['fk_accessToken'],
@@ -59,8 +57,6 @@ class AuthService {
 
       return true;
     } else {
-      await _setAuthCredentials(value.copyWith(isInitialized: true));
-
       return false;
     }
   }
@@ -71,7 +67,7 @@ class AuthService {
   Future<bool> login<T>({
     required T endpoint,
     bool useRefreshToken = false,
-    AuthMode? authMode,
+    FkAuthMode? authMode,
     user = '',
     pass = '',
   }) async {
@@ -86,14 +82,14 @@ class AuthService {
       };
     } else if (authMode != null) {
       switch (authMode) {
-        case ManualAuthMode():
+        case FkManualAuthMode():
           params['payload'] = {
             'grantType': 'PASSWORD',
             'username': user,
             'password': pass,
           };
           break;
-        case AutoAuthMode():
+        case FkAutoAuthMode():
           params['payload'] = {
             'grantType': 'CLIENT_CREDENTIALS',
             'email': authMode.user,
@@ -103,7 +99,7 @@ class AuthService {
     }
 
     try {
-      final res = await NetworkService().mutate(
+      final res = await FkNetworkService().mutate(
         endpoint: endpoint,
         useBasicAuth: true,
         params: params,
@@ -135,7 +131,7 @@ class AuthService {
             value: oAuthData['refreshToken'],
           );
 
-          await _setAuthCredentials(
+          await _setNetworkAuthToken(
             value.copyWith(
               accessToken: oAuthData['accessToken'],
               refreshToken: oAuthData['refreshToken'],
@@ -165,6 +161,34 @@ class AuthService {
     }
   }
 
+  /// Simula un login para depuración.
+  Future<bool> debugLogin<T>({
+    String accessToken = 'accessToken',
+    String refreshToken = 'refreshToken',
+    Duration delay = const Duration(seconds: 1),
+  }) async {
+    EasyLoading.show();
+
+    await _secureStorage.write(
+      key: 'fk_accessToken',
+      value: accessToken,
+    );
+    await _secureStorage.write(
+      key: 'fk_refreshToken',
+      value: refreshToken,
+    );
+
+    await _setNetworkAuthToken(
+      value.copyWith(accessToken: accessToken, refreshToken: refreshToken),
+    );
+
+    await Future.delayed(delay);
+
+    EasyLoading.dismiss();
+
+    return true;
+  }
+
   /// Cierra la sesión actual y borra los tokens del almacenamiento seguro.
   Future<void> logout() async {
     Debugger.log('Logout');
@@ -172,7 +196,7 @@ class AuthService {
     await _secureStorage.delete(key: 'fk_accessToken');
     await _secureStorage.delete(key: 'fk_refreshToken');
 
-    await _setAuthCredentials(
+    await _setNetworkAuthToken(
       value.copyWith(accessToken: '', refreshToken: ''),
     );
   }

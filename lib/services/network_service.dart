@@ -1,9 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter_kit/models/auth_mode/auth_mode.dart';
-import 'package:flutter_kit/models/auth_mode/auto_auth_mode.dart';
-import 'package:flutter_kit/models/auth_mode/disabled_auth_mode.dart';
-import 'package:flutter_kit/models/auth_mode/manual_auth_mode.dart';
+import 'package:flutter_kit/models/auth_mode.dart';
 import 'package:flutter_kit/models/state/network_state.dart';
 import 'package:flutter_kit/services/auth_service.dart';
 import 'package:flutter_kit/services/l10n_service.dart';
@@ -20,23 +17,24 @@ enum RequestType {
   mutation,
 }
 
-const initialState = NetworkState();
+const initialState = FkNetworkState();
 
 /// Servicio de red
-class NetworkService {
-  static final NetworkService _instance = NetworkService._internal();
+class FkNetworkService {
+  static final FkNetworkService _instance = FkNetworkService._internal();
 
-  final _dataFetcher = BehaviorSubject<NetworkState>()..startWith(initialState);
+  final _dataFetcher = BehaviorSubject<FkNetworkState>()
+    ..startWith(initialState);
 
-  NetworkState get value =>
+  FkNetworkState get value =>
       _dataFetcher.hasValue ? _dataFetcher.value : initialState;
-  Stream<NetworkState> get stream => _dataFetcher.stream;
+  Stream<FkNetworkState> get stream => _dataFetcher.stream;
 
-  factory NetworkService() {
+  factory FkNetworkService() {
     return _instance;
   }
 
-  NetworkService._internal();
+  FkNetworkService._internal();
 
   HttpLink _baseHttpLink({Map<String, String> headers = const {}}) {
     return HttpLink(
@@ -88,16 +86,16 @@ class NetworkService {
       }
       // Authentication error
       else if (statusCode == '401') {
-        AuthService().logout();
+        FkAuthService().logout();
 
         switch (value.authMode) {
-          case DisabledAuthMode():
+          case FkDisabledAuthMode():
             errorMsg = 'No tienes permisos para realizar esta acción';
             break;
-          case ManualAuthMode():
+          case FkManualAuthMode():
             errorMsg = 'La sesión ha caducado, vuelve a iniciar sesión';
             break;
-          case AutoAuthMode():
+          case FkAutoAuthMode():
           default:
             errorMsg = 'Ha ocurrido un error inesperado con la sesión';
         }
@@ -161,14 +159,14 @@ class NetworkService {
           if (hasAuthError && value.authEndpoint != null) {
             Debugger.log('Authentication error, trying to reload token');
 
-            final AuthMode authMode = value.authMode;
+            final FkAuthMode authMode = value.authMode;
 
             switch (authMode) {
-              case DisabledAuthMode():
+              case FkDisabledAuthMode():
                 break;
-              case ManualAuthMode():
-                if (existsNotEmpty(AuthService().value.refreshToken) &&
-                    await AuthService().login(
+              case FkManualAuthMode():
+                if (existsNotEmpty(FkAuthService().value.refreshToken) &&
+                    await FkAuthService().login(
                       endpoint: value.authEndpoint,
                       useRefreshToken: true,
                     )) {
@@ -179,9 +177,9 @@ class NetworkService {
                   );
                 }
                 break;
-              case AutoAuthMode():
-                if (existsNotEmpty(AuthService().value.refreshToken) &&
-                    await AuthService().login(
+              case FkAutoAuthMode():
+                if (existsNotEmpty(FkAuthService().value.refreshToken) &&
+                    await FkAuthService().login(
                       endpoint: value.authEndpoint,
                       useRefreshToken: true,
                     )) {
@@ -191,7 +189,7 @@ class NetworkService {
                     isRetry: true,
                   );
                 } else {
-                  if (await AuthService().login(
+                  if (await FkAuthService().login(
                     endpoint: value.authEndpoint,
                     authMode: authMode,
                   )) {
@@ -303,7 +301,7 @@ class NetworkService {
     Policies? gqlPolicies,
     Map<T, String> apiRepository = const {},
     T? authEndpoint,
-    AuthMode authMode = const DisabledAuthMode(),
+    FkAuthMode authMode = const FkDisabledAuthMode(),
     Map<String, String>? apiMappedErrorCodes,
     String? authTokenPrefix,
   }) async {
@@ -339,7 +337,7 @@ class NetworkService {
     Debugger.log('Set auth token', token);
 
     final String timezone = await FlutterTimezone.getLocalTimezone();
-    final String? lang = L10nService().value.currentLocale?.languageCode;
+    final String? lang = FkL10nService().value.currentLocale?.languageCode;
 
     if (existsNotEmpty(token)) {
       _dataFetcher.add(

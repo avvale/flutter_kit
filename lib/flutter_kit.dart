@@ -4,13 +4,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_kit/models/auth_mode/auth_mode.dart';
-import 'package:flutter_kit/models/auth_mode/auto_auth_mode.dart';
-import 'package:flutter_kit/models/auth_mode/disabled_auth_mode.dart';
-import 'package:flutter_kit/models/auth_mode/manual_auth_mode.dart';
-import 'package:flutter_kit/models/easy_loading_config.dart';
+import 'package:flutter_kit/models/auth_mode.dart';
+import 'package:flutter_kit/models/loader_config.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
 import 'package:flutter_kit/models/state/l10n_state.dart';
+import 'package:flutter_kit/models/router.dart';
 import 'package:flutter_kit/models/state/network_state.dart';
 import 'package:flutter_kit/services/auth_service.dart';
 import 'package:flutter_kit/services/l10n_service.dart';
@@ -24,7 +22,7 @@ final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
 /// Initialize loader with custom configuration
-void _initializeLoaderConfig({required EasyLoadingConfig elc}) {
+void _initializeLoaderConfig({required FkLoaderConfig elc}) {
   EasyLoading.instance
     ..animationDuration =
         elc.animationDuration ?? EasyLoading.instance.animationDuration
@@ -98,10 +96,11 @@ class _L10nWrapper extends StatelessWidget {
       path: translationsPath!,
       fallbackLocale: Locale(defaultLang!),
       child: StreamBuilder(
-        stream: L10nService().stream,
-        builder: (context, AsyncSnapshot<L10nState> snapshot) {
+        stream: FkL10nService().stream,
+        builder: (context, AsyncSnapshot<FkL10nState> snapshot) {
           if (!snapshot.hasData || !snapshot.data!.isInitialized) {
-            L10nService().initialize(defaultLang: context.locale.languageCode);
+            FkL10nService()
+                .initialize(defaultLang: context.locale.languageCode);
 
             return const Space();
           }
@@ -121,7 +120,7 @@ class _NetworkWrapper<T> extends StatelessWidget {
   final Map<String, String>? apiMappedErrorCodes;
   final Map<T, String> apiRepository;
   final T? authEndpoint;
-  final AuthMode authMode;
+  final FkAuthMode authMode;
   final String authTokenPrefix;
 
   const _NetworkWrapper({
@@ -140,10 +139,10 @@ class _NetworkWrapper<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: NetworkService().stream,
-      builder: (context, AsyncSnapshot<NetworkState> snapshot) {
+      stream: FkNetworkService().stream,
+      builder: (context, AsyncSnapshot<FkNetworkState> snapshot) {
         if (!snapshot.hasData || !snapshot.data!.isInitialized) {
-          NetworkService().initialize(
+          FkNetworkService().initialize(
             apiUrl: apiUrl,
             basicAuthToken: basicAuthToken,
             gqlPolicies: gqlPolicies,
@@ -165,7 +164,7 @@ class _NetworkWrapper<T> extends StatelessWidget {
 
 class _AuthWrapper extends StatelessWidget {
   final Widget child;
-  final AuthMode authMode;
+  final FkAuthMode authMode;
 
   const _AuthWrapper({
     Key? key,
@@ -176,13 +175,13 @@ class _AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     switch (authMode) {
-      case ManualAuthMode():
-      case AutoAuthMode():
+      case FkManualAuthMode():
+      case FkAutoAuthMode():
         return StreamBuilder(
-          stream: AuthService().stream,
-          builder: (context, AsyncSnapshot<AuthState> snapshot) {
+          stream: FkAuthService().stream,
+          builder: (context, AsyncSnapshot<FkAuthState> snapshot) {
             if (!snapshot.hasData || !snapshot.data!.isInitialized) {
-              AuthService().initialize();
+              FkAuthService().initialize();
 
               return const Space();
             }
@@ -198,41 +197,47 @@ class _AuthWrapper extends StatelessWidget {
 
 class _AppWrapper extends StatelessWidget {
   final String? title;
+  final FkRouter router;
   final Color? primaryColor;
   final ThemeData Function(BuildContext)? theme;
-  final Map<String, Widget Function(BuildContext)> routes;
-  final Widget? home;
   final bool useLocalization;
 
   const _AppWrapper({
     Key? key,
     this.title,
+    required this.router,
     this.primaryColor,
     this.theme,
-    this.routes = const <String, WidgetBuilder>{},
-    this.home,
     required this.useLocalization,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: title ?? 'Flutter Kit',
-      color: primaryColor,
-      theme: theme != null
-          ? theme!(context).copyWith(primaryColor: primaryColor)
-          : ThemeData(primaryColor: primaryColor),
-      scaffoldMessengerKey: rootScaffoldMessengerKey,
-      locale: useLocalization ? context.locale : null,
-      routes: routes,
-      localizationsDelegates:
-          useLocalization ? context.localizationDelegates : null,
-      supportedLocales: useLocalization
-          ? context.supportedLocales
-          : const <Locale>[Locale('en', 'US')],
-      builder: EasyLoading.init(),
-      home: home,
+    return StreamBuilder<FkAuthState>(
+      stream: FkAuthService().stream,
+      builder: (context, snapshot) {
+        final goRouter = generateRouter(router, snapshot.data);
+
+        return MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          title: title ?? 'Flutter Kit',
+          color: primaryColor,
+          theme: theme != null
+              ? theme!(context).copyWith(primaryColor: primaryColor)
+              : ThemeData(primaryColor: primaryColor),
+          scaffoldMessengerKey: rootScaffoldMessengerKey,
+          locale: useLocalization ? context.locale : null,
+          localizationsDelegates:
+              useLocalization ? context.localizationDelegates : null,
+          supportedLocales: useLocalization
+              ? context.supportedLocales
+              : const <Locale>[Locale('en', 'US')],
+          builder: EasyLoading.init(),
+          routeInformationParser: goRouter.routeInformationParser,
+          routerDelegate: goRouter.routerDelegate,
+          routeInformationProvider: goRouter.routeInformationProvider,
+        );
+      },
     );
   }
 }
@@ -241,6 +246,7 @@ class _AppWrapper extends StatelessWidget {
 void fkRunApp<T>({
   /// The title of the application.
   String? title,
+  required FkRouter router,
 
   /// The primary color for the application. It is defined separately from the
   /// theme to be able to use it is more specific areas like the loader.
@@ -256,10 +262,10 @@ void fkRunApp<T>({
   String apiUrl = '',
 
   /// The authentication mode.
-  /// Defaults to [DisabledAuthMode].
-  /// Use [AutoAuthMode] when Aurora generic token is used.
-  /// Use [ManualAuthMode] when the user must be authenticated.
-  AuthMode authMode = const DisabledAuthMode(),
+  /// Defaults to [FkDisabledAuthMode].
+  /// Use [FkAutoAuthMode] when Aurora generic token is used.
+  /// Use [FkManualAuthMode] when the user must be authenticated.
+  FkAuthMode authMode = const FkDisabledAuthMode(),
 
   /// The basic auth token.
   String? basicAuthToken,
@@ -282,18 +288,11 @@ void fkRunApp<T>({
   /// These are Aurora custom error codes mapped to their respective messages.
   Map<String, String>? apiMappedErrorCodes,
 
-  /// The home page/initial screen.
-  Widget? home,
-
-  /// The routes for the application.
-  Map<String, Widget Function(BuildContext)> routes =
-      const <String, WidgetBuilder>{},
-
   /// The allowed orientations for the application.
   List<DeviceOrientation> orientations = const [DeviceOrientation.portraitUp],
 
   /// Style for the loader to be shown on loading data.
-  EasyLoadingConfig? loaderConfig,
+  FkLoaderConfig? loaderConfig,
 
   /// Whether to use localization services or not.
   bool useLocalization = false,
@@ -327,7 +326,7 @@ void fkRunApp<T>({
 
   _initializeLoaderConfig(
     elc: loaderConfig ??
-        EasyLoadingConfig(
+        FkLoaderConfig(
           backgroundColor: Colors.transparent,
           boxShadow: [],
           contentPadding: const EdgeInsets.all(16),
@@ -336,7 +335,7 @@ void fkRunApp<T>({
           indicatorType: EasyLoadingIndicatorType.foldingCube,
           loadingStyle: EasyLoadingStyle.custom,
           maskType: EasyLoadingMaskType.custom,
-          maskColor: primaryColor,
+          maskColor: primaryColor ?? Colors.black.withOpacity(0.5),
           radius: 8,
           textColor: Colors.white,
           userInteractions: false,
@@ -379,8 +378,9 @@ void fkRunApp<T>({
               title: title,
               primaryColor: primaryColor,
               theme: theme,
-              routes: routes,
-              home: home,
+              router: router,
+              // routes: routes,
+              // home: home,
               useLocalization: useLocalization,
             ),
           ),
