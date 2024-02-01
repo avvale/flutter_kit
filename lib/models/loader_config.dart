@@ -1,8 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
-// TODO Abstraer propiedades que dependen de EasyLoading
-class FkLoaderConfig {
+class EasyLoadingConfig {
   final Duration? animationDuration;
   final EasyLoadingAnimationStyle? animationStyle;
   final Color? backgroundColor;
@@ -33,7 +32,7 @@ class FkLoaderConfig {
   final EasyLoadingToastPosition? toastPosition;
   final bool? userInteractions;
 
-  const FkLoaderConfig({
+  const EasyLoadingConfig({
     this.animationDuration,
     this.animationStyle,
     this.backgroundColor,

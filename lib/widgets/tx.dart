@@ -61,10 +61,9 @@ class _PaddingWrapper extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
 
   const _PaddingWrapper({
-    Key? key,
     required this.child,
     this.padding,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +119,7 @@ class Tx extends StatelessWidget {
   /// wasily allowing features like autosize, multiline, etc.
   const Tx(
     this.text, {
-    Key? key,
+    super.key,
     this.size = TxSize.m,
     this.color,
     this.weight = TxWeight.normal,
@@ -132,7 +131,7 @@ class Tx extends StatelessWidget {
     this.autoSize = false,
     this.minSize,
     this.height,
-  }) : super(key: key);
+  });
 
   /// Returns a TextStyle object based on the Tx parameters.
   static TextStyle getStyle({

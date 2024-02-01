@@ -20,7 +20,7 @@ final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
 /// Initialize loader with custom configuration
-void _initializeLoaderConfig({required FkLoaderConfig elc}) {
+void _initializeLoaderConfig({required EasyLoadingConfig elc}) {
   EasyLoading.instance
     ..animationDuration =
         elc.animationDuration ?? EasyLoading.instance.animationDuration
@@ -71,20 +71,18 @@ class _L10nWrapper extends ConsumerWidget {
   final String? translationsPath;
 
   _L10nWrapper({
-    Key? key,
     required this.useLocalization,
     required this.child,
     this.defaultLang,
     this.supportedLocales,
     this.translationsPath,
-  })  : assert(
+  }) : assert(
           useLocalization == false ||
               (existsNotEmpty(defaultLang) &&
                   existsNotEmpty(translationsPath) &&
                   existsNotEmpty(supportedLocales)),
           'If localization is used, defaultLang parameter is required',
-        ),
-        super(key: key);
+        );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -132,7 +130,7 @@ class _NetworkWrapper<T> extends ConsumerWidget {
   final String authTokenPrefix;
 
   const _NetworkWrapper({
-    Key? key,
+    super.key,
     required this.child,
     required this.apiUrl,
     required this.basicAuthToken,
@@ -142,7 +140,7 @@ class _NetworkWrapper<T> extends ConsumerWidget {
     required this.authEndpoint,
     required this.authMode,
     required this.authTokenPrefix,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -179,10 +177,9 @@ class _AuthWrapper extends StatelessWidget {
   final FkAuthMode authMode;
 
   const _AuthWrapper({
-    Key? key,
     required this.child,
     required this.authMode,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -219,13 +216,12 @@ class _AppWrapper extends ConsumerWidget {
   final bool useLocalization;
 
   const _AppWrapper({
-    Key? key,
     this.title,
     required this.router,
     this.primaryColor,
     this.theme,
     required this.useLocalization,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -259,10 +255,12 @@ class _AppWrapper extends ConsumerWidget {
 void fkRunApp<T>({
   /// The title of the application.
   String? title,
+
+  /// The routing configuration for the application.
   required FkRouter router,
 
   /// The primary color for the application. It is defined separately from the
-  /// theme to be able to use it is more specific areas like the loader.
+  /// theme to be able to use it in more specific areas like the loader.
   Color? primaryColor,
 
   /// The theme for the application.
@@ -305,7 +303,7 @@ void fkRunApp<T>({
   List<DeviceOrientation> orientations = const [DeviceOrientation.portraitUp],
 
   /// Style for the loader to be shown on loading data.
-  FkLoaderConfig? loaderConfig,
+  EasyLoadingConfig? loaderConfig,
 
   /// Whether to use localization services or not.
   bool useLocalization = false,
@@ -339,7 +337,7 @@ void fkRunApp<T>({
 
   _initializeLoaderConfig(
     elc: loaderConfig ??
-        FkLoaderConfig(
+        EasyLoadingConfig(
           backgroundColor: Colors.transparent,
           boxShadow: [],
           contentPadding: const EdgeInsets.all(16),

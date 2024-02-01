@@ -7,10 +7,9 @@ class _PopScopeWrapper extends StatelessWidget {
   final Widget child;
 
   const _PopScopeWrapper({
-    Key? key,
     required this.onWillPop,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +36,11 @@ class _AnnotatedRegionWrapper extends StatelessWidget {
   final bool transparentStatusBar;
 
   const _AnnotatedRegionWrapper({
-    Key? key,
     required this.child,
     required this.statusBarColor,
     this.statusBarForcedBrightness,
     required this.transparentStatusBar,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -70,10 +68,9 @@ class _RefreshIndicatorWrapper extends StatelessWidget {
   final Widget child;
 
   const _RefreshIndicatorWrapper({
-    Key? key,
     required this.onRefresh,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -96,9 +93,8 @@ class _SafeAreaWrapper extends StatelessWidget {
     this.safeArea,
     this.child,
     this.padding,
-    this.transparentStatusBar, {
-    Key? key,
-  }) : super(key: key);
+    this.transparentStatusBar,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -131,7 +127,7 @@ class Layout extends StatelessWidget {
 
   /// A layout widget that can be used to wrap a page.
   const Layout({
-    Key? key,
+    super.key,
     required this.child,
     this.statusBarColor,
     this.transparentStatusBar = false,
@@ -140,7 +136,7 @@ class Layout extends StatelessWidget {
     this.padding = const EdgeInsets.all(0),
     this.onPullToRefresh,
     this.onWillPop,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

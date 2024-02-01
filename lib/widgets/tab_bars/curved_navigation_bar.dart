@@ -11,7 +11,7 @@ class CurvedNavigationBar extends StatefulWidget {
   /// Widget procedente del paquete "curved_navigation_bar", modificado para
   /// adaptarse al diseño y funcionalidad de la app
   CurvedNavigationBar({
-    Key? key,
+    super.key,
     required this.items,
     this.index = 0,
     this.onTap,
@@ -20,8 +20,7 @@ class CurvedNavigationBar extends StatefulWidget {
     bool Function(int value)? letIndexChange,
   })  : allowIndexChange = letIndexChange ?? ((_) => true),
         assert(items.isNotEmpty),
-        assert(0 <= index && index < items.length),
-        super(key: key);
+        assert(0 <= index && index < items.length);
 
   @override
   CurvedNavigationBarState createState() => CurvedNavigationBarState();

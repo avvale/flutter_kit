@@ -29,12 +29,11 @@ class _IconAssetWrapper extends StatelessWidget {
   final ColorFilter? colorFilter;
 
   const _IconAssetWrapper({
-    Key? key,
     required this.imgType,
     required this.size,
     required this.assetPath,
     this.colorFilter,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -58,12 +57,11 @@ class _IconNetworkWrapper extends StatelessWidget {
   final ColorFilter? colorFilter;
 
   const _IconNetworkWrapper({
-    Key? key,
     required this.imgType,
     required this.size,
     required this.url,
     this.colorFilter,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +107,7 @@ class IconBtn extends StatelessWidget {
   final Color backgroundColor;
 
   const IconBtn({
-    Key? key,
+    super.key,
     this.icon,
     this.iconAssetPath,
     this.iconUrl,
@@ -119,8 +117,7 @@ class IconBtn extends StatelessWidget {
     this.backgroundColor = Colors.transparent,
     this.size = IconBtnSize.normal,
     required this.onPressed,
-  })  : assert(icon != null || iconAssetPath != null || iconUrl != null),
-        super(key: key);
+  }) : assert(icon != null || iconAssetPath != null || iconUrl != null);
 
   @override
   Widget build(BuildContext context) {
