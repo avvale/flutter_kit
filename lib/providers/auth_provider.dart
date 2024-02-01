@@ -1,6 +1,7 @@
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_kit/models/auth_mode.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
+import 'package:flutter_kit/providers/gql_client_provider.dart';
 import 'package:flutter_kit/providers/network_provider.dart';
 import 'package:flutter_kit/src/utils/consts.dart';
 import 'package:flutter_kit/utils/debugger.dart';
@@ -16,16 +17,14 @@ const _secureStorage = FlutterSecureStorage();
 @riverpod
 class Auth extends _$Auth {
   @override
-  FkAuthState build() {
-    return _initialState;
-  }
+  FkAuthState build() => _initialState;
 
   /// Guarda los tokens en el almacenamiento seguro, los carga en el estado de
   /// la aplicación y establece el token de la API.
   Future<FkAuthState?> _setNetworkAuthToken(FkAuthState user) async {
     Debugger.log('Set auth credentials', user);
 
-    await ref.read(networkProvider.notifier).setToken(user.accessToken);
+    await ref.read(gQLClientProvider.notifier).setToken(user.accessToken);
 
     state = user;
 

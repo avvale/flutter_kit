@@ -8,6 +8,7 @@ import 'package:flutter_kit/models/auth_mode.dart';
 import 'package:flutter_kit/models/loader_config.dart';
 import 'package:flutter_kit/models/router.dart';
 import 'package:flutter_kit/providers/auth_provider.dart';
+import 'package:flutter_kit/providers/gql_client_provider.dart';
 import 'package:flutter_kit/providers/l10n_provider.dart';
 import 'package:flutter_kit/providers/network_provider.dart';
 import 'package:flutter_kit/utils/helpers.dart';
@@ -144,22 +145,33 @@ class _NetworkWrapper<T> extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final gql = ref.watch(gQLClientProvider);
     final network = ref.watch(networkProvider);
 
-    if (!network.isInitialized) {
-      Future.delayed(
-        Duration.zero,
-        () => ref.read(networkProvider.notifier).initialize(
-              apiUrl: apiUrl,
-              basicAuthToken: basicAuthToken,
-              gqlPolicies: gqlPolicies,
-              apiRepository: apiRepository,
-              authEndpoint: authEndpoint,
-              apiMappedErrorCodes: apiMappedErrorCodes,
-              authMode: authMode,
-              authTokenPrefix: authTokenPrefix,
-            ),
-      );
+    if (!network.isInitialized || !gql.isInitialized) {
+      if (!gql.isInitialized) {
+        Future.delayed(
+          Duration.zero,
+          () => ref.read(gQLClientProvider.notifier).initialize(
+                apiUrl: apiUrl,
+                basicAuthToken: basicAuthToken,
+                gqlPolicies: gqlPolicies,
+                authTokenPrefix: authTokenPrefix,
+              ),
+        );
+      }
+
+      if (!network.isInitialized) {
+        Future.delayed(
+          Duration.zero,
+          () => ref.read(networkProvider.notifier).initialize(
+                apiRepository: apiRepository,
+                authEndpoint: authEndpoint,
+                apiMappedErrorCodes: apiMappedErrorCodes,
+                authMode: authMode,
+              ),
+        );
+      }
 
       return const Space();
     }

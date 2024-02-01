@@ -3,11 +3,10 @@ import 'dart:io';
 import 'package:flutter_kit/models/auth_mode.dart';
 import 'package:flutter_kit/models/state/network_state.dart';
 import 'package:flutter_kit/providers/auth_provider.dart';
-import 'package:flutter_kit/providers/l10n_provider.dart';
+import 'package:flutter_kit/providers/gql_client_provider.dart';
 import 'package:flutter_kit/utils/debugger.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter_kit/utils/toast.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:graphql/client.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -23,16 +22,7 @@ const _initialState = FkNetworkState();
 @riverpod
 class Network extends _$Network {
   @override
-  FkNetworkState build() {
-    return _initialState;
-  }
-
-  HttpLink _baseHttpLink({Map<String, String> headers = const {}}) {
-    return HttpLink(
-      '${state.apiUrl}/graphql',
-      defaultHeaders: headers,
-    );
-  }
+  FkNetworkState build() => _initialState;
 
   // Default GraphQL error handler
   Future<QueryResult> _handleError<T>({
@@ -287,74 +277,18 @@ class Network extends _$Network {
 
   /// Inicializa el servicio de red
   Future<void> initialize<T>({
-    required String apiUrl,
-    String? basicAuthToken,
-    Policies? gqlPolicies,
     Map<T, String> apiRepository = const {},
     T? authEndpoint,
     FkAuthMode authMode = const FkDisabledAuthMode(),
     Map<String, String>? apiMappedErrorCodes,
-    String? authTokenPrefix,
   }) async {
     state = state.copyWith(
       isInitialized: true,
-      gqlClientBasicAuth: GraphQLClient(
-        link: AuthLink(getToken: () => basicAuthToken).concat(
-          HttpLink('$apiUrl/graphql'),
-        ),
-        cache: GraphQLCache(),
-      ),
-      gqlClient: GraphQLClient(
-        link: HttpLink('$apiUrl/graphql'),
-        cache: GraphQLCache(),
-        defaultPolicies: DefaultPolicies(
-          query: gqlPolicies,
-          mutate: gqlPolicies,
-        ),
-      ),
-      apiUrl: apiUrl,
       apiRepository: apiRepository,
       authMode: authMode,
       authEndpoint: authEndpoint,
       apiMappedErrorCodes: apiMappedErrorCodes,
-      authTokenPrefix: authTokenPrefix,
     );
-  }
-
-  /// Establece el token de la API
-  Future<void> setToken(String? token) async {
-    Debugger.log('Set auth token', token);
-
-    final String timezone = await FlutterTimezone.getLocalTimezone();
-    final String? lang = ref.read(l10nProvider).currentLocale?.languageCode;
-
-    if (existsNotEmpty(token)) {
-      state = state.copyWith(
-        gqlClient: state.gqlClient?.copyWith(
-          link: AuthLink(
-            getToken: () => '${state.authTokenPrefix} $token',
-          ).concat(
-            _baseHttpLink(
-              headers: {
-                'X-Timezone': timezone,
-                if (existsNotEmpty(lang)) 'content-language': lang!,
-              },
-            ),
-          ),
-        ),
-      );
-    } else {
-      state = state.copyWith(
-        gqlClient: state.gqlClient?.copyWith(
-          link: _baseHttpLink(
-            headers: {
-              'X-Timezone': timezone,
-              if (existsNotEmpty(lang)) 'content-language': lang!,
-            },
-          ),
-        ),
-      );
-    }
   }
 
   /// Realiza una petición GraphQL
@@ -363,15 +297,18 @@ class Network extends _$Network {
     bool isRetry = false,
     required T endpoint,
     Map<String, dynamic>? params,
-  }) =>
-      _handleRequest(
-        endpoint: endpoint,
-        params: params,
-        requestType: RequestType.query,
-        isRetry: isRetry,
-        handler: useBasicAuth ? _handleResponseBasicAuth : _handleResponse,
-        gqlClient: useBasicAuth ? state.gqlClientBasicAuth : state.gqlClient,
-      );
+  }) {
+    final gql = ref.read(gQLClientProvider);
+
+    return _handleRequest(
+      endpoint: endpoint,
+      params: params,
+      requestType: RequestType.query,
+      isRetry: isRetry,
+      handler: useBasicAuth ? _handleResponseBasicAuth : _handleResponse,
+      gqlClient: useBasicAuth ? gql.gqlClientBasicAuth : gql.gqlClient,
+    );
+  }
 
   /// Realiza una mutación GraphQL
   Future<QueryResult> mutate<T>({
@@ -379,13 +316,16 @@ class Network extends _$Network {
     bool isRetry = false,
     required T endpoint,
     Map<String, dynamic>? params,
-  }) =>
-      _handleRequest(
-        endpoint: endpoint,
-        params: params,
-        requestType: RequestType.mutation,
-        isRetry: isRetry,
-        handler: useBasicAuth ? _handleResponseBasicAuth : _handleResponse,
-        gqlClient: useBasicAuth ? state.gqlClientBasicAuth : state.gqlClient,
-      );
+  }) {
+    final gql = ref.read(gQLClientProvider);
+
+    return _handleRequest(
+      endpoint: endpoint,
+      params: params,
+      requestType: RequestType.mutation,
+      isRetry: isRetry,
+      handler: useBasicAuth ? _handleResponseBasicAuth : _handleResponse,
+      gqlClient: useBasicAuth ? gql.gqlClientBasicAuth : gql.gqlClient,
+    );
+  }
 }

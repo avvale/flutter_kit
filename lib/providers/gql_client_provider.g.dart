@@ -1,24 +1,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'l10n_provider.dart';
+part of 'gql_client_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$l10nHash() => r'e8af25aff59c09cbc6e0e6a22ab4bb23f51038cd';
+String _$gQLClientHash() => r'95f06c4d0e7ef467f88ab2b88f14828ea564e56a';
 
-/// See also [L10n].
-@ProviderFor(L10n)
-final l10nProvider = AutoDisposeNotifierProvider<L10n, FkL10nState>.internal(
-  L10n.new,
-  name: r'l10nProvider',
+/// See also [GQLClient].
+@ProviderFor(GQLClient)
+final gQLClientProvider =
+    AutoDisposeNotifierProvider<GQLClient, FkGQLClientState>.internal(
+  GQLClient.new,
+  name: r'gQLClientProvider',
   debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$l10nHash,
+      const bool.fromEnvironment('dart.vm.product') ? null : _$gQLClientHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$L10n = AutoDisposeNotifier<FkL10nState>;
+typedef _$GQLClient = AutoDisposeNotifier<FkGQLClientState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
