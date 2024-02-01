@@ -6,16 +6,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_kit/models/auth_mode.dart';
 import 'package:flutter_kit/models/loader_config.dart';
-import 'package:flutter_kit/models/state/auth_state.dart';
-import 'package:flutter_kit/models/state/l10n_state.dart';
 import 'package:flutter_kit/models/router.dart';
-import 'package:flutter_kit/models/state/network_state.dart';
-import 'package:flutter_kit/services/auth_service.dart';
-import 'package:flutter_kit/services/l10n_service.dart';
-import 'package:flutter_kit/services/network_service.dart';
+import 'package:flutter_kit/providers/auth_provider.dart';
+import 'package:flutter_kit/providers/l10n_provider.dart';
+import 'package:flutter_kit/providers/network_provider.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter_kit/widgets/space.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:graphql/client.dart';
 
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
@@ -61,8 +59,11 @@ void _initializeLoaderConfig({required FkLoaderConfig elc}) {
         elc.userInteractions ?? EasyLoading.instance.userInteractions;
 }
 
-/// Handles localization logic
-class _L10nWrapper extends StatelessWidget {
+/// Handles localization logic.
+/// If [useLocalization] is false, only the child widget is returned.
+/// Otherwise, the localization is initialized with EasyLocalization and the
+/// child widget is returned.
+class _L10nWrapper extends ConsumerWidget {
   final bool useLocalization;
   final Widget child;
   final String? defaultLang;
@@ -86,7 +87,7 @@ class _L10nWrapper extends StatelessWidget {
         super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (!useLocalization) {
       return child;
     }
@@ -95,12 +96,17 @@ class _L10nWrapper extends StatelessWidget {
       supportedLocales: supportedLocales!.toList(),
       path: translationsPath!,
       fallbackLocale: Locale(defaultLang!),
-      child: StreamBuilder(
-        stream: FkL10nService().stream,
-        builder: (context, AsyncSnapshot<FkL10nState> snapshot) {
-          if (!snapshot.hasData || !snapshot.data!.isInitialized) {
-            FkL10nService()
-                .initialize(defaultLang: context.locale.languageCode);
+      child: Consumer(
+        builder: (context, ref, cChild) {
+          final l10n = ref.watch(l10nProvider);
+
+          if (!l10n.isInitialized) {
+            Future.delayed(
+              Duration.zero,
+              () => ref
+                  .read(l10nProvider.notifier)
+                  .initialize(defaultLang: context.locale.languageCode),
+            );
 
             return const Space();
           }
@@ -112,7 +118,9 @@ class _L10nWrapper extends StatelessWidget {
   }
 }
 
-class _NetworkWrapper<T> extends StatelessWidget {
+/// Handles network logic.
+/// Initializes the network provider with the given configuration.
+class _NetworkWrapper<T> extends ConsumerWidget {
   final Widget child;
   final String apiUrl;
   final String? basicAuthToken;
@@ -137,31 +145,35 @@ class _NetworkWrapper<T> extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: FkNetworkService().stream,
-      builder: (context, AsyncSnapshot<FkNetworkState> snapshot) {
-        if (!snapshot.hasData || !snapshot.data!.isInitialized) {
-          FkNetworkService().initialize(
-            apiUrl: apiUrl,
-            basicAuthToken: basicAuthToken,
-            gqlPolicies: gqlPolicies,
-            apiRepository: apiRepository,
-            authEndpoint: authEndpoint,
-            apiMappedErrorCodes: apiMappedErrorCodes,
-            authMode: authMode,
-            authTokenPrefix: authTokenPrefix,
-          );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final network = ref.watch(networkProvider);
 
-          return const Space();
-        }
+    if (!network.isInitialized) {
+      Future.delayed(
+        Duration.zero,
+        () => ref.read(networkProvider.notifier).initialize(
+              apiUrl: apiUrl,
+              basicAuthToken: basicAuthToken,
+              gqlPolicies: gqlPolicies,
+              apiRepository: apiRepository,
+              authEndpoint: authEndpoint,
+              apiMappedErrorCodes: apiMappedErrorCodes,
+              authMode: authMode,
+              authTokenPrefix: authTokenPrefix,
+            ),
+      );
 
-        return child;
-      },
-    );
+      return const Space();
+    }
+
+    return child;
   }
 }
 
+/// Handles authentication logic.
+/// If [authMode] is [FkDisabledAuthMode], only the child widget is returned.
+/// Otherwise, the authentication is initialized with the given configuration
+/// and the child widget is returned.
 class _AuthWrapper extends StatelessWidget {
   final Widget child;
   final FkAuthMode authMode;
@@ -177,11 +189,15 @@ class _AuthWrapper extends StatelessWidget {
     switch (authMode) {
       case FkManualAuthMode():
       case FkAutoAuthMode():
-        return StreamBuilder(
-          stream: FkAuthService().stream,
-          builder: (context, AsyncSnapshot<FkAuthState> snapshot) {
-            if (!snapshot.hasData || !snapshot.data!.isInitialized) {
-              FkAuthService().initialize();
+        return Consumer(
+          builder: (context, ref, cChild) {
+            final auth = ref.watch(authProvider);
+
+            if (!auth.isInitialized) {
+              Future.delayed(
+                Duration.zero,
+                () => ref.read(authProvider.notifier).initialize(),
+              );
 
               return const Space();
             }
@@ -195,7 +211,7 @@ class _AuthWrapper extends StatelessWidget {
   }
 }
 
-class _AppWrapper extends StatelessWidget {
+class _AppWrapper extends ConsumerWidget {
   final String? title;
   final FkRouter router;
   final Color? primaryColor;
@@ -212,32 +228,29 @@ class _AppWrapper extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<FkAuthState>(
-      stream: FkAuthService().stream,
-      builder: (context, snapshot) {
-        final goRouter = generateRouter(router, snapshot.data);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.watch(authProvider);
 
-        return MaterialApp.router(
-          debugShowCheckedModeBanner: false,
-          title: title ?? 'Flutter Kit',
-          color: primaryColor,
-          theme: theme != null
-              ? theme!(context).copyWith(primaryColor: primaryColor)
-              : ThemeData(primaryColor: primaryColor),
-          scaffoldMessengerKey: rootScaffoldMessengerKey,
-          locale: useLocalization ? context.locale : null,
-          localizationsDelegates:
-              useLocalization ? context.localizationDelegates : null,
-          supportedLocales: useLocalization
-              ? context.supportedLocales
-              : const <Locale>[Locale('en', 'US')],
-          builder: EasyLoading.init(),
-          routeInformationParser: goRouter.routeInformationParser,
-          routerDelegate: goRouter.routerDelegate,
-          routeInformationProvider: goRouter.routeInformationProvider,
-        );
-      },
+    final goRouter = generateRouter(router, auth);
+
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      title: title ?? 'Flutter Kit',
+      color: primaryColor,
+      theme: theme != null
+          ? theme!(context).copyWith(primaryColor: primaryColor)
+          : ThemeData(primaryColor: primaryColor),
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
+      locale: useLocalization ? context.locale : null,
+      localizationsDelegates:
+          useLocalization ? context.localizationDelegates : null,
+      supportedLocales: useLocalization
+          ? context.supportedLocales
+          : const <Locale>[Locale('en', 'US')],
+      builder: EasyLoading.init(),
+      routeInformationParser: goRouter.routeInformationParser,
+      routerDelegate: goRouter.routerDelegate,
+      routeInformationProvider: goRouter.routeInformationProvider,
     );
   }
 }
@@ -355,33 +368,33 @@ void fkRunApp<T>({
 
   // Initialize app
   runApp(
-    GestureDetector(
-      /// When tapping outside of a text field, the keyboard is hidden
-      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: _L10nWrapper(
-        useLocalization: useLocalization,
-        defaultLang: defaultLang,
-        translationsPath: translationsPath,
-        supportedLocales: supportedLocales,
-        child: _NetworkWrapper(
-          apiUrl: apiUrl,
-          basicAuthToken: basicAuthToken,
-          gqlPolicies: gqlPolicies,
-          apiRepository: apiRepository,
-          authEndpoint: authEndpoint,
-          apiMappedErrorCodes: apiMappedErrorCodes,
-          authMode: authMode,
-          authTokenPrefix: authTokenPrefix,
-          child: _AuthWrapper(
+    ProviderScope(
+      child: GestureDetector(
+        /// When tapping outside of a text field, the keyboard is hidden
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: _L10nWrapper(
+          useLocalization: useLocalization,
+          defaultLang: defaultLang,
+          translationsPath: translationsPath,
+          supportedLocales: supportedLocales,
+          child: _NetworkWrapper(
+            apiUrl: apiUrl,
+            basicAuthToken: basicAuthToken,
+            gqlPolicies: gqlPolicies,
+            apiRepository: apiRepository,
+            authEndpoint: authEndpoint,
+            apiMappedErrorCodes: apiMappedErrorCodes,
             authMode: authMode,
-            child: _AppWrapper(
-              title: title,
-              primaryColor: primaryColor,
-              theme: theme,
-              router: router,
-              // routes: routes,
-              // home: home,
-              useLocalization: useLocalization,
+            authTokenPrefix: authTokenPrefix,
+            child: _AuthWrapper(
+              authMode: authMode,
+              child: _AppWrapper(
+                title: title,
+                primaryColor: primaryColor,
+                theme: theme,
+                router: router,
+                useLocalization: useLocalization,
+              ),
             ),
           ),
         ),

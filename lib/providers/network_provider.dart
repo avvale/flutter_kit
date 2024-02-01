@@ -1,44 +1,35 @@
-import 'dart:async';
 import 'dart:io';
+
 import 'package:flutter_kit/models/auth_mode.dart';
 import 'package:flutter_kit/models/state/network_state.dart';
-import 'package:flutter_kit/services/auth_service.dart';
-import 'package:flutter_kit/services/l10n_service.dart';
-
+import 'package:flutter_kit/providers/auth_provider.dart';
+import 'package:flutter_kit/providers/l10n_provider.dart';
 import 'package:flutter_kit/utils/debugger.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter_kit/utils/toast.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:graphql/client.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'network_provider.g.dart';
 
 enum RequestType {
   query,
   mutation,
 }
 
-const initialState = FkNetworkState();
+const _initialState = FkNetworkState();
 
-/// Servicio de red
-class FkNetworkService {
-  static final FkNetworkService _instance = FkNetworkService._internal();
-
-  final _dataFetcher = BehaviorSubject<FkNetworkState>()
-    ..startWith(initialState);
-
-  FkNetworkState get value =>
-      _dataFetcher.hasValue ? _dataFetcher.value : initialState;
-  Stream<FkNetworkState> get stream => _dataFetcher.stream;
-
-  factory FkNetworkService() {
-    return _instance;
+@riverpod
+class Network extends _$Network {
+  @override
+  FkNetworkState build() {
+    return _initialState;
   }
-
-  FkNetworkService._internal();
 
   HttpLink _baseHttpLink({Map<String, String> headers = const {}}) {
     return HttpLink(
-      '${value.apiUrl}/graphql',
+      '${state.apiUrl}/graphql',
       defaultHeaders: headers,
     );
   }
@@ -50,7 +41,7 @@ class FkNetworkService {
     required String? request,
     required RequestType requestType,
   }) {
-    Debugger.log('Handle error', error);
+    Debugger.log('Handle network error', error);
 
     String errorMsg = 'Ha habido un error desconocido, inténtalo de nuevo';
 
@@ -86,9 +77,9 @@ class FkNetworkService {
       }
       // Authentication error
       else if (statusCode == '401') {
-        FkAuthService().logout();
+        ref.read(authProvider.notifier).logout();
 
-        switch (value.authMode) {
+        switch (state.authMode) {
           case FkDisabledAuthMode():
             errorMsg = 'No tienes permisos para realizar esta acción';
             break;
@@ -103,8 +94,8 @@ class FkNetworkService {
       // Forbidden error
       else if (statusCode == '403') {
         errorMsg = getErrorMessageFromGraphQLError(error) ?? errorMsg;
-      } else if (value.apiMappedErrorCodes[statusCode.toString()] != null) {
-        errorMsg = value.apiMappedErrorCodes[statusCode.toString()]!;
+      } else if (state.apiMappedErrorCodes[statusCode.toString()] != null) {
+        errorMsg = state.apiMappedErrorCodes[statusCode.toString()]!;
       }
     }
 
@@ -156,20 +147,20 @@ class FkNetworkService {
                 error.extensions?['originalError']?['statusCode'] == 401,
           );
 
-          if (hasAuthError && value.authEndpoint != null) {
+          if (hasAuthError && state.authEndpoint != null) {
             Debugger.log('Authentication error, trying to reload token');
 
-            final FkAuthMode authMode = value.authMode;
+            final FkAuthMode authMode = state.authMode;
 
             switch (authMode) {
               case FkDisabledAuthMode():
                 break;
               case FkManualAuthMode():
-                if (existsNotEmpty(FkAuthService().value.refreshToken) &&
-                    await FkAuthService().login(
-                      endpoint: value.authEndpoint,
-                      useRefreshToken: true,
-                    )) {
+                if (existsNotEmpty(ref.read(authProvider).refreshToken) &&
+                    await ref.read(authProvider.notifier).login(
+                          endpoint: state.authEndpoint,
+                          useRefreshToken: true,
+                        )) {
                   return query(
                     endpoint: endpoint,
                     params: params,
@@ -178,21 +169,21 @@ class FkNetworkService {
                 }
                 break;
               case FkAutoAuthMode():
-                if (existsNotEmpty(FkAuthService().value.refreshToken) &&
-                    await FkAuthService().login(
-                      endpoint: value.authEndpoint,
-                      useRefreshToken: true,
-                    )) {
+                if (existsNotEmpty(ref.read(authProvider).refreshToken) &&
+                    await ref.read(authProvider.notifier).login(
+                          endpoint: state.authEndpoint,
+                          useRefreshToken: true,
+                        )) {
                   return query(
                     endpoint: endpoint,
                     params: params,
                     isRetry: true,
                   );
                 } else {
-                  if (await FkAuthService().login(
-                    endpoint: value.authEndpoint,
-                    authMode: authMode,
-                  )) {
+                  if (await ref.read(authProvider.notifier).login(
+                        endpoint: state.authEndpoint,
+                        authMode: authMode,
+                      )) {
                     return query(
                       endpoint: endpoint,
                       params: params,
@@ -209,7 +200,7 @@ class FkNetworkService {
       _handleError(
         error: res,
         endpoint: endpoint,
-        request: value.apiRepository?[endpoint],
+        request: state.apiRepository?[endpoint],
         requestType: requestType,
       );
 
@@ -234,7 +225,7 @@ class FkNetworkService {
     }) handler,
     required GraphQLClient? gqlClient,
   }) async {
-    final request = value.apiRepository?[endpoint];
+    final request = state.apiRepository?[endpoint];
 
     if (request == null) {
       throw Exception('No request found for endpoint $endpoint');
@@ -305,30 +296,28 @@ class FkNetworkService {
     Map<String, String>? apiMappedErrorCodes,
     String? authTokenPrefix,
   }) async {
-    _dataFetcher.add(
-      value.copyWith(
-        isInitialized: true,
-        gqlClientBasicAuth: GraphQLClient(
-          link: AuthLink(getToken: () => basicAuthToken).concat(
-            HttpLink('$apiUrl/graphql'),
-          ),
-          cache: GraphQLCache(),
+    state = state.copyWith(
+      isInitialized: true,
+      gqlClientBasicAuth: GraphQLClient(
+        link: AuthLink(getToken: () => basicAuthToken).concat(
+          HttpLink('$apiUrl/graphql'),
         ),
-        gqlClient: GraphQLClient(
-          link: HttpLink('$apiUrl/graphql'),
-          cache: GraphQLCache(),
-          defaultPolicies: DefaultPolicies(
-            query: gqlPolicies,
-            mutate: gqlPolicies,
-          ),
-        ),
-        apiUrl: apiUrl,
-        apiRepository: apiRepository,
-        authMode: authMode,
-        authEndpoint: authEndpoint,
-        apiMappedErrorCodes: apiMappedErrorCodes,
-        authTokenPrefix: authTokenPrefix,
+        cache: GraphQLCache(),
       ),
+      gqlClient: GraphQLClient(
+        link: HttpLink('$apiUrl/graphql'),
+        cache: GraphQLCache(),
+        defaultPolicies: DefaultPolicies(
+          query: gqlPolicies,
+          mutate: gqlPolicies,
+        ),
+      ),
+      apiUrl: apiUrl,
+      apiRepository: apiRepository,
+      authMode: authMode,
+      authEndpoint: authEndpoint,
+      apiMappedErrorCodes: apiMappedErrorCodes,
+      authTokenPrefix: authTokenPrefix,
     );
   }
 
@@ -337,35 +326,31 @@ class FkNetworkService {
     Debugger.log('Set auth token', token);
 
     final String timezone = await FlutterTimezone.getLocalTimezone();
-    final String? lang = FkL10nService().value.currentLocale?.languageCode;
+    final String? lang = ref.read(l10nProvider).currentLocale?.languageCode;
 
     if (existsNotEmpty(token)) {
-      _dataFetcher.add(
-        value.copyWith(
-          gqlClient: value.gqlClient?.copyWith(
-            link: AuthLink(
-              getToken: () => '${value.authTokenPrefix} $token',
-            ).concat(
-              _baseHttpLink(
-                headers: {
-                  'X-Timezone': timezone,
-                  if (existsNotEmpty(lang)) 'content-language': lang!,
-                },
-              ),
-            ),
-          ),
-        ),
-      );
-    } else {
-      _dataFetcher.add(
-        value.copyWith(
-          gqlClient: value.gqlClient?.copyWith(
-            link: _baseHttpLink(
+      state = state.copyWith(
+        gqlClient: state.gqlClient?.copyWith(
+          link: AuthLink(
+            getToken: () => '${state.authTokenPrefix} $token',
+          ).concat(
+            _baseHttpLink(
               headers: {
                 'X-Timezone': timezone,
                 if (existsNotEmpty(lang)) 'content-language': lang!,
               },
             ),
+          ),
+        ),
+      );
+    } else {
+      state = state.copyWith(
+        gqlClient: state.gqlClient?.copyWith(
+          link: _baseHttpLink(
+            headers: {
+              'X-Timezone': timezone,
+              if (existsNotEmpty(lang)) 'content-language': lang!,
+            },
           ),
         ),
       );
@@ -385,7 +370,7 @@ class FkNetworkService {
         requestType: RequestType.query,
         isRetry: isRetry,
         handler: useBasicAuth ? _handleResponseBasicAuth : _handleResponse,
-        gqlClient: useBasicAuth ? value.gqlClientBasicAuth : value.gqlClient,
+        gqlClient: useBasicAuth ? state.gqlClientBasicAuth : state.gqlClient,
       );
 
   /// Realiza una mutación GraphQL
@@ -401,6 +386,6 @@ class FkNetworkService {
         requestType: RequestType.mutation,
         isRetry: isRetry,
         handler: useBasicAuth ? _handleResponseBasicAuth : _handleResponse,
-        gqlClient: useBasicAuth ? value.gqlClientBasicAuth : value.gqlClient,
+        gqlClient: useBasicAuth ? state.gqlClientBasicAuth : state.gqlClient,
       );
 }

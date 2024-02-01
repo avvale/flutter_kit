@@ -84,7 +84,7 @@ String capitalize(String str) {
 
 List<StatefulShellBranch> generateBranches(
   List<FkRouteTreeBranch> branches,
-  FkAuthState? authState,
+  FkAuthState authState,
 ) {
   return branches.map((branch) {
     return StatefulShellBranch(
@@ -98,7 +98,7 @@ List<StatefulShellBranch> generateBranches(
 
 List<RouteBase> generateRoutes(
   List<FkRouteBase> routes,
-  FkAuthState? authState,
+  FkAuthState authState,
 ) {
   return routes.map((route) {
     if (route is FkRoute) {
@@ -126,7 +126,7 @@ List<RouteBase> generateRoutes(
   }).toList();
 }
 
-GoRouter generateRouter(FkRouter fkRouter, FkAuthState? authState) {
+GoRouter generateRouter(FkRouter fkRouter, FkAuthState authState) {
   return GoRouter(
     navigatorKey: fkRouter.navigatorKey,
     initialLocation: fkRouter.initialLocation,

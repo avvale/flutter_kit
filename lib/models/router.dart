@@ -13,7 +13,7 @@ class FkRoute extends FkRouteBase {
   FutureOr<String?> Function(
     BuildContext,
     GoRouterState,
-    FkAuthState?,
+    FkAuthState,
   )? redirect;
   List<FkRouteBase> routes = const <FkRouteBase>[];
 
@@ -68,7 +68,7 @@ class FkRouter {
   final FutureOr<String?> Function(
     BuildContext,
     GoRouterState,
-    FkAuthState?,
+    FkAuthState,
   )? redirect;
   final void Function(BuildContext, GoRouterState, GoRouter)? onException;
   final Page<dynamic> Function(BuildContext, GoRouterState)? errorPageBuilder;

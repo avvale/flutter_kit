@@ -1,41 +1,32 @@
-import 'dart:async';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_kit/models/auth_mode.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
-import 'package:flutter_kit/services/network_service.dart';
+import 'package:flutter_kit/providers/network_provider.dart';
 import 'package:flutter_kit/utils/debugger.dart';
 import 'package:flutter_kit/utils/toast.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-const initialState = FkAuthState();
+part 'auth_provider.g.dart';
 
-/// Servicio de autenticación
-class FkAuthService {
-  static final FkAuthService _instance = FkAuthService._internal();
+const _initialState = FkAuthState();
+const _secureStorage = FlutterSecureStorage();
 
-  final _dataFetcher = BehaviorSubject<FkAuthState>()..startWith(initialState);
-
-  FkAuthState get value =>
-      _dataFetcher.hasValue ? _dataFetcher.value : initialState;
-  Stream<FkAuthState> get stream => _dataFetcher.stream;
-
-  factory FkAuthService() {
-    return _instance;
+@riverpod
+class Auth extends _$Auth {
+  @override
+  FkAuthState build() {
+    return _initialState;
   }
-
-  FkAuthService._internal();
-
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   /// Guarda los tokens en el almacenamiento seguro, los carga en el estado de
   /// la aplicación y establece el token de la API.
   Future<FkAuthState?> _setNetworkAuthToken(FkAuthState user) async {
     Debugger.log('Set auth credentials', user);
 
-    await FkNetworkService().setToken(user.accessToken);
+    await ref.read(networkProvider.notifier).setToken(user.accessToken);
 
-    _dataFetcher.sink.add(user);
+    state = user;
 
     return user;
   }
@@ -48,7 +39,7 @@ class FkAuthService {
     if (secureValues['fk_accessToken'] != null &&
         secureValues['fk_refreshToken'] != null) {
       await _setNetworkAuthToken(
-        value.copyWith(
+        state.copyWith(
           isInitialized: true,
           accessToken: secureValues['fk_accessToken'],
           refreshToken: secureValues['fk_refreshToken'],
@@ -57,6 +48,10 @@ class FkAuthService {
 
       return true;
     } else {
+      await _setNetworkAuthToken(
+        state.copyWith(isInitialized: true),
+      );
+
       return false;
     }
   }
@@ -78,7 +73,7 @@ class FkAuthService {
     if (useRefreshToken) {
       params['payload'] = {
         'grantType': 'REFRESH_TOKEN',
-        'refreshToken': value.refreshToken,
+        'refreshToken': state.refreshToken,
       };
     } else if (authMode != null) {
       switch (authMode) {
@@ -99,11 +94,11 @@ class FkAuthService {
     }
 
     try {
-      final res = await FkNetworkService().mutate(
-        endpoint: endpoint,
-        useBasicAuth: true,
-        params: params,
-      );
+      final res = await ref.read(networkProvider.notifier).mutate(
+            endpoint: endpoint,
+            useBasicAuth: true,
+            params: params,
+          );
 
       if (res.exception != null) {
         for (var err in res.exception!.graphqlErrors) {
@@ -132,7 +127,7 @@ class FkAuthService {
           );
 
           await _setNetworkAuthToken(
-            value.copyWith(
+            state.copyWith(
               accessToken: oAuthData['accessToken'],
               refreshToken: oAuthData['refreshToken'],
             ),
@@ -179,7 +174,7 @@ class FkAuthService {
     );
 
     await _setNetworkAuthToken(
-      value.copyWith(accessToken: accessToken, refreshToken: refreshToken),
+      state.copyWith(accessToken: accessToken, refreshToken: refreshToken),
     );
 
     await Future.delayed(delay);
@@ -197,11 +192,7 @@ class FkAuthService {
     await _secureStorage.delete(key: 'fk_refreshToken');
 
     await _setNetworkAuthToken(
-      value.copyWith(accessToken: '', refreshToken: ''),
+      state.copyWith(accessToken: '', refreshToken: ''),
     );
-  }
-
-  void dispose() {
-    _dataFetcher.close();
   }
 }

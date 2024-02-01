@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_kit/services/auth_service.dart';
+import 'package:flutter_kit/providers/auth_provider.dart';
 import 'package:flutter_kit/widgets/tx.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   static const routeName = '/';
 
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: SizedBox(
         width: double.infinity,
@@ -19,7 +20,7 @@ class HomeScreen extends StatelessWidget {
             const Tx('Home Screen'),
             ElevatedButton(
               onPressed: () {
-                FkAuthService().logout();
+                ref.read(authProvider.notifier).logout();
               },
               child: const Tx('Cerrar sesión'),
             ),
