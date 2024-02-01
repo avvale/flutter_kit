@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_kit/widgets/tx.dart';
 import 'package:go_router/go_router.dart';
-import 'package:riverpod101/screens/screen_2c1.dart';
-import 'package:riverpod101/screens/screen_2c2.dart';
-import 'package:riverpod101/screens/screen_2c3.dart';
+import 'package:fk_example/screens/screen_2c1.dart';
+import 'package:fk_example/screens/screen_2c2.dart';
+import 'package:fk_example/screens/screen_2c3.dart';
 
 class Screen2c extends StatelessWidget {
   static const String routeName = '/screen2c';

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_kit/widgets/tx.dart';
 import 'package:go_router/go_router.dart';
-import 'package:riverpod101/screens/screen_2a1.dart';
-import 'package:riverpod101/screens/screen_2a2.dart';
+import 'package:fk_example/screens/screen_2a1.dart';
+import 'package:fk_example/screens/screen_2a2.dart';
 
 class Screen2a extends StatelessWidget {
   static const String routeName = '/screen2a';

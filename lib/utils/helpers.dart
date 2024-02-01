@@ -127,16 +127,17 @@ List<RouteBase> generateRoutes(
   }).toList();
 }
 
-GoRouter generateRouter(FkRouter fkRouter, FkAuthState authState) {
+GoRouter generateRouter(FkRouter fkRouter, ValueNotifier<FkAuthState> auth) {
   return GoRouter(
     navigatorKey: fkRouter.navigatorKey,
     initialLocation: fkRouter.initialLocation,
-    routes: generateRoutes(fkRouter.routes, authState),
+    routes: generateRoutes(fkRouter.routes, auth.value),
     redirect: (context, state) => fkRouter.redirect?.call(
       context,
       state,
-      authState,
+      auth,
     ),
+    refreshListenable: auth,
     onException: fkRouter.onException,
     errorPageBuilder: fkRouter.errorPageBuilder,
     errorBuilder: fkRouter.errorBuilder,

@@ -5,8 +5,8 @@ import 'package:flutter_kit/providers/l10n_provider.dart';
 import 'package:flutter_kit/widgets/tx.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:riverpod101/screens/home_screen.dart';
-import 'package:riverpod101/screens/register_screen.dart';
+import 'package:fk_example/screens/home_screen.dart';
+import 'package:fk_example/screens/register_screen.dart';
 
 class LoginScreen extends ConsumerWidget {
   static const routeName = '/login';

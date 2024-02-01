@@ -1,7 +1,6 @@
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_kit/models/auth_mode.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
-import 'package:flutter_kit/providers/gql_client_provider.dart';
 import 'package:flutter_kit/providers/network_provider.dart';
 import 'package:flutter_kit/src/utils/consts.dart';
 import 'package:flutter_kit/utils/debugger.dart';
@@ -19,40 +18,24 @@ class Auth extends _$Auth {
   @override
   FkAuthState build() => _initialState;
 
-  /// Guarda los tokens en el almacenamiento seguro, los carga en el estado de
-  /// la aplicación y establece el token de la API.
-  Future<FkAuthState?> _setNetworkAuthToken(FkAuthState user) async {
-    Debugger.log('Set auth credentials', user);
-
-    await ref.read(gQLClientProvider.notifier).setToken(user.accessToken);
-
-    state = user;
-
-    return user;
-  }
-
   /// Comprueba si existe una sesión guardada. Si la hay, la carga en el estado
   /// de la aplicación y lo inicializa. Si no la hay, solo lo inicializa.
-  Future<bool> initialize() async {
+  Future<void> initialize() async {
+    if (state.isInitialized) {
+      return;
+    }
+
     final secureValues = await _secureStorage.readAll();
 
     if (secureValues[accessTokenKey] != null &&
         secureValues[refreshTokenKey] != null) {
-      await _setNetworkAuthToken(
-        state.copyWith(
-          isInitialized: true,
-          accessToken: secureValues[accessTokenKey],
-          refreshToken: secureValues[refreshTokenKey],
-        ),
+      state = state.copyWith(
+        isInitialized: true,
+        accessToken: secureValues[accessTokenKey],
+        refreshToken: secureValues[refreshTokenKey],
       );
-
-      return true;
     } else {
-      await _setNetworkAuthToken(
-        state.copyWith(isInitialized: true),
-      );
-
-      return false;
+      state = state.copyWith(isInitialized: true);
     }
   }
 
@@ -126,11 +109,9 @@ class Auth extends _$Auth {
             value: oAuthData['refreshToken'],
           );
 
-          await _setNetworkAuthToken(
-            state.copyWith(
-              accessToken: oAuthData['accessToken'],
-              refreshToken: oAuthData['refreshToken'],
-            ),
+          state = state.copyWith(
+            accessToken: oAuthData['accessToken'],
+            refreshToken: oAuthData['refreshToken'],
           );
 
           return true;
@@ -173,8 +154,9 @@ class Auth extends _$Auth {
       value: refreshToken,
     );
 
-    await _setNetworkAuthToken(
-      state.copyWith(accessToken: accessToken, refreshToken: refreshToken),
+    state = state.copyWith(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
     );
 
     await Future.delayed(delay);
@@ -191,8 +173,6 @@ class Auth extends _$Auth {
     await _secureStorage.delete(key: accessTokenKey);
     await _secureStorage.delete(key: refreshTokenKey);
 
-    await _setNetworkAuthToken(
-      state.copyWith(accessToken: '', refreshToken: ''),
-    );
+    state = state.copyWith(accessToken: '', refreshToken: '');
   }
 }

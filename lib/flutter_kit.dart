@@ -11,6 +11,7 @@ import 'package:flutter_kit/providers/auth_provider.dart';
 import 'package:flutter_kit/providers/gql_client_provider.dart';
 import 'package:flutter_kit/providers/l10n_provider.dart';
 import 'package:flutter_kit/providers/network_provider.dart';
+import 'package:flutter_kit/providers/router_provider.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter_kit/widgets/space.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -237,9 +238,16 @@ class _AppWrapper extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final auth = ref.watch(authProvider);
+    final router = ref.watch(routerProvider);
 
-    final goRouter = generateRouter(router, auth);
+    if (!router.isInitialized) {
+      Future.delayed(
+        Duration.zero,
+        () => ref.read(routerProvider.notifier).initialize(this.router),
+      );
+
+      return const Space();
+    }
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
@@ -256,9 +264,9 @@ class _AppWrapper extends ConsumerWidget {
           ? context.supportedLocales
           : const <Locale>[Locale('en', 'US')],
       builder: EasyLoading.init(),
-      routeInformationParser: goRouter.routeInformationParser,
-      routerDelegate: goRouter.routerDelegate,
-      routeInformationProvider: goRouter.routeInformationProvider,
+      routeInformationParser: router.router?.routeInformationParser,
+      routerDelegate: router.router?.routerDelegate,
+      routeInformationProvider: router.router?.routeInformationProvider,
     );
   }
 }

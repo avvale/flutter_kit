@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter_kit/models/auth_mode.dart';
 import 'package:flutter_kit/models/state/network_state.dart';
 import 'package:flutter_kit/providers/auth_provider.dart';
@@ -12,7 +11,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'network_provider.g.dart';
 
-enum RequestType {
+enum FkRequestType {
   query,
   mutation,
 }
@@ -29,7 +28,7 @@ class Network extends _$Network {
     required dynamic error,
     required T endpoint,
     required String? request,
-    required RequestType requestType,
+    required FkRequestType requestType,
   }) {
     Debugger.log('Handle network error', error);
 
@@ -104,7 +103,7 @@ class Network extends _$Network {
   // Default response handler for GraphQL requests with Basic Auth
   Future<QueryResult> _handleResponseBasicAuth<T>({
     required T endpoint,
-    required RequestType requestType,
+    required FkRequestType requestType,
     required Map<String, dynamic>? params,
     required QueryResult res,
     bool isRetry = false,
@@ -117,7 +116,7 @@ class Network extends _$Network {
   // Default response handler for GraphQL requests
   Future<QueryResult> _handleResponse<T>({
     required T endpoint,
-    required RequestType requestType,
+    required FkRequestType requestType,
     required Map<String, dynamic>? params,
     required QueryResult res,
     bool isRetry = false,
@@ -203,12 +202,12 @@ class Network extends _$Network {
   // Default GraphQL request handler
   Future<QueryResult> _handleRequest<T>({
     required T endpoint,
-    required RequestType requestType,
+    required FkRequestType requestType,
     required Map<String, dynamic>? params,
     bool isRetry = false,
     required Future<QueryResult> Function({
       required T endpoint,
-      required RequestType requestType,
+      required FkRequestType requestType,
       required Map<String, dynamic>? params,
       required QueryResult res,
       required bool isRetry,
@@ -226,7 +225,7 @@ class Network extends _$Network {
     }
 
     switch (requestType) {
-      case RequestType.query:
+      case FkRequestType.query:
         try {
           final res = await gqlClient.query(
             QueryOptions(
@@ -249,7 +248,7 @@ class Network extends _$Network {
 
           rethrow;
         }
-      case RequestType.mutation:
+      case FkRequestType.mutation:
         try {
           final res = await gqlClient.mutate(
             MutationOptions(
@@ -276,12 +275,16 @@ class Network extends _$Network {
   }
 
   /// Inicializa el servicio de red
-  Future<void> initialize<T>({
+  void initialize<T>({
     Map<T, String> apiRepository = const {},
     T? authEndpoint,
     FkAuthMode authMode = const FkDisabledAuthMode(),
     Map<String, String>? apiMappedErrorCodes,
-  }) async {
+  }) {
+    if (state.isInitialized) {
+      return;
+    }
+
     state = state.copyWith(
       isInitialized: true,
       apiRepository: apiRepository,
@@ -303,7 +306,7 @@ class Network extends _$Network {
     return _handleRequest(
       endpoint: endpoint,
       params: params,
-      requestType: RequestType.query,
+      requestType: FkRequestType.query,
       isRetry: isRetry,
       handler: useBasicAuth ? _handleResponseBasicAuth : _handleResponse,
       gqlClient: useBasicAuth ? gql.gqlClientBasicAuth : gql.gqlClient,
@@ -322,7 +325,7 @@ class Network extends _$Network {
     return _handleRequest(
       endpoint: endpoint,
       params: params,
-      requestType: RequestType.mutation,
+      requestType: FkRequestType.mutation,
       isRetry: isRetry,
       handler: useBasicAuth ? _handleResponseBasicAuth : _handleResponse,
       gqlClient: useBasicAuth ? gql.gqlClientBasicAuth : gql.gqlClient,

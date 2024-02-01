@@ -3,22 +3,22 @@ import 'package:flutter_kit/models/state/auth_state.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:riverpod101/screens/home_screen.dart';
-import 'package:riverpod101/screens/login_screen.dart';
-import 'package:riverpod101/screens/register_screen.dart';
-import 'package:riverpod101/screens/screen_1.dart';
-import 'package:riverpod101/screens/screen_2a.dart';
-import 'package:riverpod101/screens/screen_2a1.dart';
-import 'package:riverpod101/screens/screen_2a2.dart';
-import 'package:riverpod101/screens/screen_2b.dart';
-import 'package:riverpod101/screens/screen_2c.dart';
-import 'package:riverpod101/screens/screen_2c1.dart';
-import 'package:riverpod101/screens/screen_2c2.dart';
-import 'package:riverpod101/screens/screen_2c3.dart';
-import 'package:riverpod101/screens/screen_3a.dart';
-import 'package:riverpod101/screens/screen_3b.dart';
-import 'package:riverpod101/widgets/drawer_layout.dart';
-import 'package:riverpod101/widgets/tabs_layout.dart';
+import 'package:fk_example/screens/home_screen.dart';
+import 'package:fk_example/screens/login_screen.dart';
+import 'package:fk_example/screens/register_screen.dart';
+import 'package:fk_example/screens/screen_1.dart';
+import 'package:fk_example/screens/screen_2a.dart';
+import 'package:fk_example/screens/screen_2a1.dart';
+import 'package:fk_example/screens/screen_2a2.dart';
+import 'package:fk_example/screens/screen_2b.dart';
+import 'package:fk_example/screens/screen_2c.dart';
+import 'package:fk_example/screens/screen_2c1.dart';
+import 'package:fk_example/screens/screen_2c2.dart';
+import 'package:fk_example/screens/screen_2c3.dart';
+import 'package:fk_example/screens/screen_3a.dart';
+import 'package:fk_example/screens/screen_3b.dart';
+import 'package:fk_example/widgets/drawer_layout.dart';
+import 'package:fk_example/widgets/tabs_layout.dart';
 
 final _rootNavKey = GlobalKey<NavigatorState>();
 final _homeNavKey = GlobalKey<NavigatorState>();
@@ -220,9 +220,9 @@ final appRouter = FkRouter(
   redirect: (
     BuildContext context,
     GoRouterState state,
-    FkAuthState? auth,
+    ValueNotifier<FkAuthState> auth,
   ) {
-    final loggedIn = existsNotEmpty(auth?.accessToken);
+    final loggedIn = existsNotEmpty(auth.value.accessToken);
     final loggingIn = state.matchedLocation == LoginScreen.routeName ||
         state.matchedLocation == RegisterScreen.routeName;
 

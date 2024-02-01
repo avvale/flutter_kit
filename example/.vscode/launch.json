@@ -5,18 +5,18 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "riverpod101",
+      "name": "fk_example",
       "request": "launch",
       "type": "dart"
     },
     {
-      "name": "riverpod101 (profile mode)",
+      "name": "fk_example (profile mode)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "profile"
     },
     {
-      "name": "riverpod101 (release mode)",
+      "name": "fk_example (release mode)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "release"

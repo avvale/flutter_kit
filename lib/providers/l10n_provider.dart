@@ -1,9 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_kit/models/state/l10n_state.dart';
-import 'package:flutter_kit/providers/auth_provider.dart';
-import 'package:flutter_kit/providers/gql_client_provider.dart';
-import 'package:flutter_kit/providers/network_provider.dart';
 import 'package:flutter_kit/utils/debugger.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -17,7 +14,11 @@ class L10n extends _$L10n {
   @override
   FkL10nState build() => _initialState;
 
-  Future<void> initialize({String? defaultLang}) async {
+  void initialize({String? defaultLang}) {
+    if (state.isInitialized) {
+      return;
+    }
+
     state = state.copyWith(
       isInitialized: true,
       currentLocale: existsNotEmpty(defaultLang) ? Locale(defaultLang!) : null,
@@ -44,9 +45,5 @@ class L10n extends _$L10n {
     // Se actualiza el idioma
     await context.setLocale(locale);
     state = state.copyWith(currentLocale: locale);
-
-    // Se recarga el token de autenticación para que se actualice el idioma
-    final String accessToken = ref.read(authProvider).accessToken;
-    await ref.read(gQLClientProvider.notifier).setToken(accessToken);
   }
 }

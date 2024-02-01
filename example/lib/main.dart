@@ -1,7 +1,7 @@
 import 'package:flutter_kit/flutter_kit.dart';
 import 'package:flutter_kit/models/auth_mode.dart';
 import 'package:flutter/material.dart';
-import 'package:riverpod101/utils/router.dart';
+import 'package:fk_example/utils/router.dart';
 
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();

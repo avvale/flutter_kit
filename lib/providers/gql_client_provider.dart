@@ -1,4 +1,5 @@
 import 'package:flutter_kit/models/state/gql_client_state.dart';
+import 'package:flutter_kit/providers/auth_provider.dart';
 import 'package:flutter_kit/providers/l10n_provider.dart';
 import 'package:flutter_kit/utils/debugger.dart';
 import 'package:flutter_kit/utils/helpers.dart';
@@ -23,12 +24,28 @@ class GQLClient extends _$GQLClient {
   }
 
   /// Inicializa el servicio de red
-  Future<void> initialize<T>({
+  void initialize<T>({
     required String apiUrl,
     String? basicAuthToken,
     Policies? gqlPolicies,
     String? authTokenPrefix,
-  }) async {
+  }) {
+    if (state.isInitialized) {
+      return;
+    }
+
+    ref.listen(l10nProvider, (previous, next) {
+      if (previous?.currentLocale != next.currentLocale) {
+        setToken();
+      }
+    });
+
+    ref.listen(authProvider, (previous, next) {
+      if (previous?.accessToken != next.accessToken) {
+        setToken();
+      }
+    });
+
     state = state.copyWith(
       isInitialized: true,
       apiUrl: apiUrl,
@@ -50,11 +67,16 @@ class GQLClient extends _$GQLClient {
     );
   }
 
-  Future<void> setToken(String? token) async {
-    Debugger.log('Set auth token', token);
-
+  Future<void> setToken() async {
     final String timezone = await FlutterTimezone.getLocalTimezone();
     final String? lang = ref.read(l10nProvider).currentLocale?.languageCode;
+    final String token = ref.read(authProvider).accessToken;
+
+    Debugger.log('Set auth token', {
+      'Token': token,
+      'Timezone': timezone,
+      'Lang': lang,
+    });
 
     if (existsNotEmpty(token)) {
       state = state.copyWith(
