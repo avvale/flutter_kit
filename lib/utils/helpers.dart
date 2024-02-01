@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_kit/models/gql_model.dart';
 import 'package:flutter_kit/models/router.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
 import 'package:go_router/go_router.dart';
@@ -140,4 +141,28 @@ GoRouter generateRouter(FkRouter fkRouter, FkAuthState authState) {
     errorPageBuilder: fkRouter.errorPageBuilder,
     errorBuilder: fkRouter.errorBuilder,
   );
+}
+
+String composeRequest(
+  GQLModel baseModel, {
+  bool addModelName = true,
+  List<String>? includes,
+}) {
+  String request = '';
+
+  if (addModelName) {
+    request += '${baseModel.name} {\n';
+  }
+
+  request += baseModel.fields.join('\n');
+
+  if (includes != null && includes.isNotEmpty) {
+    request += '\n${includes.join('\n')}';
+  }
+
+  if (addModelName) {
+    request += '\n}';
+  }
+
+  return request;
 }

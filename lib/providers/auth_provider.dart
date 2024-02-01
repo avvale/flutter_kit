@@ -2,6 +2,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_kit/models/auth_mode.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
 import 'package:flutter_kit/providers/network_provider.dart';
+import 'package:flutter_kit/src/utils/consts.dart';
 import 'package:flutter_kit/utils/debugger.dart';
 import 'package:flutter_kit/utils/toast.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -36,13 +37,13 @@ class Auth extends _$Auth {
   Future<bool> initialize() async {
     final secureValues = await _secureStorage.readAll();
 
-    if (secureValues['fk_accessToken'] != null &&
-        secureValues['fk_refreshToken'] != null) {
+    if (secureValues[accessTokenKey] != null &&
+        secureValues[refreshTokenKey] != null) {
       await _setNetworkAuthToken(
         state.copyWith(
           isInitialized: true,
-          accessToken: secureValues['fk_accessToken'],
-          refreshToken: secureValues['fk_refreshToken'],
+          accessToken: secureValues[accessTokenKey],
+          refreshToken: secureValues[refreshTokenKey],
         ),
       );
 
@@ -118,11 +119,11 @@ class Auth extends _$Auth {
           Debugger.log('Login OAuth data', oAuthData);
 
           await _secureStorage.write(
-            key: 'fk_accessToken',
+            key: accessTokenKey,
             value: oAuthData['accessToken'],
           );
           await _secureStorage.write(
-            key: 'fk_refreshToken',
+            key: refreshTokenKey,
             value: oAuthData['refreshToken'],
           );
 
@@ -165,11 +166,11 @@ class Auth extends _$Auth {
     EasyLoading.show();
 
     await _secureStorage.write(
-      key: 'fk_accessToken',
+      key: accessTokenKey,
       value: accessToken,
     );
     await _secureStorage.write(
-      key: 'fk_refreshToken',
+      key: refreshTokenKey,
       value: refreshToken,
     );
 
@@ -188,8 +189,8 @@ class Auth extends _$Auth {
   Future<void> logout() async {
     Debugger.log('Logout');
 
-    await _secureStorage.delete(key: 'fk_accessToken');
-    await _secureStorage.delete(key: 'fk_refreshToken');
+    await _secureStorage.delete(key: accessTokenKey);
+    await _secureStorage.delete(key: refreshTokenKey);
 
     await _setNetworkAuthToken(
       state.copyWith(accessToken: '', refreshToken: ''),
