@@ -225,14 +225,18 @@ class _AppWrapper extends ConsumerWidget {
   final String? title;
   final FkRouter router;
   final Color? primaryColor;
+  final Color? darkPrimaryColor;
   final ThemeData Function(BuildContext)? theme;
+  final ThemeData? Function(BuildContext)? darkTheme;
   final bool useLocalization;
 
   const _AppWrapper({
     this.title,
     required this.router,
     this.primaryColor,
+    this.darkPrimaryColor,
     this.theme,
+    this.darkTheme,
     required this.useLocalization,
   });
 
@@ -256,6 +260,9 @@ class _AppWrapper extends ConsumerWidget {
       theme: theme != null
           ? theme!(context).copyWith(primaryColor: primaryColor)
           : ThemeData(primaryColor: primaryColor),
+      darkTheme: darkTheme != null
+          ? darkTheme!(context)?.copyWith(primaryColor: darkPrimaryColor)
+          : ThemeData(primaryColor: darkPrimaryColor),
       scaffoldMessengerKey: rootScaffoldMessengerKey,
       locale: useLocalization ? context.locale : null,
       localizationsDelegates:
@@ -282,9 +289,11 @@ void fkRunApp<T>({
   /// The primary color for the application. It is defined separately from the
   /// theme to be able to use it in more specific areas like the loader.
   Color? primaryColor,
+  Color? darkPrimaryColor,
 
   /// The theme for the application.
   ThemeData Function(BuildContext)? theme,
+  ThemeData? Function(BuildContext)? darkTheme,
 
   /// The duration of the native splash screen.
   Duration? splashDuration,
@@ -409,7 +418,9 @@ void fkRunApp<T>({
               child: _AppWrapper(
                 title: title,
                 primaryColor: primaryColor,
+                darkPrimaryColor: darkPrimaryColor,
                 theme: theme,
+                darkTheme: darkTheme,
                 router: router,
                 useLocalization: useLocalization,
               ),

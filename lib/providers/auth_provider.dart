@@ -46,8 +46,8 @@ class Auth extends _$Auth {
     required T endpoint,
     bool useRefreshToken = false,
     FkAuthMode? authMode,
-    user = '',
-    pass = '',
+    String user = '',
+    String pass = '',
   }) async {
     EasyLoading.show();
 
