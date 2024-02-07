@@ -113,6 +113,8 @@ class _SafeAreaWrapper extends StatelessWidget {
 class Layout extends StatelessWidget {
   final Widget child;
 
+  final PreferredSizeWidget? appBar;
+
   /// The color of the [SystemUiOverlayStyle.statusBarColor] for this page.
   final Color? statusBarColor;
 
@@ -129,6 +131,7 @@ class Layout extends StatelessWidget {
   const Layout({
     super.key,
     required this.child,
+    this.appBar,
     this.statusBarColor,
     this.transparentStatusBar = false,
     this.statusBarForcedBrightness,
@@ -137,6 +140,19 @@ class Layout extends StatelessWidget {
     this.onPullToRefresh,
     this.onWillPop,
   });
+
+  PreferredSizeWidget? _getAppBar(BuildContext context) {
+    if (appBar != null) return appBar;
+
+    if (transparentStatusBar) return null;
+
+    return PreferredSize(
+      preferredSize: Size.zero,
+      child: Container(
+        color: statusBarColor ?? Theme.of(context).primaryColor,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,14 +165,7 @@ class Layout extends StatelessWidget {
         statusBarForcedBrightness: statusBarForcedBrightness,
         transparentStatusBar: transparentStatusBar,
         child: Scaffold(
-          appBar: transparentStatusBar
-              ? null
-              : PreferredSize(
-                  preferredSize: Size.zero,
-                  child: Container(
-                    color: statusBarColor ?? Theme.of(context).primaryColor,
-                  ),
-                ),
+          appBar: _getAppBar(context),
           body: _RefreshIndicatorWrapper(
             onRefresh: onPullToRefresh,
             child: _SafeAreaWrapper(
