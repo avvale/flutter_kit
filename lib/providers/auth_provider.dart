@@ -154,12 +154,12 @@ class Auth extends _$Auth {
       value: refreshToken,
     );
 
+    await Future.delayed(delay);
+
     state = state.copyWith(
       accessToken: accessToken,
       refreshToken: refreshToken,
     );
-
-    await Future.delayed(delay);
 
     EasyLoading.dismiss();
 
