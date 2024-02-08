@@ -150,10 +150,14 @@ class Network extends _$Network {
                           endpoint: state.authEndpoint,
                           useRefreshToken: true,
                         )) {
-                  return query(
-                    endpoint: endpoint,
-                    params: params,
-                    isRetry: true,
+                  // Retry asynchonously after login to allow gql listeners to refresh
+                  return Future.delayed(
+                    Duration.zero,
+                    () => query(
+                      endpoint: endpoint,
+                      params: params,
+                      isRetry: true,
+                    ),
                   );
                 }
                 break;
@@ -163,24 +167,34 @@ class Network extends _$Network {
                           endpoint: state.authEndpoint,
                           useRefreshToken: true,
                         )) {
-                  return query(
-                    endpoint: endpoint,
-                    params: params,
-                    isRetry: true,
+                  // Retry asynchonously after login to allow gql listeners to refresh
+                  return Future.delayed(
+                    Duration.zero,
+                    () => query(
+                      endpoint: endpoint,
+                      params: params,
+                      isRetry: true,
+                    ),
                   );
                 } else {
                   if (await ref.read(authProvider.notifier).login(
                         endpoint: state.authEndpoint,
                         authMode: authMode,
                       )) {
-                    return query(
-                      endpoint: endpoint,
-                      params: params,
-                      isRetry: true,
+                    // Retry asynchonously after login to allow gql listeners to refresh
+                    return Future.delayed(
+                      Duration.zero,
+                      () => query(
+                        endpoint: endpoint,
+                        params: params,
+                        isRetry: true,
+                      ),
                     );
                   }
                 }
+                break;
               default:
+                break;
             }
           }
         }
