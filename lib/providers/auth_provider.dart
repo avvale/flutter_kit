@@ -13,7 +13,7 @@ part 'auth_provider.g.dart';
 const _initialState = FkAuthState();
 const _secureStorage = FlutterSecureStorage();
 
-@riverpod
+@Riverpod(keepAlive: true)
 class Auth extends _$Auth {
   @override
   FkAuthState build() => _initialState;
