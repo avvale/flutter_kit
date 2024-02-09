@@ -11,7 +11,7 @@ part 'router_provider.g.dart';
 
 const _initialState = FkRouterState();
 
-@riverpod
+@Riverpod(keepAlive: true)
 class Router extends _$Router {
   @override
   FkRouterState build() => _initialState;

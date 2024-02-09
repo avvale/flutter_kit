@@ -18,7 +18,7 @@ enum FkRequestType {
 
 const _initialState = FkNetworkState();
 
-@riverpod
+@Riverpod(keepAlive: true)
 class Network extends _$Network {
   @override
   FkNetworkState build() => _initialState;

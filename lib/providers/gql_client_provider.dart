@@ -11,7 +11,7 @@ part 'gql_client_provider.g.dart';
 
 const _initialState = FkGQLClientState();
 
-@riverpod
+@Riverpod(keepAlive: true)
 class GQLClient extends _$GQLClient {
   @override
   FkGQLClientState build() => _initialState;

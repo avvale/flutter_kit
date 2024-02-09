@@ -9,7 +9,7 @@ part 'l10n_provider.g.dart';
 
 const _initialState = FkL10nState();
 
-@riverpod
+@Riverpod(keepAlive: true)
 class L10n extends _$L10n {
   @override
   FkL10nState build() => _initialState;
