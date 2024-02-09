@@ -221,6 +221,23 @@ class _AuthWrapper extends StatelessWidget {
   }
 }
 
+class _EagerInitialization extends ConsumerWidget {
+  final Widget child;
+  final void Function(WidgetRef)? eagerlyInitializeProviders;
+
+  const _EagerInitialization({
+    required this.child,
+    this.eagerlyInitializeProviders,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    eagerlyInitializeProviders?.call(ref);
+
+    return child;
+  }
+}
+
 class _AppWrapper extends ConsumerWidget {
   final String? title;
   final FkRouter router;
@@ -229,6 +246,7 @@ class _AppWrapper extends ConsumerWidget {
   final ThemeData Function(BuildContext)? theme;
   final ThemeData? Function(BuildContext)? darkTheme;
   final bool useLocalization;
+  final void Function(WidgetRef)? eagerlyInitializeProviders;
 
   const _AppWrapper({
     this.title,
@@ -238,6 +256,7 @@ class _AppWrapper extends ConsumerWidget {
     this.theme,
     this.darkTheme,
     required this.useLocalization,
+    this.eagerlyInitializeProviders,
   });
 
   @override
@@ -253,27 +272,30 @@ class _AppWrapper extends ConsumerWidget {
       return const Space();
     }
 
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      title: title ?? 'Flutter Kit',
-      color: primaryColor,
-      theme: theme != null
-          ? theme!(context).copyWith(primaryColor: primaryColor)
-          : ThemeData(primaryColor: primaryColor),
-      darkTheme: darkTheme != null
-          ? darkTheme!(context)?.copyWith(primaryColor: darkPrimaryColor)
-          : ThemeData(primaryColor: darkPrimaryColor),
-      scaffoldMessengerKey: rootScaffoldMessengerKey,
-      locale: useLocalization ? context.locale : null,
-      localizationsDelegates:
-          useLocalization ? context.localizationDelegates : null,
-      supportedLocales: useLocalization
-          ? context.supportedLocales
-          : const <Locale>[Locale('en', 'US')],
-      builder: EasyLoading.init(),
-      routeInformationParser: router.router?.routeInformationParser,
-      routerDelegate: router.router?.routerDelegate,
-      routeInformationProvider: router.router?.routeInformationProvider,
+    return _EagerInitialization(
+      eagerlyInitializeProviders: eagerlyInitializeProviders,
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        title: title ?? 'Flutter Kit',
+        color: primaryColor,
+        theme: theme != null
+            ? theme!(context).copyWith(primaryColor: primaryColor)
+            : ThemeData(primaryColor: primaryColor),
+        darkTheme: darkTheme != null
+            ? darkTheme!(context)?.copyWith(primaryColor: darkPrimaryColor)
+            : ThemeData(primaryColor: darkPrimaryColor),
+        scaffoldMessengerKey: rootScaffoldMessengerKey,
+        locale: useLocalization ? context.locale : null,
+        localizationsDelegates:
+            useLocalization ? context.localizationDelegates : null,
+        supportedLocales: useLocalization
+            ? context.supportedLocales
+            : const <Locale>[Locale('en', 'US')],
+        builder: EasyLoading.init(),
+        routeInformationParser: router.router?.routeInformationParser,
+        routerDelegate: router.router?.routerDelegate,
+        routeInformationProvider: router.router?.routeInformationProvider,
+      ),
     );
   }
 }
@@ -347,6 +369,10 @@ void fkRunApp<T>({
   /// The supported locales. If localization is used, this parameter is
   /// required.
   List<Locale>? supportedLocales,
+
+  /// The supported locales. If localization is used, this parameter is
+  /// required.
+  void Function(WidgetRef)? eagerlyInitializeProviders,
 }) async {
   assert(
     useLocalization == false ||
@@ -423,6 +449,7 @@ void fkRunApp<T>({
                 darkTheme: darkTheme,
                 router: router,
                 useLocalization: useLocalization,
+                eagerlyInitializeProviders: eagerlyInitializeProviders,
               ),
             ),
           ),
