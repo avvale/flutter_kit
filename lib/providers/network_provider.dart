@@ -308,10 +308,6 @@ class Network extends _$Network {
     );
   }
 
-  void changeAuthMode(FkAuthMode authMode) {
-    state = state.copyWith(authMode: authMode);
-  }
-
   /// Realiza una petición GraphQL
   Future<QueryResult> query<T>({
     bool useBasicAuth = false,
