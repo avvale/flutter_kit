@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
 import 'package:flutter_kit/models/state/router_state.dart';

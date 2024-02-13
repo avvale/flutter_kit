@@ -67,8 +67,9 @@ class Network extends _$Network {
       // Authentication error
       else if (statusCode == '401') {
         ref.read(authProvider.notifier).logout();
+        final authMode = ref.read(authProvider).authMode;
 
-        switch (state.authMode) {
+        switch (authMode) {
           case FkDisabledAuthMode():
             errorMsg = 'No tienes permisos para realizar esta acción';
             break;
@@ -139,7 +140,7 @@ class Network extends _$Network {
           if (hasAuthError && state.authEndpoint != null) {
             Debugger.log('Authentication error, trying to reload token');
 
-            final FkAuthMode authMode = state.authMode;
+            final FkAuthMode authMode = ref.read(authProvider).authMode;
 
             switch (authMode) {
               case FkDisabledAuthMode():
@@ -292,7 +293,6 @@ class Network extends _$Network {
   void initialize<T>({
     Map<T, String> apiRepository = const {},
     T? authEndpoint,
-    FkAuthMode authMode = const FkDisabledAuthMode(),
     Map<String, String>? apiMappedErrorCodes,
   }) {
     if (state.isInitialized) {
@@ -302,14 +302,9 @@ class Network extends _$Network {
     state = state.copyWith(
       isInitialized: true,
       apiRepository: apiRepository,
-      authMode: authMode,
       authEndpoint: authEndpoint,
       apiMappedErrorCodes: apiMappedErrorCodes,
     );
-  }
-
-  void changeAuthMode(FkAuthMode authMode) {
-    state = state.copyWith(authMode: authMode);
   }
 
   /// Realiza una petición GraphQL

@@ -20,7 +20,9 @@ class Auth extends _$Auth {
 
   /// Comprueba si existe una sesión guardada. Si la hay, la carga en el estado
   /// de la aplicación y lo inicializa. Si no la hay, solo lo inicializa.
-  Future<void> initialize() async {
+  Future<void> initialize({
+    required FkAuthMode authMode,
+  }) async {
     if (state.isInitialized) {
       return;
     }
@@ -31,11 +33,12 @@ class Auth extends _$Auth {
         secureValues[refreshTokenKey] != null) {
       state = state.copyWith(
         isInitialized: true,
+        authMode: authMode,
         accessToken: secureValues[accessTokenKey],
         refreshToken: secureValues[refreshTokenKey],
       );
     } else {
-      state = state.copyWith(isInitialized: true);
+      state = state.copyWith(isInitialized: true, authMode: authMode);
     }
   }
 
@@ -53,6 +56,10 @@ class Auth extends _$Auth {
       accessToken: accessToken,
       refreshToken: refreshToken,
     );
+  }
+
+  void changeAuthMode(FkAuthMode authMode) {
+    state = state.copyWith(authMode: authMode);
   }
 
   /// Inicia sesión con las credenciales introducidas. Si se ha iniciado sesión

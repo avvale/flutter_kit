@@ -128,7 +128,6 @@ class _NetworkWrapper<T> extends ConsumerWidget {
   final Map<String, String>? apiMappedErrorCodes;
   final Map<T, String> apiRepository;
   final T? authEndpoint;
-  final FkAuthMode authMode;
   final String authTokenPrefix;
 
   const _NetworkWrapper({
@@ -140,7 +139,6 @@ class _NetworkWrapper<T> extends ConsumerWidget {
     required this.apiMappedErrorCodes,
     required this.apiRepository,
     required this.authEndpoint,
-    required this.authMode,
     required this.authTokenPrefix,
   });
 
@@ -169,7 +167,6 @@ class _NetworkWrapper<T> extends ConsumerWidget {
                 apiRepository: apiRepository,
                 authEndpoint: authEndpoint,
                 apiMappedErrorCodes: apiMappedErrorCodes,
-                authMode: authMode,
               ),
         );
       }
@@ -206,7 +203,9 @@ class _AuthWrapper extends StatelessWidget {
             if (!auth.isInitialized) {
               Future.delayed(
                 Duration.zero,
-                () => ref.read(authProvider.notifier).initialize(),
+                () => ref.read(authProvider.notifier).initialize(
+                      authMode: authMode,
+                    ),
               );
 
               return const Space();
@@ -437,7 +436,6 @@ void fkRunApp<T>({
             apiRepository: apiRepository,
             authEndpoint: authEndpoint,
             apiMappedErrorCodes: apiMappedErrorCodes,
-            authMode: authMode,
             authTokenPrefix: authTokenPrefix,
             child: _AuthWrapper(
               authMode: authMode,
