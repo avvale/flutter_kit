@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_kit/models/gql_model.dart';
 import 'package:flutter_kit/models/router.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
+import 'package:flutter_kit/models/state/router_state.dart';
 import 'package:go_router/go_router.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 Brightness computeColorBrightness(Color color, {bool reverse = false}) {
   final brightness = ThemeData.estimateBrightnessForColor(color);
@@ -127,7 +129,11 @@ List<RouteBase> generateRoutes(
   }).toList();
 }
 
-GoRouter generateRouter(FkRouter fkRouter, ValueNotifier<FkAuthState> auth) {
+GoRouter generateRouter(
+  FkRouter fkRouter,
+  ValueNotifier<FkAuthState> auth,
+  NotifierProviderRef<FkRouterState> ref,
+) {
   return GoRouter(
     navigatorKey: fkRouter.navigatorKey,
     initialLocation: fkRouter.initialLocation,
@@ -136,6 +142,7 @@ GoRouter generateRouter(FkRouter fkRouter, ValueNotifier<FkAuthState> auth) {
       context,
       state,
       auth,
+      ref,
     ),
     refreshListenable: auth,
     onException: fkRouter.onException,

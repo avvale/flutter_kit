@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
+import 'package:flutter_kit/models/state/router_state.dart';
 import 'package:go_router/go_router.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 abstract class FkRouteBase {}
 
@@ -69,6 +71,7 @@ class FkRouter {
     BuildContext,
     GoRouterState,
     ValueNotifier<FkAuthState>,
+    NotifierProviderRef<FkRouterState>,
   )? redirect;
   final void Function(BuildContext, GoRouterState, GoRouter)? onException;
   final Page<dynamic> Function(BuildContext, GoRouterState)? errorPageBuilder;

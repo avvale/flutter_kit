@@ -1,7 +1,9 @@
 import 'package:flutter_kit/models/router.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
+import 'package:flutter_kit/models/state/router_state.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fk_example/screens/home_screen.dart';
 import 'package:fk_example/screens/login_screen.dart';
@@ -221,6 +223,7 @@ final appRouter = FkRouter(
     BuildContext context,
     GoRouterState state,
     ValueNotifier<FkAuthState> auth,
+    NotifierProviderRef<FkRouterState> ref,
   ) {
     final loggedIn = existsNotEmpty(auth.value.accessToken);
     final loggingIn = state.matchedLocation == LoginScreen.routeName ||

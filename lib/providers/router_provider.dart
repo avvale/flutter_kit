@@ -36,7 +36,7 @@ class Router extends _$Router {
 
     state = state.copyWith(
       isInitialized: true,
-      router: generateRouter(router, isAuth),
+      router: generateRouter(router, isAuth, ref),
     );
   }
 }
