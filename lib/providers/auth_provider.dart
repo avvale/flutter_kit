@@ -39,6 +39,22 @@ class Auth extends _$Auth {
     }
   }
 
+  Future<void> _setCredentials({
+    required String accessToken,
+    required String refreshToken,
+    bool remember = true,
+  }) async {
+    if (remember) {
+      await _secureStorage.write(key: accessTokenKey, value: accessToken);
+      await _secureStorage.write(key: refreshTokenKey, value: refreshToken);
+    }
+
+    state = state.copyWith(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    );
+  }
+
   /// Inicia sesión con las credenciales introducidas. Si se ha iniciado sesión
   /// correctamente, guarda los tokens en el almacenamiento seguro y los carga
   /// en el estado de la aplicación.
@@ -48,6 +64,7 @@ class Auth extends _$Auth {
     FkAuthMode? authMode,
     String user = '',
     String pass = '',
+    bool remember = true,
   }) async {
     EasyLoading.show();
 
@@ -100,18 +117,10 @@ class Auth extends _$Auth {
         if (oAuthData != null) {
           Debugger.log('Login OAuth data', oAuthData);
 
-          await _secureStorage.write(
-            key: accessTokenKey,
-            value: oAuthData['accessToken'],
-          );
-          await _secureStorage.write(
-            key: refreshTokenKey,
-            value: oAuthData['refreshToken'],
-          );
-
-          state = state.copyWith(
+          _setCredentials(
             accessToken: oAuthData['accessToken'],
             refreshToken: oAuthData['refreshToken'],
+            remember: remember,
           );
 
           return true;
@@ -141,24 +150,17 @@ class Auth extends _$Auth {
   Future<bool> debugLogin<T>({
     String accessToken = 'accessToken',
     String refreshToken = 'refreshToken',
+    bool remember = true,
     Duration delay = const Duration(seconds: 1),
   }) async {
     EasyLoading.show();
 
-    await _secureStorage.write(
-      key: accessTokenKey,
-      value: accessToken,
-    );
-    await _secureStorage.write(
-      key: refreshTokenKey,
-      value: refreshToken,
-    );
-
     await Future.delayed(delay);
 
-    state = state.copyWith(
+    _setCredentials(
       accessToken: accessToken,
       refreshToken: refreshToken,
+      remember: remember,
     );
 
     EasyLoading.dismiss();
