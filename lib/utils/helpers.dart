@@ -174,3 +174,9 @@ String composeRequest(
 
   return request;
 }
+
+List<T> cleanNullsfromList<T>(Iterable<T?>? list) {
+  if (list == null) return [];
+
+  return list.where((e) => e != null).cast<T>().toList();
+}

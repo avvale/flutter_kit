@@ -122,6 +122,7 @@ class Layout extends StatelessWidget {
   /// If true, [statusBarColor] will be ignored.
   final bool transparentStatusBar;
   final Brightness? statusBarForcedBrightness;
+  final Color? backgroundColor;
   final bool safeArea;
   final EdgeInsetsGeometry padding;
   final Future<void> Function()? onPullToRefresh;
@@ -135,6 +136,7 @@ class Layout extends StatelessWidget {
     this.statusBarColor,
     this.transparentStatusBar = false,
     this.statusBarForcedBrightness,
+    this.backgroundColor,
     this.safeArea = true,
     this.padding = const EdgeInsets.all(0),
     this.onPullToRefresh,
@@ -166,6 +168,7 @@ class Layout extends StatelessWidget {
         transparentStatusBar: transparentStatusBar,
         child: Scaffold(
           appBar: _getAppBar(context),
+          backgroundColor: backgroundColor,
           body: _RefreshIndicatorWrapper(
             onRefresh: onPullToRefresh,
             child: _SafeAreaWrapper(
