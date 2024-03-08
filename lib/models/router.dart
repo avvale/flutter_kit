@@ -9,6 +9,7 @@ abstract class FkRouteBase {}
 class FkRoute extends FkRouteBase {
   final String path;
   final String? name;
+  final GlobalKey<NavigatorState>? parentNavigatorKey;
   final Widget Function(BuildContext, GoRouterState)? builder;
   Page<dynamic> Function(BuildContext, GoRouterState)? pageBuilder;
   FutureOr<String?> Function(
@@ -21,6 +22,7 @@ class FkRoute extends FkRouteBase {
   FkRoute({
     required this.path,
     this.name,
+    this.parentNavigatorKey,
     this.builder,
     this.pageBuilder,
     this.redirect,
@@ -44,6 +46,7 @@ class FkRouteTreeBranch {
 
 class FkRouteTree extends FkRouteBase {
   final List<FkRouteTreeBranch> branches;
+  final GlobalKey<NavigatorState>? parentNavigatorKey;
   final Widget Function(
     BuildContext,
     GoRouterState,
@@ -57,6 +60,7 @@ class FkRouteTree extends FkRouteBase {
 
   FkRouteTree({
     required this.branches,
+    this.parentNavigatorKey,
     this.builder,
     this.pageBuilder,
   });

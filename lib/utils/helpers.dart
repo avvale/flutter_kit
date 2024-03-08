@@ -108,6 +108,7 @@ List<RouteBase> generateRoutes(
       return GoRoute(
         path: route.path,
         name: route.name,
+        parentNavigatorKey: route.parentNavigatorKey,
         builder: route.builder,
         pageBuilder: route.pageBuilder,
         redirect: (context, state) => route.redirect?.call(
@@ -120,6 +121,7 @@ List<RouteBase> generateRoutes(
     } else if (route is FkRouteTree) {
       return StatefulShellRoute.indexedStack(
         branches: generateBranches(route.branches, authState),
+        parentNavigatorKey: route.parentNavigatorKey,
         builder: route.builder,
         pageBuilder: route.pageBuilder,
       );

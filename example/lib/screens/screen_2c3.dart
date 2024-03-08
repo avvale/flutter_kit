@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class Screen2c3 extends StatelessWidget {
   static const String routeName = 'screen2c3';
@@ -14,9 +15,7 @@ class Screen2c3 extends StatelessWidget {
             child: Text('Screen 2c3'),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+            onPressed: context.pop,
             child: const Text('Volver'),
           ),
         ],

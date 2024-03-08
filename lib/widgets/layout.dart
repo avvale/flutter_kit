@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_kit/utils/helpers.dart';
+import 'package:go_router/go_router.dart';
 
 class _PopScopeWrapper extends StatelessWidget {
   final Future<bool> Function()? onWillPop;
@@ -21,7 +22,7 @@ class _PopScopeWrapper extends StatelessWidget {
         if (didPop) return;
 
         if (await onWillPop!() && context.mounted) {
-          Navigator.of(context).pop();
+          context.pop();
         }
       },
       child: child,
