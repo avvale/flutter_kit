@@ -115,6 +115,7 @@ class Layout extends StatelessWidget {
   final Widget child;
 
   final PreferredSizeWidget? appBar;
+  final Widget? floatingActionButton;
 
   /// The color of the [SystemUiOverlayStyle.statusBarColor] for this page.
   final Color? statusBarColor;
@@ -134,6 +135,7 @@ class Layout extends StatelessWidget {
     super.key,
     required this.child,
     this.appBar,
+    this.floatingActionButton,
     this.statusBarColor,
     this.transparentStatusBar = false,
     this.statusBarForcedBrightness,
@@ -169,6 +171,7 @@ class Layout extends StatelessWidget {
         transparentStatusBar: transparentStatusBar,
         child: Scaffold(
           appBar: _getAppBar(context),
+          floatingActionButton: floatingActionButton,
           backgroundColor: backgroundColor,
           body: _RefreshIndicatorWrapper(
             onRefresh: onPullToRefresh,
