@@ -129,6 +129,7 @@ class _NetworkWrapper<T> extends ConsumerWidget {
   final Map<T, String> apiRepository;
   final T? authEndpoint;
   final String authTokenPrefix;
+  final Map<String, dynamic>? headers;
 
   const _NetworkWrapper({
     super.key,
@@ -140,6 +141,7 @@ class _NetworkWrapper<T> extends ConsumerWidget {
     required this.apiRepository,
     required this.authEndpoint,
     required this.authTokenPrefix,
+    required this.headers,
   });
 
   @override
@@ -156,6 +158,7 @@ class _NetworkWrapper<T> extends ConsumerWidget {
                 basicAuthToken: basicAuthToken,
                 gqlPolicies: gqlPolicies,
                 authTokenPrefix: authTokenPrefix,
+                headers: headers,
               ),
         );
       }
@@ -334,6 +337,9 @@ void fkRunApp<T>({
   /// The GraphQL policies.
   Policies? gqlPolicies,
 
+  /// Custom headers
+  Map<String, dynamic>? headers,
+
   /// The API repository.
   /// This is a map of the API endpoints and their respective names.
   /// [T] is the type of the endpoint name (commonly an enum)
@@ -437,6 +443,7 @@ void fkRunApp<T>({
             authEndpoint: authEndpoint,
             apiMappedErrorCodes: apiMappedErrorCodes,
             authTokenPrefix: authTokenPrefix,
+            headers: headers,
             child: _AuthWrapper(
               authMode: authMode,
               child: _AppWrapper(

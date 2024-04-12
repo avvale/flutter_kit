@@ -6,6 +6,7 @@ class FkGQLClientState {
   final GraphQLClient? gqlClientBasicAuth;
   final String? apiUrl;
   final String? authTokenPrefix;
+  final Map<String, dynamic>? headers;
 
   const FkGQLClientState({
     this.isInitialized = false,
@@ -13,6 +14,7 @@ class FkGQLClientState {
     this.gqlClientBasicAuth,
     this.apiUrl,
     this.authTokenPrefix,
+    this.headers,
   });
 
   FkGQLClientState copyWith({
@@ -21,6 +23,7 @@ class FkGQLClientState {
     GraphQLClient? gqlClientBasicAuth,
     String? apiUrl,
     String? authTokenPrefix,
+    Map<String, dynamic>? headers,
   }) {
     return FkGQLClientState(
       isInitialized: isInitialized ?? this.isInitialized,
@@ -28,6 +31,7 @@ class FkGQLClientState {
       gqlClientBasicAuth: gqlClientBasicAuth ?? this.gqlClientBasicAuth,
       apiUrl: apiUrl ?? this.apiUrl,
       authTokenPrefix: authTokenPrefix ?? this.authTokenPrefix,
+      headers: headers ?? this.headers,
     );
   }
 }

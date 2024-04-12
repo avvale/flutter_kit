@@ -29,6 +29,7 @@ class GQLClient extends _$GQLClient {
     String? basicAuthToken,
     Policies? gqlPolicies,
     String? authTokenPrefix,
+    Map<String, dynamic>? headers,
   }) {
     if (state.isInitialized) {
       return;
@@ -64,6 +65,7 @@ class GQLClient extends _$GQLClient {
           mutate: gqlPolicies,
         ),
       ),
+      headers: headers,
     );
   }
 
@@ -88,6 +90,7 @@ class GQLClient extends _$GQLClient {
               headers: {
                 'X-Timezone': timezone,
                 if (existsNotEmpty(lang)) 'content-language': lang!,
+                ...state.headers ?? {},
               },
             ),
           ),
@@ -100,6 +103,7 @@ class GQLClient extends _$GQLClient {
             headers: {
               'X-Timezone': timezone,
               if (existsNotEmpty(lang)) 'content-language': lang!,
+              ...state.headers ?? {},
             },
           ),
         ),
