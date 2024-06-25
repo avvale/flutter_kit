@@ -98,15 +98,13 @@ class _L10nWrapper extends ConsumerWidget {
       fallbackLocale: Locale(defaultLang!),
       child: Consumer(
         builder: (context, ref, cChild) {
-          final l10n = ref.watch(l10nProvider);
+          final l10nState = ref.watch(l10nProvider);
+          final l10nNotifier = ref.read(l10nProvider.notifier);
 
-          if (!l10n.isInitialized) {
-            Future.delayed(
-              Duration.zero,
-              () => ref
-                  .read(l10nProvider.notifier)
-                  .initialize(defaultLang: context.locale.languageCode),
-            );
+          if (!l10nState.isInitialized) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              l10nNotifier.initialize(defaultLang: context.locale.languageCode);
+            });
 
             return const Space();
           }
@@ -146,34 +144,38 @@ class _NetworkWrapper<T> extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final gql = ref.watch(gQLClientProvider);
-    final network = ref.watch(networkProvider);
+    final gqlState = ref.watch(gQLClientProvider);
+    final gqlNotifier = ref.read(gQLClientProvider.notifier);
 
-    if (!network.isInitialized || !gql.isInitialized) {
-      if (!gql.isInitialized) {
-        Future.delayed(
-          Duration.zero,
-          () => ref.read(gQLClientProvider.notifier).initialize(
-                apiUrl: apiUrl,
-                basicAuthToken: basicAuthToken,
-                gqlPolicies: gqlPolicies,
-                authTokenPrefix: authTokenPrefix,
-                headers: headers,
-              ),
+    final networkState = ref.watch(networkProvider);
+    final networkNotifier = ref.read(networkProvider.notifier);
+
+    if (!networkState.isInitialized || !gqlState.isInitialized) {
+      if (!gqlState.isInitialized) {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) {
+            gqlNotifier.initialize(
+              apiUrl: apiUrl,
+              basicAuthToken: basicAuthToken,
+              gqlPolicies: gqlPolicies,
+              authTokenPrefix: authTokenPrefix,
+              headers: headers,
+            );
+          },
         );
       }
 
-      if (!network.isInitialized) {
-        Future.delayed(
-          Duration.zero,
-          () => ref.read(networkProvider.notifier).initialize(
-                apiRepository: apiRepository,
-                authEndpoint: authEndpoint,
-                apiMappedErrorCodes: apiMappedErrorCodes,
-              ),
+      if (!networkState.isInitialized) {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) {
+            networkNotifier.initialize(
+              apiRepository: apiRepository,
+              authEndpoint: authEndpoint,
+              apiMappedErrorCodes: apiMappedErrorCodes,
+            );
+          },
         );
       }
-
       return const Space();
     }
 
@@ -201,14 +203,16 @@ class _AuthWrapper extends StatelessWidget {
       case FkAutoAuthMode():
         return Consumer(
           builder: (context, ref, cChild) {
-            final auth = ref.watch(authProvider);
+            final authState = ref.watch(authProvider);
+            final authNotifier = ref.read(authProvider.notifier);
 
-            if (!auth.isInitialized) {
-              Future.delayed(
-                Duration.zero,
-                () => ref.read(authProvider.notifier).initialize(
-                      authMode: authMode,
-                    ),
+            if (!authState.isInitialized) {
+              WidgetsBinding.instance.addPostFrameCallback(
+                (_) {
+                  authNotifier.initialize(
+                    authMode: authMode,
+                  );
+                },
               );
 
               return const Space();
@@ -263,13 +267,13 @@ class _AppWrapper extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(routerProvider);
+    final routerState = ref.watch(routerProvider);
+    final routerNotifier = ref.read(routerProvider.notifier);
 
-    if (!router.isInitialized) {
-      Future.delayed(
-        Duration.zero,
-        () => ref.read(routerProvider.notifier).initialize(this.router),
-      );
+    if (!routerState.isInitialized) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        routerNotifier.initialize(router);
+      });
 
       return const Space();
     }
@@ -293,10 +297,9 @@ class _AppWrapper extends ConsumerWidget {
         supportedLocales: useLocalization
             ? context.supportedLocales
             : const <Locale>[Locale('en', 'US')],
-        builder: EasyLoading.init(),
-        routeInformationParser: router.router?.routeInformationParser,
-        routerDelegate: router.router?.routerDelegate,
-        routeInformationProvider: router.router?.routeInformationProvider,
+        routeInformationParser: routerState.router?.routeInformationParser,
+        routerDelegate: routerState.router?.routerDelegate,
+        routeInformationProvider: routerState.router?.routeInformationProvider,
       ),
     );
   }
