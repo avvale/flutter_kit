@@ -297,6 +297,7 @@ class _AppWrapper extends ConsumerWidget {
         supportedLocales: useLocalization
             ? context.supportedLocales
             : const <Locale>[Locale('en', 'US')],
+        builder: EasyLoading.init(),
         routeInformationParser: routerState.router?.routeInformationParser,
         routerDelegate: routerState.router?.routerDelegate,
         routeInformationProvider: routerState.router?.routeInformationProvider,
