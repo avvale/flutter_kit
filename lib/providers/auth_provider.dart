@@ -94,7 +94,7 @@ class Auth extends _$Auth {
         case FkAutoAuthMode():
           params['payload'] = {
             'grantType': 'CLIENT_CREDENTIALS',
-            'email': authMode.user,
+            'username': authMode.user,
             'clientSecret': authMode.pass,
           };
       }
