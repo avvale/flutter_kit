@@ -106,7 +106,11 @@ class _L10nWrapper extends ConsumerWidget {
               l10nNotifier.initialize(defaultLang: context.locale.languageCode);
             });
 
-            return const Space();
+            return Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: Colors.red,
+            );
           }
 
           return child;
@@ -176,7 +180,11 @@ class _NetworkWrapper<T> extends ConsumerWidget {
           },
         );
       }
-      return const Space();
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Colors.blue,
+      );
     }
 
     return child;
@@ -215,7 +223,11 @@ class _AuthWrapper extends StatelessWidget {
                 },
               );
 
-              return const Space();
+              return Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.yellow,
+              );
             }
 
             return child;
@@ -275,7 +287,11 @@ class _AppWrapper extends ConsumerWidget {
         routerNotifier.initialize(router);
       });
 
-      return const Space();
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Colors.green,
+      );
     }
 
     return _EagerInitialization(
