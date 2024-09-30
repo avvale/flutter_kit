@@ -1,6 +1,6 @@
 name: flutter_kit
 description: A new Flutter package project.
-version: 1.0.21
+version: 1.0.22
 homepage: https://github.com/Sethyrus/flutter_kit
 
 environment:
@@ -33,5 +33,3 @@ dev_dependencies:
   flutter_lints: ^4.0.0
   riverpod_generator: ^2.4.0
   riverpod_lint: ^2.3.10
-
-flutter:
