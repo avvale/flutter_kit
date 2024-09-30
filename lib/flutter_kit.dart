@@ -106,6 +106,7 @@ class _L10nWrapper extends ConsumerWidget {
               l10nNotifier.initialize(defaultLang: context.locale.languageCode);
             });
 
+            // TODO - DEBUG BLACK SCREEN
             return Container(
               width: double.infinity,
               height: double.infinity,
@@ -180,6 +181,8 @@ class _NetworkWrapper<T> extends ConsumerWidget {
           },
         );
       }
+
+      // TODO - DEBUG BLACK SCREEN
       return Container(
         width: double.infinity,
         height: double.infinity,
@@ -223,6 +226,7 @@ class _AuthWrapper extends StatelessWidget {
                 },
               );
 
+              // TODO - DEBUG BLACK SCREEN
               return Container(
                 width: double.infinity,
                 height: double.infinity,
@@ -287,6 +291,7 @@ class _AppWrapper extends ConsumerWidget {
         routerNotifier.initialize(router);
       });
 
+      // TODO - DEBUG BLACK SCREEN
       return Container(
         width: double.infinity,
         height: double.infinity,
