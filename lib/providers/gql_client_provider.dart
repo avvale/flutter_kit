@@ -52,12 +52,14 @@ class GQLClient extends _$GQLClient {
       apiUrl: apiUrl,
       authTokenPrefix: authTokenPrefix,
       gqlClientBasicAuth: GraphQLClient(
+        queryRequestTimeout: const Duration(seconds: 30),
         link: AuthLink(getToken: () => basicAuthToken).concat(
           HttpLink('$apiUrl/graphql'),
         ),
         cache: GraphQLCache(),
       ),
       gqlClient: GraphQLClient(
+        queryRequestTimeout: const Duration(seconds: 30),
         link: HttpLink('$apiUrl/graphql'),
         cache: GraphQLCache(),
         defaultPolicies: DefaultPolicies(
