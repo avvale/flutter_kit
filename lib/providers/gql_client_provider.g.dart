@@ -6,7 +6,7 @@ part of 'gql_client_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$gQLClientHash() => r'020394b7061fe5423d755df6c10dfb19d013c0f1';
+String _$gQLClientHash() => r'49ede508f2348696aac8bbe1bf5d96ae20c5f5ce';
 
 /// See also [GQLClient].
 @ProviderFor(GQLClient)
