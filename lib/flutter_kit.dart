@@ -16,7 +16,7 @@ import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter_kit/widgets/space.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:graphql/client.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -127,7 +127,7 @@ class _NetworkWrapper<T> extends ConsumerWidget {
   final Widget child;
   final String apiUrl;
   final String? basicAuthToken;
-  final Policies? gqlPolicies;
+  final Policies gqlPolicies;
   final Map<String, String>? apiMappedErrorCodes;
   final Map<T, String> apiRepository;
   final T? authEndpoint;
@@ -463,7 +463,7 @@ void fkRunApp<T>({
           child: _NetworkWrapper(
             apiUrl: apiUrl,
             basicAuthToken: basicAuthToken,
-            gqlPolicies: gqlPolicies,
+            gqlPolicies: gqlPolicies ?? Policies(),
             apiRepository: apiRepository,
             authEndpoint: authEndpoint,
             apiMappedErrorCodes: apiMappedErrorCodes,

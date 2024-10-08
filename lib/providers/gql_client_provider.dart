@@ -4,7 +4,7 @@ import 'package:flutter_kit/providers/l10n_provider.dart';
 import 'package:flutter_kit/utils/debugger.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
-import 'package:graphql/client.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'gql_client_provider.g.dart';
