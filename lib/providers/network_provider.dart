@@ -6,7 +6,7 @@ import 'package:flutter_kit/providers/gql_client_provider.dart';
 import 'package:flutter_kit/utils/debugger.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter_kit/utils/toast.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'network_provider.g.dart';
