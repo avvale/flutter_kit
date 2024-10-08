@@ -84,7 +84,8 @@ class GQLClient extends _$GQLClient {
 
     if (existsNotEmpty(token)) {
       state = state.copyWith(
-        gqlClient: state.gqlClient?.copyWith(
+        gqlClient: GraphQLClient(
+          queryRequestTimeout: const Duration(seconds: 30),
           link: AuthLink(
             getToken: () => '${state.authTokenPrefix} $token',
           ).concat(
@@ -96,11 +97,14 @@ class GQLClient extends _$GQLClient {
               },
             ),
           ),
+          cache: GraphQLCache(),
+          defaultPolicies: state.gqlClient?.defaultPolicies,
         ),
       );
     } else {
       state = state.copyWith(
-        gqlClient: state.gqlClient?.copyWith(
+        gqlClient: GraphQLClient(
+          queryRequestTimeout: const Duration(seconds: 30),
           link: _baseHttpLink(
             headers: {
               'X-Timezone': timezone,
@@ -108,6 +112,8 @@ class GQLClient extends _$GQLClient {
               ...state.headers ?? {},
             },
           ),
+          cache: GraphQLCache(),
+          defaultPolicies: state.gqlClient?.defaultPolicies,
         ),
       );
     }
