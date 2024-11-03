@@ -1,5 +1,3 @@
-library flutter_kit;
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -106,12 +104,7 @@ class _L10nWrapper extends ConsumerWidget {
               l10nNotifier.initialize(defaultLang: context.locale.languageCode);
             });
 
-            // TODO - DEBUG BLACK SCREEN
-            return Container(
-              width: double.infinity,
-              height: double.infinity,
-              color: Colors.red,
-            );
+            return const Space();
           }
 
           return child;
@@ -182,12 +175,7 @@ class _NetworkWrapper<T> extends ConsumerWidget {
         );
       }
 
-      // TODO - DEBUG BLACK SCREEN
-      return Container(
-        width: double.infinity,
-        height: double.infinity,
-        color: Colors.blue,
-      );
+      return const Space();
     }
 
     return child;
@@ -226,12 +214,7 @@ class _AuthWrapper extends StatelessWidget {
                 },
               );
 
-              // TODO - DEBUG BLACK SCREEN
-              return Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: Colors.yellow,
-              );
+              return const Space();
             }
 
             return child;
@@ -291,12 +274,7 @@ class _AppWrapper extends ConsumerWidget {
         routerNotifier.initialize(router);
       });
 
-      // TODO - DEBUG BLACK SCREEN
-      return Container(
-        width: double.infinity,
-        height: double.infinity,
-        color: Colors.green,
-      );
+      return const Space();
     }
 
     return _EagerInitialization(

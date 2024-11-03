@@ -18,7 +18,7 @@ class _PopScopeWrapper extends StatelessWidget {
 
     return PopScope(
       canPop: false,
-      onPopInvoked: (bool didPop) async {
+      onPopInvokedWithResult: (bool didPop, result) async {
         if (didPop) return;
 
         if (await onWillPop!() && context.mounted) {

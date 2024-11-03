@@ -5,7 +5,7 @@ import 'package:flutter_kit/utils/debugger.dart';
 class _Drawer extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
-  const _Drawer({Key? key, required this.navigationShell}) : super(key: key);
+  const _Drawer({required this.navigationShell});
 
   void _goBranch(int index) {
     Debugger.log('_Drawer._goBranch: index=$index');

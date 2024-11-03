@@ -37,7 +37,7 @@ class Alert {
             actions.length,
             (index) => TextButton(
               style: ButtonStyle(
-                overlayColor: MaterialStateProperty.all(
+                overlayColor: WidgetStateProperty.all(
                   Colors.black.withOpacity(0.1),
                 ),
               ),
@@ -76,7 +76,7 @@ class Alert {
           actions: <Widget>[
             TextButton(
               style: ButtonStyle(
-                overlayColor: MaterialStateProperty.all(
+                overlayColor: WidgetStateProperty.all(
                   Colors.black.withOpacity(0.1),
                 ),
               ),
@@ -88,7 +88,7 @@ class Alert {
             ),
             TextButton(
               style: ButtonStyle(
-                overlayColor: MaterialStateProperty.all(
+                overlayColor: WidgetStateProperty.all(
                   Colors.black.withOpacity(0.1),
                 ),
               ),
@@ -126,7 +126,7 @@ class Alert {
           actions: <Widget>[
             TextButton(
               style: ButtonStyle(
-                overlayColor: MaterialStateProperty.all(
+                overlayColor: WidgetStateProperty.all(
                   Colors.black.withOpacity(0.1),
                 ),
               ),
