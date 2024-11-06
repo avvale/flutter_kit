@@ -30,6 +30,7 @@ class GQLClient extends _$GQLClient {
     Policies? gqlPolicies,
     String? authTokenPrefix,
     Map<String, dynamic>? headers,
+    Duration maxRequestTime = const Duration(seconds: 30),
   }) {
     if (state.isInitialized) {
       return;
@@ -52,14 +53,14 @@ class GQLClient extends _$GQLClient {
       apiUrl: apiUrl,
       authTokenPrefix: authTokenPrefix,
       gqlClientBasicAuth: GraphQLClient(
-        queryRequestTimeout: const Duration(seconds: 30),
+        queryRequestTimeout: maxRequestTime,
         link: AuthLink(getToken: () => basicAuthToken).concat(
           HttpLink('$apiUrl/graphql'),
         ),
         cache: GraphQLCache(),
       ),
       gqlClient: GraphQLClient(
-        queryRequestTimeout: const Duration(seconds: 30),
+        queryRequestTimeout: maxRequestTime,
         link: HttpLink('$apiUrl/graphql'),
         cache: GraphQLCache(),
         defaultPolicies: DefaultPolicies(
@@ -68,6 +69,7 @@ class GQLClient extends _$GQLClient {
         ),
       ),
       headers: headers,
+      maxRequestTime: maxRequestTime,
     );
   }
 
@@ -85,7 +87,7 @@ class GQLClient extends _$GQLClient {
     if (existsNotEmpty(token)) {
       state = state.copyWith(
         gqlClient: GraphQLClient(
-          queryRequestTimeout: const Duration(seconds: 30),
+          queryRequestTimeout: state.maxRequestTime,
           link: AuthLink(
             getToken: () => '${state.authTokenPrefix} $token',
           ).concat(
@@ -104,7 +106,7 @@ class GQLClient extends _$GQLClient {
     } else {
       state = state.copyWith(
         gqlClient: GraphQLClient(
-          queryRequestTimeout: const Duration(seconds: 30),
+          queryRequestTimeout: state.maxRequestTime,
           link: _baseHttpLink(
             headers: {
               'X-Timezone': timezone,

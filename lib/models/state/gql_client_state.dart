@@ -7,6 +7,7 @@ class FkGQLClientState {
   final String? apiUrl;
   final String? authTokenPrefix;
   final Map<String, dynamic>? headers;
+  final Duration maxRequestTime;
 
   const FkGQLClientState({
     this.isInitialized = false,
@@ -15,6 +16,7 @@ class FkGQLClientState {
     this.apiUrl,
     this.authTokenPrefix,
     this.headers,
+    this.maxRequestTime = const Duration(seconds: 30),
   });
 
   FkGQLClientState copyWith({
@@ -24,6 +26,7 @@ class FkGQLClientState {
     String? apiUrl,
     String? authTokenPrefix,
     Map<String, dynamic>? headers,
+    Duration? maxRequestTime,
   }) {
     return FkGQLClientState(
       isInitialized: isInitialized ?? this.isInitialized,
@@ -32,6 +35,7 @@ class FkGQLClientState {
       apiUrl: apiUrl ?? this.apiUrl,
       authTokenPrefix: authTokenPrefix ?? this.authTokenPrefix,
       headers: headers ?? this.headers,
+      maxRequestTime: maxRequestTime ?? this.maxRequestTime,
     );
   }
 }
