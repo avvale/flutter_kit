@@ -126,6 +126,7 @@ class _NetworkWrapper<T> extends ConsumerWidget {
   final T? authEndpoint;
   final String authTokenPrefix;
   final Map<String, dynamic>? headers;
+  final Duration maxRequestTime;
 
   const _NetworkWrapper({
     super.key,
@@ -138,6 +139,7 @@ class _NetworkWrapper<T> extends ConsumerWidget {
     required this.authEndpoint,
     required this.authTokenPrefix,
     required this.headers,
+    required this.maxRequestTime,
   });
 
   @override
@@ -158,6 +160,7 @@ class _NetworkWrapper<T> extends ConsumerWidget {
               gqlPolicies: gqlPolicies,
               authTokenPrefix: authTokenPrefix,
               headers: headers,
+              maxRequestTime: maxRequestTime,
             );
           },
         );
@@ -378,6 +381,9 @@ void fkRunApp<T>({
   /// required.
   List<Locale>? supportedLocales,
 
+  // Maximum time for a request to be completed
+  Duration maxRequestTime = const Duration(seconds: 30),
+
   /// The supported locales. If localization is used, this parameter is
   /// required.
   void Function(WidgetRef)? eagerlyInitializeProviders,
@@ -447,6 +453,7 @@ void fkRunApp<T>({
             apiMappedErrorCodes: apiMappedErrorCodes,
             authTokenPrefix: authTokenPrefix,
             headers: headers,
+            maxRequestTime: maxRequestTime,
             child: _AuthWrapper(
               authMode: authMode,
               child: _AppWrapper(
