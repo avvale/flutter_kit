@@ -74,7 +74,14 @@ class GQLClient extends _$GQLClient {
   }
 
   Future<void> setToken() async {
-    final String timezone = await FlutterTimezone.getLocalTimezone();
+    String timezone = '';
+
+    try {
+      timezone = await FlutterTimezone.getLocalTimezone();
+    } catch (e) {
+      Debugger.log('Error getting timezone', e);
+    }
+
     final String? lang = ref.read(l10nProvider).currentLocale?.languageCode;
     final String token = ref.read(authProvider).accessToken;
 

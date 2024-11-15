@@ -142,46 +142,16 @@ class Network extends _$Network {
 
             final FkAuthMode authMode = ref.read(authProvider).authMode;
 
-            switch (authMode) {
-              case FkDisabledAuthMode():
-                break;
-              case FkManualAuthMode():
-                if (existsNotEmpty(ref.read(authProvider).refreshToken) &&
-                    await ref.read(authProvider.notifier).login(
-                          endpoint: state.authEndpoint,
-                          useRefreshToken: true,
-                        )) {
-                  // Retry asynchonously after login to allow gql listeners to refresh
-                  return Future.delayed(
-                    Duration.zero,
-                    () => query(
-                      endpoint: endpoint,
-                      params: params,
-                      isRetry: true,
-                    ),
-                  );
-                }
-                break;
-              case FkAutoAuthMode():
-                if (existsNotEmpty(ref.read(authProvider).refreshToken) &&
-                    await ref.read(authProvider.notifier).login(
-                          endpoint: state.authEndpoint,
-                          useRefreshToken: true,
-                        )) {
-                  // Retry asynchonously after login to allow gql listeners to refresh
-                  return Future.delayed(
-                    Duration.zero,
-                    () => query(
-                      endpoint: endpoint,
-                      params: params,
-                      isRetry: true,
-                    ),
-                  );
-                } else {
-                  if (await ref.read(authProvider.notifier).login(
-                        endpoint: state.authEndpoint,
-                        authMode: authMode,
-                      )) {
+            try {
+              switch (authMode) {
+                case FkDisabledAuthMode():
+                  break;
+                case FkManualAuthMode():
+                  if (existsNotEmpty(ref.read(authProvider).refreshToken) &&
+                      await ref.read(authProvider.notifier).login(
+                            endpoint: state.authEndpoint,
+                            useRefreshToken: true,
+                          )) {
                     // Retry asynchonously after login to allow gql listeners to refresh
                     return Future.delayed(
                       Duration.zero,
@@ -192,10 +162,44 @@ class Network extends _$Network {
                       ),
                     );
                   }
-                }
-                break;
-              default:
-                break;
+                  break;
+                case FkAutoAuthMode():
+                  if (existsNotEmpty(ref.read(authProvider).refreshToken) &&
+                      await ref.read(authProvider.notifier).login(
+                            endpoint: state.authEndpoint,
+                            useRefreshToken: true,
+                          )) {
+                    // Retry asynchonously after login to allow gql listeners to refresh
+                    return Future.delayed(
+                      Duration.zero,
+                      () => query(
+                        endpoint: endpoint,
+                        params: params,
+                        isRetry: true,
+                      ),
+                    );
+                  } else {
+                    if (await ref.read(authProvider.notifier).login(
+                          endpoint: state.authEndpoint,
+                          authMode: authMode,
+                        )) {
+                      // Retry asynchonously after login to allow gql listeners to refresh
+                      return Future.delayed(
+                        Duration.zero,
+                        () => query(
+                          endpoint: endpoint,
+                          params: params,
+                          isRetry: true,
+                        ),
+                      );
+                    }
+                  }
+                  break;
+                default:
+                  break;
+              }
+            } catch (e) {
+              Debugger.log('Error reloading token', e);
             }
           }
         }
@@ -239,9 +243,9 @@ class Network extends _$Network {
       throw Exception('No GraphQL client found');
     }
 
-    switch (requestType) {
-      case FkRequestType.query:
-        try {
+    try {
+      switch (requestType) {
+        case FkRequestType.query:
           final res = await gqlClient.query(
             QueryOptions(
               document: gql(request),
@@ -258,13 +262,7 @@ class Network extends _$Network {
             res: res,
             isRetry: isRetry,
           );
-        } catch (e) {
-          Debugger.log('RETHROW GQL QUERY ERROR', e);
-
-          rethrow;
-        }
-      case FkRequestType.mutation:
-        try {
+        case FkRequestType.mutation:
           final res = await gqlClient.mutate(
             MutationOptions(
               document: gql(request),
@@ -281,11 +279,11 @@ class Network extends _$Network {
             res: res,
             isRetry: isRetry,
           );
-        } catch (e) {
-          Debugger.log('RETHROW GQL MUTATION ERROR', e);
+      }
+    } catch (e) {
+      Debugger.log('RETHROW GQL QUERY ERROR', e);
 
-          rethrow;
-        }
+      rethrow;
     }
   }
 

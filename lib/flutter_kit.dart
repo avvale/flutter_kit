@@ -10,6 +10,7 @@ import 'package:flutter_kit/providers/gql_client_provider.dart';
 import 'package:flutter_kit/providers/l10n_provider.dart';
 import 'package:flutter_kit/providers/network_provider.dart';
 import 'package:flutter_kit/providers/router_provider.dart';
+import 'package:flutter_kit/utils/debugger.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:flutter_kit/widgets/space.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -398,7 +399,13 @@ void fkRunApp<T>({
 
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
-  if (useLocalization) await EasyLocalization.ensureInitialized();
+  if (useLocalization) {
+    try {
+      await EasyLocalization.ensureInitialized();
+    } catch (e) {
+      Debugger.log('Error initializing localization', e);
+    }
+  }
 
   if (splashDuration != null) {
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -422,7 +429,11 @@ void fkRunApp<T>({
         ),
   );
 
-  await SystemChrome.setPreferredOrientations(orientations);
+  try {
+    await SystemChrome.setPreferredOrientations(orientations);
+  } catch (e) {
+    Debugger.log('Error setting preferred orientations', e);
+  }
 
   /// We wait a few milliseconds to remove the splash screen so that the
   /// orientation is fully applied before removing it.

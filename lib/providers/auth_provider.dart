@@ -58,8 +58,12 @@ class Auth extends _$Auth {
     bool remember = true,
   }) async {
     if (remember) {
-      await _secureStorage.write(key: accessTokenKey, value: accessToken);
-      await _secureStorage.write(key: refreshTokenKey, value: refreshToken);
+      try {
+        await _secureStorage.write(key: accessTokenKey, value: accessToken);
+        await _secureStorage.write(key: refreshTokenKey, value: refreshToken);
+      } catch (e) {
+        Debugger.log('Error saving credentials', e);
+      }
     }
 
     state = state.copyWith(
@@ -189,8 +193,12 @@ class Auth extends _$Auth {
   Future<void> logout() async {
     Debugger.log('Logout');
 
-    await _secureStorage.delete(key: accessTokenKey);
-    await _secureStorage.delete(key: refreshTokenKey);
+    try {
+      await _secureStorage.delete(key: accessTokenKey);
+      await _secureStorage.delete(key: refreshTokenKey);
+    } catch (e) {
+      Debugger.log('Error deleting credentials', e);
+    }
 
     state = state.copyWith(accessToken: '', refreshToken: '');
   }

@@ -43,7 +43,12 @@ class L10n extends _$L10n {
         : (context.fallbackLocale ?? context.deviceLocale);
 
     // Se actualiza el idioma
-    await context.setLocale(locale);
+    try {
+      await context.setLocale(locale);
+    } catch (e) {
+      Debugger.log('Error changing app language', e);
+    }
+
     state = state.copyWith(currentLocale: locale);
   }
 }

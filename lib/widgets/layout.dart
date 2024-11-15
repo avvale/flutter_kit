@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_kit/utils/debugger.dart';
 import 'package:flutter_kit/utils/helpers.dart';
 import 'package:go_router/go_router.dart';
 
@@ -21,8 +22,12 @@ class _PopScopeWrapper extends StatelessWidget {
       onPopInvokedWithResult: (bool didPop, result) async {
         if (didPop) return;
 
-        if (await onWillPop!() && context.mounted) {
-          context.pop();
+        try {
+          if (await onWillPop!() && context.mounted) {
+            context.pop();
+          }
+        } catch (e) {
+          Debugger.log('Error onPopInvokedWithResult', e);
         }
       },
       child: child,
