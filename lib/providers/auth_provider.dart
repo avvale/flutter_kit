@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_kit/models/auth_mode.dart';
 import 'package:flutter_kit/models/state/auth_state.dart';
@@ -11,7 +12,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'auth_provider.g.dart';
 
 const _initialState = FkAuthState();
-const _secureStorage = FlutterSecureStorage();
+const _secureStorage = FlutterSecureStorage(
+  aOptions: AndroidOptions(
+    encryptedSharedPreferences: true,
+  ),
+);
 
 @Riverpod(keepAlive: true)
 class Auth extends _$Auth {
@@ -26,19 +31,24 @@ class Auth extends _$Auth {
     if (state.isInitialized) {
       return;
     }
+    try {
+      final secureValues = await _secureStorage.readAll();
 
-    final secureValues = await _secureStorage.readAll();
-
-    if (secureValues[accessTokenKey] != null &&
-        secureValues[refreshTokenKey] != null) {
-      state = state.copyWith(
-        isInitialized: true,
-        authMode: authMode,
-        accessToken: secureValues[accessTokenKey],
-        refreshToken: secureValues[refreshTokenKey],
-      );
-    } else {
-      state = state.copyWith(isInitialized: true, authMode: authMode);
+      if (secureValues[accessTokenKey] != null &&
+          secureValues[refreshTokenKey] != null) {
+        state = state.copyWith(
+          isInitialized: true,
+          authMode: authMode,
+          accessToken: secureValues[accessTokenKey],
+          refreshToken: secureValues[refreshTokenKey],
+        );
+      } else {
+        state = state.copyWith(isInitialized: true, authMode: authMode);
+      }
+    } catch (e) {
+      if (e is PlatformException && e.code == 'BadPaddingException') {
+        await _secureStorage.deleteAll();
+      }
     }
   }
 
