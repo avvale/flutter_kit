@@ -6,17 +6,12 @@ import 'package:flutter_kit/providers/network_provider.dart';
 import 'package:flutter_kit/src/utils/consts.dart';
 import 'package:flutter_kit/utils/debugger.dart';
 import 'package:flutter_kit/utils/toast.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'auth_provider.g.dart';
 
 const _initialState = FkAuthState();
-const _secureStorage = FlutterSecureStorage(
-  aOptions: AndroidOptions(
-    encryptedSharedPreferences: true,
-  ),
-);
 
 @Riverpod(keepAlive: true)
 class Auth extends _$Auth {
@@ -31,23 +26,25 @@ class Auth extends _$Auth {
     if (state.isInitialized) {
       return;
     }
-    try {
-      final secureValues = await _secureStorage.readAll();
 
-      if (secureValues[accessTokenKey] != null &&
-          secureValues[refreshTokenKey] != null) {
+    try {
+      final secureStorage = await SharedPreferences.getInstance();
+      final accessToken = secureStorage.getString(accessTokenKey);
+      final refreshToken = secureStorage.getString(refreshTokenKey);
+
+      if (accessToken != null && refreshToken != null) {
         state = state.copyWith(
           isInitialized: true,
           authMode: authMode,
-          accessToken: secureValues[accessTokenKey],
-          refreshToken: secureValues[refreshTokenKey],
+          accessToken: accessToken,
+          refreshToken: refreshToken,
         );
       } else {
         state = state.copyWith(isInitialized: true, authMode: authMode);
       }
     } catch (e) {
       if (e is PlatformException && e.code == 'BadPaddingException') {
-        await _secureStorage.deleteAll();
+        (await SharedPreferences.getInstance()).clear();
       }
     }
   }
@@ -59,8 +56,9 @@ class Auth extends _$Auth {
   }) async {
     if (remember) {
       try {
-        await _secureStorage.write(key: accessTokenKey, value: accessToken);
-        await _secureStorage.write(key: refreshTokenKey, value: refreshToken);
+        final secureStorage = await SharedPreferences.getInstance();
+        await secureStorage.setString(accessTokenKey, accessToken);
+        await secureStorage.setString(refreshTokenKey, refreshToken);
       } catch (e) {
         Debugger.log('Error saving credentials', e);
       }
@@ -194,8 +192,9 @@ class Auth extends _$Auth {
     Debugger.log('Logout');
 
     try {
-      await _secureStorage.delete(key: accessTokenKey);
-      await _secureStorage.delete(key: refreshTokenKey);
+      final secureStorage = await SharedPreferences.getInstance();
+      await secureStorage.remove(accessTokenKey);
+      await secureStorage.remove(refreshTokenKey);
     } catch (e) {
       Debugger.log('Error deleting credentials', e);
     }
